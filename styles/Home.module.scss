@@ -1,0 +1,25 @@
+.canvas {
+  width: 1000px;
+  height: 600px;
+  border: solid 1px;
+  box-shadow: 5px 5px 5px 2px #888888;
+}
+// @media (max-width: 600px) {
+//   .grid {
+//     width: 100%;
+//     flex-direction: column;
+//   }
+// }
+
+// @media (prefers-color-scheme: dark) {
+//   .card,
+//   .footer {
+//     border-color: #222;
+//   }
+//   .code {
+//     background: #111;
+//   }
+//   .logo img {
+//     filter: invert(1);
+//   }
+// }
