@@ -72,7 +72,7 @@ export default class Container {
       .map(d => d[0]);
     const orderedComponents = componentOrder.map(componentName => this._componentMap.get(componentName));
     this._containerElement?.getContext("2d")?.clearRect(0, 0, this._width, this._height);
-    console.log("rerender", orderedComponents);
+    // console.log("rerender", orderedComponents);
     orderedComponents.forEach(component => component?.render());
   }
 

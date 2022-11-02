@@ -3,7 +3,7 @@ import { Container, Instrument, Interactor } from "../interaction";
 import { InstrumentProps } from "../interaction";
 import { Component } from "../ui";
 import { LayoutConstraints } from "../ui/component";
-import { initializeCreateTimeboxInteractor } from "./interactors";
+import { initializeCreateTimeboxInteractor, initializePanAndResizeTimeboxInteractor } from "./interactors";
 import { initializeTimeboxComponent, initializeAngularComponent, initializeAngularPreviewComponent } from "./components";
 import { TimeboxComponent, AngularPreviewComponent, AngularComponent } from "./components";
 // import initializePanAndResizeTimeboxInteractor from "./interactors/panAndResizeTimebox";
@@ -71,6 +71,7 @@ export default function appendUIController(
       instrument.setState("activeComponentName", where.componentName);
       instrument.setState("activeComponentWhere", where.where);
       instrument.setState("activeComponent", container.getComponent(where.componentName) || null);
+      console.log(where.where);
     } else {
       instrument.setState("activeComponentName", null);
       instrument.setState("activeComponentWhere", null);
@@ -85,13 +86,10 @@ export default function appendUIController(
 
   // timebox
   const createTimeboxQueryInteractor = initializeCreateTimeboxInteractor();
-  // createTimeboxQueryInteractor.addEventListener("createend", setQueriersState)
   instrument.addInteractor(createTimeboxQueryInteractor);
-  // instrument.setPreEffect(() => { console.log("timebox"); });
 
-  // const modifyTimeboxInteractor = initializePanAndResizeTimeboxInteractor(queryLayer);
-  // modifyTimeboxInteractor.addEventListener("modifyend", setQueriersState)
-  // instrument.addInteractor(modifyTimeboxInteractor);
+  const modifyTimeboxInteractor = initializePanAndResizeTimeboxInteractor();
+  instrument.addInteractor(modifyTimeboxInteractor);
 
   // // angular
   // const createAngularQueryInteractor = initializeCreateAngularInteractor(queryLayer);
