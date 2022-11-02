@@ -1,54 +1,64 @@
 // import { Geometry } from "./component";
-import flattenJS from "@flatten-js/core";
-import d3Shape from "d3-shape";
-import {Point, Line, Rect, Polygon, Circle, Arc, Geometry} from "./geometry"
+// import flattenJS from "@flatten-js/core";
+// import d3Shape from "d3-shape";
+import { Point, Line, Rect, Polygon, Circle, Arc, Geometry } from "./geometry"
 
 
 // type RendererType = "line" | "arc" | "polygon";
-type Style = {
-  strokeStyle: string;
-  fillStyle: string;
-  lineWidth: number;
+export type Style = {
+  stroke: string;
+  fill: string;
+  strokeWidth: number;
 };
-type StyleMap = {
-  normal: Style;
-  highlight: Style;
-}
+// export type StyleMap = {
+//   [styleName: string]: Style;
+// }
 
 // it is better to use interface rather than high depend on flatten-js
 // interface Segement {}
 // interface Arc {}
 // interface Polygon {}
 
-const defaultStyleMap = {
-    normal: {
-      strokeStyle: "black",
-      fillStyle: "rgba(0, 0, 0, 0.5)",
-      lineWidth: 1,
-    },
-    highlight: {
-      strokeStyle: "red",
-      fillStyle: "rgba(0, 0, 0, 0.5)",
-      lineWidth: 3,
-    },
-  }
+// const defaultStyleMap = {
+//     normal: {
+//       strokeStyle: "black",
+//       fillStyle: "rgba(0, 0, 0, 0.5)",
+//       lineWidth: 1,
+//     },
+//     highlight: {
+//       strokeStyle: "red",
+//       fillStyle: "rgba(0, 0, 0, 0.5)",
+//       lineWidth: 3,
+//     },
+//   }
+const DEFUALT_STYLE: Style = {
+  stroke: "black",
+  fill: "rgba(0, 0, 0, 0)",
+  strokeWidth: 1,
+};
 
 export default class Renderer {
   // private static line = d3Shape.line();
-  private _context: CanvasRenderingContext2D;
-  private _styleMap: StyleMap;
-  constructor(context: CanvasRenderingContext2D, stylemap: StyleMap = defaultStyleMap) {
-    this._context = context;
-    this._styleMap = stylemap;
-  }
-  render(geometry: Geometry, highlight: boolean =  false) {
-    const style = highlight ? this._styleMap.highlight : this._styleMap.normal;
-    switch(geometry.type){
-      case "line": Renderer.renderLine(this._context, geometry, style.lineWidth, style.strokeStyle); break;
-      case "rect": Renderer.renderRect(this._context, geometry, style.lineWidth, style.strokeStyle, style.fillStyle); break;
-      case "polygon": Renderer.renderPolygon(this._context, geometry, style.lineWidth, style.strokeStyle, style.fillStyle); break;
-      case "circle": Renderer.renderCircle(this._context, geometry, style.lineWidth, style.strokeStyle, style.fillStyle); break;
-      case "arc": Renderer.renderArc(this._context, geometry, style.lineWidth, style.strokeStyle, style.fillStyle); break;
+  // private _context: CanvasRenderingContext2D;
+  // private _defaultStyle: Style;
+  // private _styleMap: StyleMap;
+
+  // constructor(context: CanvasRenderingContext2D,
+  //   { defaultStyle = DEFUALT_STYLE, styleMap = {} }: { defaultStyle: Style, styleMap: StyleMap }) {
+  //   this._context = context;
+  //   this._defaultStyle = defaultStyle;
+  //   this._styleMap = styleMap
+  // }
+
+  static render(context: CanvasRenderingContext2D, geometry: Geometry, style?: Partial<Style>) {
+    // const _style = (typeof style === "string" ? this._styleMap[style] : style) || this._defaultStyle;
+    const { stroke = DEFUALT_STYLE.stroke, fill = DEFUALT_STYLE.fill, strokeWidth = DEFUALT_STYLE.strokeWidth } = style || DEFUALT_STYLE;
+    switch (geometry.type) {
+      case "line": Renderer.renderLine(context, geometry, strokeWidth, stroke); break;
+      case "rect": Renderer.renderRect(context, geometry, strokeWidth, stroke, fill); break;
+      case "polygon": Renderer.renderPolygon(context, geometry, strokeWidth, stroke, fill); break;
+      case "circle": Renderer.renderCircle(context, geometry, strokeWidth, stroke, fill); break;
+      case "arc": Renderer.renderArc(context, geometry, strokeWidth, stroke, fill); break;
     }
   }
   static renderLine(context: CanvasRenderingContext2D, line: Line, lineWidth: number, strokeStyle: string) {
@@ -72,7 +82,7 @@ export default class Renderer {
     // context.restore();
   }
   static renderPolygon(context: CanvasRenderingContext2D, polygon: Polygon, lineWidth: number, strokeStyle: string, fillStyle: string) {
-    if(polygon.points.length <= 0 ) return;
+    if (polygon.points.length <= 0) return;
     // context.save();
     context.lineWidth = lineWidth;
     context.strokeStyle = strokeStyle;

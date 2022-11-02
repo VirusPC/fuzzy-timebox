@@ -1,7 +1,7 @@
 import {Point, Line, Rect, Polygon, Circle, Arc, Geometry} from "./geometry"
 import {polygonContains} from "d3-polygon";
 export default class IntersectionTester {
-  contains(geometry: Geometry, x: number, y: number): boolean {
+  static contains(geometry: Geometry, x: number, y: number): boolean {
     switch(geometry.type){
       case "point": return IntersectionTester.containsPoint(geometry, x, y);
       case "line": return IntersectionTester.containsLine(geometry, x, y);

@@ -10,7 +10,41 @@ type TimeboxLayoutConstraints = {
 export type TimeboxConstraintEffect = ConstraintEffect<"timebox", TimeboxGeometries, TimeboxLayoutConstraints>;
 export type TimeboxComponent = Component<"timebox", TimeboxGeometries, TimeboxLayoutConstraints>;
 
-const defaultTimeboxConstraints: TimeboxLayoutConstraints = {x: 0, y:0, width: 0, height: 0};
+const DEFAULT_TIMEBOX_CONSTRAINTS: TimeboxLayoutConstraints = {x: 0, y:0, width: 0, height: 0};
+//     normal: {
+//       strokeStyle: "black",
+//       fillStyle: "rgba(0, 0, 0, 0.5)",
+//       lineWidth: 1,
+//     },
+//     highlight: {
+//       strokeStyle: "red",
+//       fillStyle: "rgba(0, 0, 0, 0.5)",
+//       lineWidth: 3,
+//     },
+const NORMAL_BORDER_RECT_STYLEMAP = {
+  fill: "rgba(0, 0, 0, 0)",
+  strokeWidth: 0
+}
+const HIGHLIGHT_BORDER_RECT_STYLEMAP = {
+  fill: "rgba(0, 0, 0, 0)",
+  strokeWidth: 0
+}
+const TIMEBOX_STYLEMAPS = {
+  "normal": {
+    "centerRect": {
+      stroke: "black",
+      fill: "rgba(0, 0, 0, 0.5)",
+      strokeWidth: 1, 
+    }
+  },
+  "highlight": {
+    "centerRect": {
+      stroke: "black",
+      fill: "rgba(0, 0, 0, 0.5)",
+      strokeWidth: 3, 
+    }
+  }
+};
 
 const timeboxConstraintEffect: TimeboxConstraintEffect = function (component) {
   const { x, y, width, height } = component.getLayoutConstraints(); 
@@ -24,7 +58,9 @@ const timeboxConstraintEffect: TimeboxConstraintEffect = function (component) {
 }
 
 export default function initializeTimeboxComponent(): TimeboxComponent {
-  const timeboxComponent: TimeboxComponent = new Component("timebox", defaultTimeboxConstraints);
+  const timeboxComponent: TimeboxComponent = new Component("timebox", DEFAULT_TIMEBOX_CONSTRAINTS, {
+    styleMaps: TIMEBOX_STYLEMAPS
+  });
   timeboxComponent.addGeometry("centerRect", { type: "rect", x: 0, y: 0, width: 0, height: 0 });
   timeboxComponent.addGeometry("leftRect", { type: "rect", x: 0, y: 0, width: 0, height: 0 });
   timeboxComponent.addGeometry("bottomRect", { type: "rect", x: 0, y: 0, width: 0, height: 0 });
