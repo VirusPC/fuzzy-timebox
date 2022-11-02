@@ -1,114 +1,101 @@
-import Instrument from "./instrument";
-import Layer from "./layer";
+import { Component } from "../ui";
+import { LayoutConstraints } from "../ui/component";
+// import Instrument from "./instrument";
+// import Layer from "./layer";
+type GeneralComponent = Component<string, string, {}>;
 export default class Container {
-  private _container: HTMLElement;
+  private _containerElement: HTMLCanvasElement;
   private _width: number;
   private _height: number;
-  private _layers: Layer[];
-  private _nextZIndex: number = -1;
-  private get nextZIndex(){
-    return ++ this._nextZIndex;
-  }
-  // private instruments: Instrument[];
+  private _componentMap: Map<string, GeneralComponent>;
+  private _componentZIndexMap: Map<string, number>;
+  private _maxZIndex: number;
 
-  constructor(container: HTMLElement, width: number, height: number){
-    this._container = container;
+  constructor(containerElement: HTMLCanvasElement, width: number, height: number) {
+    this._containerElement = containerElement;
     this._width = width;
     this._height = height;
-    this._layers = [];
-    // this.instruments = [];
-    // this.addEventListeners();
+    this._containerElement.setAttribute("width", `${width}px`);
+    this._containerElement.setAttribute("height", `${height}px`);
+    this._componentMap = new Map();
+    this._componentZIndexMap = new Map();
+    this._maxZIndex = -1;
   }
-  get width(){
+  set width(width: number) {
+    this._containerElement.setAttribute("width", `${width}px`);
+    this._width = width;
+  }
+  set height(height: number) {
+    this._containerElement.setAttribute("height", `${height}px`);
+    this._height = height;
+  }
+  get width() {
     return this._width;
   }
-  get height(){
+  get height() {
     return this._height;
   }
-  getGraphic(){
-    return this._container;
+
+  // addComponent
+
+  getContainerElement() {
+    return this._containerElement;
   }
 
-  pushLayer(this: Container, layer: string | Layer){
-    // let returnLayer = layer;
-    let self = this;
-    if(typeof layer === "string"){
-      layer = new Layer(layer, self, this._width, this._height)
-      this._layers.push(layer);
-    }else {
-      this._layers.push(layer);
+  getContext() {
+    return this._containerElement.getContext("2d");
+  }
+
+  getComponent(componentName: string) {
+    return this._componentMap.get(componentName);
+  }
+
+  pushComponent(componentName: string, component: GeneralComponent) {
+    component.setContext(this._containerElement.getContext("2d")!);
+    this._componentMap.set(componentName, component);
+    this._maxZIndex++;
+    this._componentZIndexMap.set(componentName, this._maxZIndex);
+  }
+
+  removeComponent(componentName: string) {
+    this._componentMap.delete(componentName);
+    this._componentZIndexMap.delete(componentName);
+    this._maxZIndex = Math.max(...Array.from(this._componentZIndexMap.values()));
+  }
+
+  reRender() {
+    const componentOrder = Array
+      .from(this._componentZIndexMap.entries())
+      .sort((a, b) => {
+        return a[1] - b[1]; // zindex 升序 
+      })
+      .map(d => d[0]);
+    const orderedComponents = componentOrder.map(componentName => this._componentMap.get(componentName));
+    this._containerElement?.getContext("2d")?.clearRect(0, 0, this._width, this._height);
+    console.log("rerender", orderedComponents);
+    orderedComponents.forEach(component => component?.render());
+  }
+
+  onWhere(x: number, y: number): { componentName: string; where: string } | null {
+    const componentOrder = Array
+      .from(this._componentZIndexMap.entries())
+      .sort((a, b) => {
+        return a[1] - b[1]; // zindex 升序 
+      })
+      .map(d => d[0]);
+    const orderedComponents =
+      componentOrder
+        .map(componentName => this._componentMap.get(componentName))
+        .filter(component => component !== undefined) as GeneralComponent[];
+    for (const componentName of componentOrder) {
+      const component = this._componentMap.get(componentName);
+      if (!component) continue;
+      const where = component.onWhere(x, y);
+      if (where !== null) return { componentName, where };
     }
-    layer.zIndex = this.nextZIndex;
-    return layer;
+    this._containerElement?.getContext("2d")?.clearRect(0, 0, this._width, this._height);
+    orderedComponents.forEach(component => component?.render());
+    return null;
   }
-  getLayer(name: string){
-    return this._layers.find(layer => layer.name === name);
-  }
-  clearLayer(layer?: string|string[]) { //|Layer){
-    if(!layer) {
-      this._layers.forEach(layer => layer.clear());
-    } else if(typeof layer === "string") {
-      this.getLayer(layer)?.clear();
-    } else if(Array.isArray(layer)) {
-      layer.forEach(layerName => this.getLayer(layerName)?.clear());
-    }
-    // else if(layer instanceof Layer){
-    //   layer.clear();
-    // }
-  }
-
-  // reRenderLayer(layers: string|string[] = []){
-  //   if(!Array.isArray(layers)){
-  //     layers = [layers];
-  //   }
-  //   layers.forEach(layer => {
-  //     this.getLayer(layer)!.render();
-  //   })
-  // }
-  
-
-    // attachInstrument(instrument: Instrument){
-    // this.instruments.push(instrument);
-  // }
-  // setLayerOrder(name: string, newOrder: number){
-  //   const oldOrder = this._layers.findIndex(layer => layer.name === name);
-  //   newOrder = Math.max(0, Math.min(this._layers.length - 1, newOrder));
-  //   if(oldOrder === -1) return false;
-  //   if(oldOrder === newOrder) {
-  //     return true;
-  //   } else if (oldOrder < newOrder){
-  //     const layer = this._layers[oldOrder];
-  //     for(let i=oldOrder+1; i<= newOrder; ++i){
-  //       this._layers[i-1] = this._layers[i];
-  //     }
-  //     this._layers[newOrder] = layer;
-  //   } else {
-  //     const layer = this._layers[oldOrder];
-  //     for(let i=newOrder+1; i<= oldOrder; ++i){
-  //       this._layers[i] = this._layers[i-1];
-  //     }
-  //     this._layers[newOrder] = layer;
-  //   }
-  // };
-  // raiseLayer(name: string){
-  //   this.setLayerOrder(name, this._layers.length - 1);
-  // }
-  // lowerLayer(name: string){
-  //   this.setLayerOrder(name, 0);
-  // }
-
-  // private addEventListeners(events: (keyof HTMLElementEventMap)[] = ["mousedown", "mouseup", "mousemove", "mouseover", "mouseout", "mouseenter", "mouseleave"]){
-  //   events.forEach(eventName => {
-  //     this._container.addEventListener(eventName, (event: Event) => this.dispatch(event));
-  //   });
-  // }
-
-  // private dispatch(event: Event){
-  //   let stopPropogation: boolean | undefined = false;
-  //   for(let i=this._layers.length-1; (i >= 0) && (!stopPropogation); --i){
-  //     let layer = this._layers[i];
-  //     stopPropogation = layer.dispatch(event);
-  //   }
-  // }
 
 }

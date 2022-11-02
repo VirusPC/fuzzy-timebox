@@ -18,12 +18,12 @@ const layerStyle = {
 
 
 const Canvas: FC<{}> = () => {
-  const uiContainerRef = useRef<HTMLDivElement>(null);
+  const uiContainerRef = useRef<HTMLCanvasElement>(null);
     useLayoutEffect(() => {
       const uiContainer = uiContainerRef.current;
       if (uiContainer === null) return;
       // if (kdTree === null) return;
-      const {setQueryMode, deleteQuerier, reRenderAll} = appendUIController(uiContainer, layerStyle.width, layerStyle.height, "timebox", 
+      const {setQueryMode } = appendUIController(uiContainer, layerStyle.width, layerStyle.height, "timebox", 
         (queriers: QueryComponent[]) => {
           console.log(queriers);
           // console.warn("dispatch deleteQuerier.....", queriers);
@@ -34,7 +34,7 @@ const Canvas: FC<{}> = () => {
       // dispatch(setReRenderAll(reRenderAll));
     }, []);
 
-  return (<div ref={uiContainerRef}></div>);
+  return (<canvas ref={uiContainerRef}></canvas>);
 }
 
 export default memo(Canvas);

@@ -8,7 +8,7 @@ export type InstrumentProps<S extends State> = { container: Container, instrumen
 export default class Instrument<S extends State> {
   private _interactors: Interactor<InstrumentProps<S>>[];
   private _state: S;
-  private _container: Container |  null;
+  private _container: Container | null;
   private _preEffect: ((event: Event, props: InstrumentProps<S>) => void) | null;
   private _postEffect: ((event: Event, props: InstrumentProps<S>) => void) | null;
   private _shouldStopNextDispatch;
@@ -40,24 +40,26 @@ export default class Instrument<S extends State> {
   setPostEffect(effect: (event: Event, props: InstrumentProps<S>) => void) {
     this._preEffect = effect;
   }
+  
   private dispatch(event: Event) {
-    if(this._container === null) {
+    if (this._container === null) {
       console.log("Please set container first!");
       return;
     }
     this._preEffect && this._preEffect(event, { container: this._container, instrument: this });
-    if(!this._shouldStopNextDispatch){
+    if (!this._shouldStopNextDispatch) {
       this._interactors.forEach(interactor => interactor.dispatch(event, { container: this._container!, instrument: this }));
     }
     this._shouldStopNextDispatch = false;
     this._postEffect && this._postEffect(event, { container: this._container, instrument: this });
   }
+
   private addEventListeners(events: (keyof HTMLElementEventMap)[] = ["mousedown", "mouseup", "mousemove", "mouseover", "mouseout", "mouseenter", "mouseleave", "wheel"]) {
-    if(!this._container) {
+    if (!this._container) {
       console.log("Please set container first!");
       return;
     }
-    const target = this._container.getGraphic();
+    const target = this._container.getContainerElement();
     events.forEach(eventName => {
       target.addEventListener(eventName, (event: Event) => {
         requestAnimationFrame(() => this.dispatch(event));

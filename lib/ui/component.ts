@@ -21,7 +21,7 @@ export type OptionalOptions = Partial<{
   styleMaps: { [styleMapName: string]: StyleMap },
 }>
 export type StyleMap = {
-  [styleName: string]: Style;
+  [styleName: string]: Partial<Style>;
 }
 
 
@@ -32,6 +32,7 @@ export default class Component<T extends string, G extends string, L extends Lay
   private _styleMaps: { [styleMapName: string]: StyleMap };
   private _layoutConstraints: L;
   private _type: T;
+  private _currentStyleMap: StyleMap;
   // private _RenderUtil: RenderUtil | null;
   // private _IntersectionTestUtil: IntersectionTestUtil | null;
   private _constraintEffects: Map<string, ConstraintEffect<T, G, L>>;
@@ -46,6 +47,7 @@ export default class Component<T extends string, G extends string, L extends Lay
     this._layoutConstraints = { ...defaultLayoutConstraints }; //Object.assign({}, defaultLayoutConstraints);
     this._styleMaps = styleMaps || {};
     this._constraintEffects = new Map();
+    this._currentStyleMap = {};
   }
   get type(): T {
     return this._type;
@@ -75,6 +77,10 @@ export default class Component<T extends string, G extends string, L extends Lay
   setStyleMaps(styleMaps: { [styleMapName: string]: StyleMap }) {
     this._styleMaps = styleMaps;
   }
+  setStyleMap(styleMap: StyleMap | string) {
+    const realStyleMap = typeof styleMap === "string" ? this._styleMaps[styleMap] : styleMap;
+    this._currentStyleMap = realStyleMap;
+  }
   addStyleMap(styleMapName: string, styleMap: StyleMap) {
     this._styleMaps[styleMapName] = styleMap;
   }
@@ -87,7 +93,8 @@ export default class Component<T extends string, G extends string, L extends Lay
       return;
     }
     const { styleMap, temporaryContext: context = this._context } = option;
-    const realStyleMap = !styleMap ? {} : typeof styleMap === "string" ? this._styleMaps[styleMap] : styleMap;
+    const realStyleMap = !styleMap ? this._currentStyleMap : typeof styleMap === "string" ? this._styleMaps[styleMap] : styleMap;
+    this._currentStyleMap = realStyleMap;
     for (let geometryName of Array.from(this._geometries.keys())) {
       if (this._isShow.get(geometryName)) {
         const geometry = this._geometries.get(geometryName);

@@ -1,4 +1,4 @@
-import { Component, ConstraintEffect } from "../../ui"
+import { Component, ConstraintEffect, StyleMap } from "../../ui"
 
 type TimeboxGeometries = "centerRect" | "topRect" | "rightRect" | "bottomRect" | "leftRect";
 type TimeboxLayoutConstraints = {
@@ -10,7 +10,7 @@ type TimeboxLayoutConstraints = {
 export type TimeboxConstraintEffect = ConstraintEffect<"timebox", TimeboxGeometries, TimeboxLayoutConstraints>;
 export type TimeboxComponent = Component<"timebox", TimeboxGeometries, TimeboxLayoutConstraints>;
 
-const DEFAULT_TIMEBOX_CONSTRAINTS: TimeboxLayoutConstraints = {x: 0, y:0, width: 0, height: 0};
+const DEFAULT_TIMEBOX_CONSTRAINTS: TimeboxLayoutConstraints = { x: 0, y: 0, width: 0, height: 0 };
 //     normal: {
 //       strokeStyle: "black",
 //       fillStyle: "rgba(0, 0, 0, 0.5)",
@@ -29,25 +29,35 @@ const HIGHLIGHT_BORDER_RECT_STYLEMAP = {
   fill: "rgba(0, 0, 0, 0)",
   strokeWidth: 0
 }
-const TIMEBOX_STYLEMAPS = {
+const TIMEBOX_STYLEMAPS: {
+  [styleMapName: string]: StyleMap;
+} = {
   "normal": {
     "centerRect": {
       stroke: "black",
       fill: "rgba(0, 0, 0, 0.5)",
-      strokeWidth: 1, 
-    }
+      strokeWidth: 1,
+    },
+    "topRect": NORMAL_BORDER_RECT_STYLEMAP,
+    "rightRect": NORMAL_BORDER_RECT_STYLEMAP,
+    "bottomRect": NORMAL_BORDER_RECT_STYLEMAP,
+    "leftRect": NORMAL_BORDER_RECT_STYLEMAP,
   },
   "highlight": {
     "centerRect": {
-      stroke: "black",
+      stroke: "red",
       fill: "rgba(0, 0, 0, 0.5)",
-      strokeWidth: 3, 
-    }
+      strokeWidth: 2,
+    },
+    "topRect": NORMAL_BORDER_RECT_STYLEMAP,
+    "rightRect": NORMAL_BORDER_RECT_STYLEMAP,
+    "bottomRect": NORMAL_BORDER_RECT_STYLEMAP,
+    "leftRect": NORMAL_BORDER_RECT_STYLEMAP,
   }
 };
 
 const timeboxConstraintEffect: TimeboxConstraintEffect = function (component) {
-  const { x, y, width, height } = component.getLayoutConstraints(); 
+  const { x, y, width, height } = component.getLayoutConstraints();
   const handleWidth = 20;
   const halfHandleWidth = handleWidth / 2;
   component.modifyGeometry("centerRect", { x, y, width, height });
