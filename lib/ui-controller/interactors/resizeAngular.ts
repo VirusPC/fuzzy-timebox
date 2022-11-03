@@ -59,7 +59,7 @@ export default function initializeResizeAngularInteractor() {
     const { container, instrument } = props;
     localWhere = instrument.getState("activeComponentWhere")!;
     activeComponent = instrument.getState("activeComponent") as AngularComponent;
-    activeComponent.setStyleMap("highlight");
+    activeComponent.setStyleMap("highlight-inner-arc");
     const { x1, x2, y, startAngle, endAngle } = activeComponent.getLayoutConstraints()!;
     switch (localWhere) {
       case "innerArc":
@@ -191,7 +191,7 @@ export default function initializeResizeAngularInteractor() {
     newStartAngle = Math.PI / 180 * newStartAngle;
     newEndAngle = Math.PI / 180 * newEndAngle;
     activeComponent!.setLayoutConstraints({ startAngle: newStartAngle, endAngle: newEndAngle });
-    activeComponent.setStyleMap("highlight");
+    activeComponent.setStyleMap("highlight-inner-arc");
     container.reRender();
     clearTimeout(timer);
     timer = setTimeout(() => {
