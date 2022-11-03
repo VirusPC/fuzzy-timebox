@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "antd": "^4.24.0",
     "d3-polygon": "^3.0.1",
     "mobx": "^6.6.2",
     "mobx-react": "^7.5.3",

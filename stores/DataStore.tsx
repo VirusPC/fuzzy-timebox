@@ -1,4 +1,4 @@
-import { observable } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 
 const isServer = typeof window === "undefined";
@@ -10,19 +10,20 @@ type SerializedStore = {
   content: string;
 };
 
-export class DataStore {
-  @observable title: string | undefined;
-
-  hydrate(serializedStore: SerializedStore) {
-    this.title = serializedStore.title != null ? serializedStore.title : "";
+class DataStore {
+  // @observable title: string | undefined;
+  data: object[];
+  constructor(){
+    this.data = [];
+    makeAutoObservable(this);
   }
-
-  changeTitle(newTitle: string) {
-    this.title = newTitle;
-  }
+  setData(){}
 }
 
-export async function fetchInitialStoreState() {
-  // You can do anything to fetch initial store state
-  return {};
-}
+const dataStore = new DataStore();
+export default dataStore;
+
+// export async function fetchInitialStoreState() {
+//   // You can do anything to fetch initial store state
+//   return {};
+// }
