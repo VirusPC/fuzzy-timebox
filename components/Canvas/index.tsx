@@ -22,21 +22,17 @@ const layerStyle = {
 const Canvas: FC<{}> = observer(() => {
   const uiContainerRef = useRef<HTMLCanvasElement>(null);
     const queryMode = queryStore.queryMode;
-    useLayoutEffect(() => {
+    useEffect(() => {
+      if(queryStore.instrument) return;
       const uiContainer = uiContainerRef.current;
       if (uiContainer === null) return;
       // if (kdTree === null) return;
       const {setQueryMode, instrument, container } = appendUIController(uiContainer, layerStyle.width, layerStyle.height, queryMode, 
         (queriers: QueryComponent[]) => {
           console.log(queriers);
-          // console.warn("dispatch deleteQuerier.....", queriers);
-          // dispatch(setQueriers(queriers))
         });
       queryStore.instrument = instrument;
       queryStore.container = container;
-      // dispatch(setSetQueryMode(setQueryMode));
-      // dispatch(setDeleteQuerier(deleteQuerier));
-      // dispatch(setReRenderAll(reRenderAll));
     }, []);
 
   return (<canvas ref={uiContainerRef}></canvas>);
