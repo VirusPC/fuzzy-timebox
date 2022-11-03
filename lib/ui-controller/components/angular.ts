@@ -1,4 +1,4 @@
-import { Component, ConstraintEffect } from "../../ui";
+import { Component, ConstraintEffect, StyleMap } from "../../ui";
 
 type AngularGeometries = "hLine" | "handle" | "innerArc" | "outerArc" | "hLineLeftRect" | "hLineRightRect" | "arcBottomArc" | "arcTopArc";
 type AngularLayoutConstraints = {
@@ -11,7 +11,47 @@ type AngularLayoutConstraints = {
 type AngularConstraintEffect = ConstraintEffect<"angular", AngularGeometries, AngularLayoutConstraints>;
 export type AngularComponent = Component<"angular", AngularGeometries, AngularLayoutConstraints>;
 
-const defaultAngularConstraints: AngularLayoutConstraints = {x1: 0, x2: 0, y: 0, startAngle: -Math.PI/4, endAngle: Math.PI/4};
+
+const DEFAULT_ANGULAR_CONSTRAINTS: AngularLayoutConstraints = {x1: 0, x2: 0, y: 0, startAngle: -Math.PI/4, endAngle: Math.PI/4};
+
+const NORMAL_STYLE = {
+  fill: "rgba(0, 0, 0, 0.5)",
+  strokeWidth: 1
+}
+const HIGHLIGHT_STYLE = {
+  fill: "rgba(0, 0, 0, 0.5)",
+  stroke: "rgba(255, 0, 0, 1)",
+  strokeWidth: 2
+}
+const HIDDEN_STYLE = {
+  fill: "rgba(0, 0, 0, 0)",
+  strokeWidth: 0
+}
+const ANGULAR_STYLEMAPS: {
+  [styleMapName: string]: StyleMap;
+} = {
+  "normal": {
+    "hLine" : NORMAL_STYLE,
+    "handle": HIDDEN_STYLE,
+    "innerArc": NORMAL_STYLE,
+    "outerArc": NORMAL_STYLE,
+    "hLineLeftRect": HIDDEN_STYLE,
+    "hLineRightRect": HIDDEN_STYLE,
+    "arcBottomArc": HIDDEN_STYLE,
+    "arcTopArc": HIDDEN_STYLE,
+  },
+  "highlight": {
+    "hLine" : HIGHLIGHT_STYLE,
+    "handle": HIDDEN_STYLE,
+    "innerArc": HIGHLIGHT_STYLE,
+    "outerArc": HIGHLIGHT_STYLE,
+    "hLineLeftRect": HIDDEN_STYLE,
+    "hLineRightRect": HIDDEN_STYLE,
+    "arcBottomArc": HIDDEN_STYLE,
+    "arcTopArc": HIDDEN_STYLE,
+  }
+};
+
 
 const angularConstraintEffect: AngularConstraintEffect = function (component) {
   const { x1, x2, y, startAngle, endAngle } = component.getLayoutConstraints();
@@ -30,7 +70,9 @@ const angularConstraintEffect: AngularConstraintEffect = function (component) {
 }
 
 export default function initializeAngularComponent(): AngularComponent{
-  const angularComponent: AngularComponent = new Component("angular", defaultAngularConstraints);
+  const angularComponent: AngularComponent = new Component("angular", DEFAULT_ANGULAR_CONSTRAINTS, {
+    styleMaps: ANGULAR_STYLEMAPS
+  });
   angularComponent.addGeometry("hLine", {type: "line", x1: 0, x2: 0, y1: 0, y2: 0});
   angularComponent.addGeometry("handle", {type: "rect", x: 0, y: 0, width: 0, height: 0});
   angularComponent.addGeometry("outerArc", {type: "arc", cx: 0, cy: 0, innerRadius: 0, outerRadius: 0, startAngle: -Math.PI/2, endAngle: Math.PI/2});
@@ -49,6 +91,7 @@ export default function initializeAngularComponent(): AngularComponent{
   angularComponent.hideGeometry("hLineLeftRect");
   angularComponent.hideGeometry("hLineRightRect");
 
+  angularComponent.setStyleMap("normal");
 
   angularComponent.addConstraintEffect("mapToGeometries", angularConstraintEffect);
   return angularComponent;

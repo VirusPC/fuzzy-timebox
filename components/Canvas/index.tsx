@@ -23,7 +23,7 @@ const Canvas: FC<{}> = () => {
       const uiContainer = uiContainerRef.current;
       if (uiContainer === null) return;
       // if (kdTree === null) return;
-      const {setQueryMode } = appendUIController(uiContainer, layerStyle.width, layerStyle.height, "timebox", 
+      const {setQueryMode } = appendUIController(uiContainer, layerStyle.width, layerStyle.height, "angular", 
         (queriers: QueryComponent[]) => {
           console.log(queriers);
           // console.warn("dispatch deleteQuerier.....", queriers);

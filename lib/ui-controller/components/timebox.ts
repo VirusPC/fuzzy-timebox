@@ -11,24 +11,14 @@ export type TimeboxConstraintEffect = ConstraintEffect<"timebox", TimeboxGeometr
 export type TimeboxComponent = Component<"timebox", TimeboxGeometries, TimeboxLayoutConstraints>;
 
 const DEFAULT_TIMEBOX_CONSTRAINTS: TimeboxLayoutConstraints = { x: 0, y: 0, width: 0, height: 0 };
-//     normal: {
-//       strokeStyle: "black",
-//       fillStyle: "rgba(0, 0, 0, 0.5)",
-//       lineWidth: 1,
-//     },
-//     highlight: {
-//       strokeStyle: "red",
-//       fillStyle: "rgba(0, 0, 0, 0.5)",
-//       lineWidth: 3,
-//     },
 const NORMAL_BORDER_RECT_STYLEMAP = {
   fill: "rgba(0, 0, 0, 0)",
   strokeWidth: 0
 }
-const HIGHLIGHT_BORDER_RECT_STYLEMAP = {
-  fill: "rgba(0, 0, 0, 0)",
-  strokeWidth: 0
-}
+// const HIGHLIGHT_BORDER_RECT_STYLEMAP = {
+  // fill: "rgba(0, 0, 0, 0)",
+  // strokeWidth: 0
+// }
 const TIMEBOX_STYLEMAPS: {
   [styleMapName: string]: StyleMap;
 } = {
@@ -83,6 +73,9 @@ export default function initializeTimeboxComponent(): TimeboxComponent {
   timeboxComponent.hideGeometry("topRect");
 
   timeboxComponent.addConstraintEffect("mapToGeometries", timeboxConstraintEffect);
+
+  timeboxComponent.setStyleMap("highlight");
+
   return timeboxComponent;
 }
 

@@ -57,6 +57,17 @@ export default class Container {
     this._componentZIndexMap.set(componentName, this._maxZIndex);
   }
 
+  popComponent() {
+    const componentOrder = Array
+      .from(this._componentZIndexMap.entries())
+      .sort((a, b) => {
+        return a[1] - b[1]; // zindex 升序 
+      })
+      .map(d => d[0]);
+    const topComponentName =componentOrder[componentOrder.length - 1];
+    this.removeComponent(topComponentName);
+  }
+
   removeComponent(componentName: string) {
     this._componentMap.delete(componentName);
     this._componentZIndexMap.delete(componentName);

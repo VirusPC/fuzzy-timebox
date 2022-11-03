@@ -13,7 +13,9 @@ export default function Home() {
       </Head>
       <main>
         {/* <canvas className={styles.canvas}></canvas> */}
-        <Canvas></Canvas>
+        <div className={styles.canvas}>
+          <Canvas></Canvas>
+        </div>
       </main>
     </div>
   )

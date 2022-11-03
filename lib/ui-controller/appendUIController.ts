@@ -4,7 +4,8 @@ import { InstrumentProps } from "../interaction";
 import { Component } from "../ui";
 import { LayoutConstraints } from "../ui/component";
 import { initializeCreateTimeboxInteractor, initializePanAndResizeTimeboxInteractor } from "./interactors";
-import { initializeTimeboxComponent, initializeAngularComponent, initializeAngularPreviewComponent } from "./components";
+import { initializeCreateAngularInteractor, initializePanAngularInteractor, initializeResizeAngularInteractor } from "./interactors";
+// import { initializeTimeboxComponent, initializeAngularComponent, initializeAngularPreviewComponent } from "./components";
 import { TimeboxComponent, AngularPreviewComponent, AngularComponent } from "./components";
 // import initializePanAndResizeTimeboxInteractor from "./interactors/panAndResizeTimebox";
 // import initializeCreateAngularInteractor from "./interactors/createAngular";
@@ -91,18 +92,18 @@ export default function appendUIController(
   const modifyTimeboxInteractor = initializePanAndResizeTimeboxInteractor();
   instrument.addInteractor(modifyTimeboxInteractor);
 
-  // // angular
-  // const createAngularQueryInteractor = initializeCreateAngularInteractor(queryLayer);
+  // angular
+  const createAngularQueryInteractor = initializeCreateAngularInteractor();
   // createAngularQueryInteractor.addEventListener("createend", setQueriersState)
-  // instrument.addInteractor(createAngularQueryInteractor);
+  instrument.addInteractor(createAngularQueryInteractor);
 
-  // const panAngularQueryInteractor = initializePanAngularInteractor(queryLayer);
+  const panAngularQueryInteractor = initializePanAngularInteractor();
   // panAngularQueryInteractor.addEventListener("modifyend", setQueriersState)
-  // instrument.addInteractor(panAngularQueryInteractor);
+  instrument.addInteractor(panAngularQueryInteractor);
 
-  // const resizeAngularQueryInteractor = initializeResizeAngularInteractor(queryLayer);
+  const resizeAngularQueryInteractor = initializeResizeAngularInteractor();
   // resizeAngularQueryInteractor.addEventListener("modifyend", setQueriersState)
-  // instrument.addInteractor(resizeAngularQueryInteractor);
+  instrument.addInteractor(resizeAngularQueryInteractor);
   // modify timebox query component 
   // const createTimeboxInteractor = initializeTimeboxInteractor(queryLayer);
   // instrument.addInteractor(createTimeboxInteractor);
