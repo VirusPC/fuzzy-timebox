@@ -5,6 +5,8 @@ export type State = { [key: string]: unknown }
 
 export type InstrumentProps<S extends State> = { container: Container, instrument: Instrument<S> };
 
+const CONTROLED_EVENTS: (keyof HTMLElementEventMap)[] = ["mousedown", "mouseup", "mousemove", "mouseover", "mouseout", "mouseenter", "mouseleave", "wheel"];
+
 export default class Instrument<S extends State> {
   private _interactors: Interactor<InstrumentProps<S>>[];
   private _state: S;
@@ -31,6 +33,10 @@ export default class Instrument<S extends State> {
     this._container = container;
     this.addEventListeners();
   }
+  removeFromContainer() {
+    this._container = null;
+    this.removeEventListeners();
+  }
   addInteractor(interactor: Interactor<InstrumentProps<S>>) {
     this._interactors.push(interactor);
   }
@@ -40,7 +46,7 @@ export default class Instrument<S extends State> {
   setPostEffect(effect: (event: Event, props: InstrumentProps<S>) => void) {
     this._preEffect = effect;
   }
-  
+
   private dispatch(event: Event) {
     if (this._container === null) {
       console.log("Please set container first!");
@@ -54,19 +60,31 @@ export default class Instrument<S extends State> {
     this._postEffect && this._postEffect(event, { container: this._container, instrument: this });
   }
 
-  private addEventListeners(events: (keyof HTMLElementEventMap)[] = ["mousedown", "mouseup", "mousemove", "mouseover", "mouseout", "mouseenter", "mouseleave", "wheel"]) {
+  private throttledDispatch = (event: Event) => {
+    return requestAnimationFrame(() => {
+      this.dispatch && this.dispatch(event)
+    });
+  }
+
+
+  private addEventListeners(events: (keyof HTMLElementEventMap)[] = CONTROLED_EVENTS) {
     if (!this._container) {
       console.log("Please set container first!");
       return;
     }
     const target = this._container.getContainerElement();
-    events.forEach(eventName => {
-      target.addEventListener(eventName, (event: Event) => {
-        requestAnimationFrame(() => this.dispatch(event));
-      }
-      );
-    });
+    events.forEach(eventName => target.addEventListener(eventName, this.throttledDispatch)
+    );
   }
+
+  private removeEventListeners(events: (keyof HTMLElementEventMap)[] = CONTROLED_EVENTS) {
+    if (!this._container) {
+      return;
+    }
+    const target = this._container.getContainerElement();
+    events.forEach(eventName => target.removeEventListener(eventName, this.throttledDispatch));
+  }
+
   preventNextDispatch() {
     this._shouldStopNextDispatch = true;
   }

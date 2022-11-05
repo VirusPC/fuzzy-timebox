@@ -3,12 +3,7 @@ import { useStaticRendering } from "mobx-react";
 import datasetConfig from './dataConfig.json';
 import axios from 'axios';
 import Papa from 'papaparse';
-import { aggregateData, inferAttr } from "../helpers/data";
-// import stocksFilePath from "/data/stocks.filtered.csv";
-// import airlineFilePath from "/data/airline.filtered.csv";
-// import weatherFilePath from "/data/weather.filtered.csv";
-// import readingFilePath from "/data/reading.filtered.csv";
-// import hardDriveFilePath from "/data/mergeSMART194month.filtered.csv";
+import { aggregateData, inferAttr, getXYScale } from "../helpers/data";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -52,18 +47,21 @@ class DataStore {
   timeDataType: TimeDataType;
   valueDataType: ValueDataType;
 
-  get aggregatedData(): AggregatedData {
-    return  aggregateData(
-        dataStore.rawData,
-        dataStore.aggregationAttrPos,
-        dataStore.timeAttrPos,
-        dataStore.valueAttrPos,
-        dataStore.timeDataType,
-        dataStore.valueDataType);
+  aggregatedData: AggregatedData;
+
+  timeScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null;
+  valueScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null;
+
+  get timeAttrName(): string{
+    return this.headers[this.timeAttrPos]
+  }
+  get valueAttrName(): string{
+    return this.headers[this.valueAttrPos]
   }
 
-  // timeScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null;
-  // valueScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null;
+  get aggregatedData2(){
+    return this.aggregatedData.map(line => line.data);
+  }
 
   constructor() {
     this.status = 'idle';
@@ -73,29 +71,40 @@ class DataStore {
     this.selectedDatasetName = null;
     this.rawData = [];
     this.headers = [];
-    // this.aggregatedData = [];
     this.aggregationAttrPos = -1;
     this.timeAttrPos = -1;
     this.valueAttrPos = -1;
     this.timeDataType = "date";
     this.valueDataType = "number";
-    // this.timeScale = null;
-    // this.valueScale = null;
+    this.aggregatedData = [];
+    this.timeScale = null;
+    this.valueScale = null;
     makeAutoObservable(this);
   }
 
-  async hello() { }
+  apply() {
+    this.aggregatedData = aggregateData(
+      dataStore.rawData,
+      dataStore.aggregationAttrPos,
+      dataStore.timeAttrPos,
+      dataStore.valueAttrPos,
+      dataStore.timeDataType,
+      dataStore.valueDataType);
+    const { xScale, yScale } = getXYScale(dataStore.aggregatedData, dataStore.timeDataType, dataStore.valueDataType, dataStore.width, dataStore.height);
+    dataStore.timeScale = xScale;
+    dataStore.valueScale = yScale;
+  }
 }
 
 const dataStore = new DataStore();
 autorun(async () => {
   const selectedName = dataStore.selectedDatasetName;
-  const url = datasetConfig.find(c => c.name ===selectedName)?.url;
-  if(url){
+  const url = datasetConfig.find(c => c.name === selectedName)?.url;
+  if (url) {
     dataStore.status = "loading";
     const response = await axios.get(url);
     const rawData = Papa.parse(response.data, { skipEmptyLines: true }).data as RawData;
-    dataStore.headers= rawData[0];
+    dataStore.headers = rawData[0];
     dataStore.rawData = rawData.slice(1);
     const { aggregationAttr, timeAttr, valueAttr, timeDataType, valueDataType } = inferAttr(rawData);
     dataStore.aggregationAttrPos = aggregationAttr;
@@ -109,8 +118,8 @@ autorun(async () => {
   }
 });
 
-autorun(() => {
-})
+// autorun(() => {
+// });
 
 export default dataStore;
 

@@ -1,0 +1,19 @@
+// $width: 1000px;
+// $height: 1000px;
+$padding-top: 50px;
+// $padding-right: 50px;
+// $padding-bottom: 70px;
+$padding-left: 100px;
+
+.container{
+  position: relative;
+  box-shadow: 5px 5px 5px 2px #888888;
+  border: solid 1px;
+}
+.axis, .layer {
+  position: absolute;
+  padding-left: $padding-left;
+  padding-top: $padding-top;
+  // pointer-events: none;
+  // user-select: none;
+}

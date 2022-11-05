@@ -1,14 +1,27 @@
 .main{
   display: flex;
+  padding: 10px 5px;
 }
-.canvas {
-  width: min-content;
-  border: solid 1px;
-  box-shadow: 5px 5px 5px 2px #888888;
+// .canvas {
+//   width: min-content;
+//   border: solid 1px;
+//   box-shadow: 5px 5px 5px 2px #888888;
+//   position: relative;
+// }
+.data-panel {
+
+}
+.main-view {
+
 }
 .control-panel {
-  margin: 10px 20px;
+  margin: 0px 20px;
 }
+// .layer {
+//   position: absolute;
+//   left: 0;
+//   top: 0;
+// }
 // @media (max-width: 600px) {
 //   .grid {
 //     width: 100%;

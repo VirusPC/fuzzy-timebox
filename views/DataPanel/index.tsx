@@ -12,16 +12,10 @@ const { Option } = Select;
 // }
 
 const DataConsole: React.FC<{}> = observer(() => {
-  const datasetConfig = dataStore.datasetConfig;
+  const {width: _width, height: _height, datasetConfig, headers, aggregationAttrPos, timeAttrPos, valueAttrPos} = dataStore;
 
-  const resolution = [dataStore.width, dataStore.height]//useAppSelector(selectResolution);
-  const headers = dataStore.headers;
-  const aggregationAttrPos = dataStore.aggregationAttrPos;
-  const timeAttrPos = dataStore.timeAttrPos;
-  const valueAttrPos = dataStore.valueAttrPos;
-
-  const [width, setWidth] = useState(resolution[0]);
-  const [height, setHeight] = useState(resolution[1]);
+  const [width, setWidth] = useState(_width);
+  const [height, setHeight] = useState(_height);
 
   const onDataSelectChanged = useCallback((name: string) => dataStore.selectedDatasetName = name, []);
   const onAggregationAttrChanged = useCallback((pos: string) => dataStore.aggregationAttrPos = +pos, []);
@@ -71,8 +65,7 @@ const DataConsole: React.FC<{}> = observer(() => {
       </Space>
     </div>
     <div className={styles["submit-block"]}>
-      {/* <Button onClick={(event) => {dispatch(setResolution([width, height]))}}>Apply Resolution</Button> */}
-      <Button>Apply Resolution</Button>
+      <Button className={styles["apply"]} type={"primary"} onClick={(event) => {dataStore.apply()}}>Apply</Button>
     </div>
   </div>)
 })

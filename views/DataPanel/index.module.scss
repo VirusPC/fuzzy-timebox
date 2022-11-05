@@ -1,5 +1,9 @@
 .console {
   padding: 20px;
+  // display: flex;
+  // flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
 }
 .param-block {
   padding: 10px 0;
@@ -16,4 +20,8 @@
 
 .select {
   width: 130px;
+}
+
+.apply {
+  width: 80%;
 }

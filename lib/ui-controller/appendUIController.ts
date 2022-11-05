@@ -1,16 +1,9 @@
-// import AliTVSTree from "../../../../lib/kd-box-incremental";
 import { Container, Instrument, Interactor } from "../interaction";
 import { InstrumentProps } from "../interaction";
 import { Component } from "../ui";
-import { LayoutConstraints } from "../ui/component";
 import { initializeCreateTimeboxInteractor, initializePanAndResizeTimeboxInteractor } from "./interactors";
 import { initializeCreateAngularInteractor, initializePanAngularInteractor, initializeResizeAngularInteractor } from "./interactors";
-// import { initializeTimeboxComponent, initializeAngularComponent, initializeAngularPreviewComponent } from "./components";
 import { TimeboxComponent, AngularPreviewComponent, AngularComponent } from "./components";
-// import initializePanAndResizeTimeboxInteractor from "./interactors/panAndResizeTimebox";
-// import initializeCreateAngularInteractor from "./interactors/createAngular";
-// import initializePanAngularInteractor from "./interactors/panAngular";
-// import initializeResizeAngularInteractor from "./interactors/resizeAngular";
 
 export type QueryMode = "timebox" | "angular" | "mix" | "knn" | "rnn" | "hover" | "sketch" | "zoom";
 export type InteractorType = "create" | QueryMode;
@@ -44,7 +37,7 @@ export default function appendUIController(
   width: number,
   height: number,
   defaultQueryMode: QueryMode = "timebox",
-  setQueriers: (queriers: QueryComponent[]) => void,
+  // setQueriers: (queriers: QueryComponent[]) => void,
 ) {
   const container = new Container(root, width, height);
 
@@ -80,11 +73,6 @@ export default function appendUIController(
     }
   });
 
-  // const setQueriersState = () => {
-  //   const queriers = instrument.getState("queriers");
-  //   setQueriers([...queriers]);
-  // }
-
   // timebox
   const createTimeboxQueryInteractor = initializeCreateTimeboxInteractor();
   instrument.addInteractor(createTimeboxQueryInteractor);
@@ -111,6 +99,7 @@ export default function appendUIController(
   // modify angular query component 
   // const createAngularInteractor = initializeTimeboxInteractor(queryLayer);
   // instrument.addInteractor(createTimeboxInteractor);
+  console.log("instrument", instrument);
   return {
     // queriers: instrument.getState("queriers"),
     setQueryMode: function (mode: QueryMode) {
@@ -118,7 +107,9 @@ export default function appendUIController(
       instrument.setState("queryMode", mode);
     },
     container: container,
-    instrument: instrument
+    instrument: instrument,
+    clearup: () => instrument.removeFromContainer
+
     // deleteQuerier: function (index?: number) {
     //   console.log("delete query", index)
     //   const queriers = instrument.getState("queriers");
