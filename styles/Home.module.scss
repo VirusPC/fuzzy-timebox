@@ -1,8 +1,13 @@
+.main{
+  display: flex;
+}
 .canvas {
-  // width: 1000px;
-  // height: 600px;
+  width: min-content;
   border: solid 1px;
   box-shadow: 5px 5px 5px 2px #888888;
+}
+.control-panel {
+  margin: 10px 20px;
 }
 // @media (max-width: 600px) {
 //   .grid {

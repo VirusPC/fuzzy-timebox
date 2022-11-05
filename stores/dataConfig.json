@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Stocks",
+    "url": "/data/stocks.filtered.csv",
+    "size": "25.2MB"
+  },
+  {
+    "name": "Airline",
+    "url": "/data/airline.filtered.csv",
+    "size": "10.6MB"
+  },
+  {
+    "name": "Weather",
+    "url": "/data/weather.filtered.csv",
+    "size": "29.6MB"
+  },
+  {
+    "name": "Reading",
+    "url": "/data/reading.filtered.csv",
+    "size": "18.5MB"
+  },
+  {
+    "name": "Hardrive",
+    "url": "/data/mergeSMART194month.filtered.csv",
+    "size": "66.3MB"
+  }
+]

@@ -3,6 +3,7 @@ import { appendUIController } from '../../lib/ui-controller';
 import { QueryComponent } from '../../lib/ui-controller/appendUIController';
 import { observer } from 'mobx-react';
 import queryStore from '../../stores/QueryStore';
+import { Button } from 'antd';
 
 
 const ControlPanel: FC<{}> = observer(() => {
@@ -16,8 +17,8 @@ const ControlPanel: FC<{}> = observer(() => {
   }, []);
 
   return (<div>
-    <button onClick={setTimeboxQueryMode}>timebox</button>
-    <button onClick={setAngularQueryMode}>angular</button>
+    <Button type={queryMode === "timebox" ? "primary" : "default"} onClick={setTimeboxQueryMode}>timebox</Button>
+    <Button type={queryMode === "angular" ? "primary" : "default"} onClick={setAngularQueryMode}>angular</Button>
   </div>);
 });
 
