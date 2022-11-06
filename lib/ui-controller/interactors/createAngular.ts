@@ -42,7 +42,6 @@ export default function initializeCreateAngularInteractor() {
     container.reRender();
   });
   interactor.addEventListener("creating", (event, props) => {
-    console.log("creating");
     const { container, instrument } = props;
     if (!(event instanceof MouseEvent)) return;
     if(!previewComponent) return;
@@ -50,30 +49,17 @@ export default function initializeCreateAngularInteractor() {
       x1: Math.min(startPos.x, event.offsetX),
       x2: Math.max(startPos.x, event.offsetX),
     });
-    // renderTargetLayer.clear();
-    // const queriers = instrument.getState("queriers");
-    // queriers.forEach((query) => {query.render()});
-    // previewComponent.render({highlights: ["hLine"]});
     container.reRender();
   })
   interactor.addEventListener("createend", (event, props) => {
     const { container, instrument } = props;
     if(!previewComponent) return;
     container.popComponent();
-    // just set preview as result conponent
-    // const queriers = instrument.getState("queriers");
     const angularComponent = initializeAngularComponent();
     const {x1, x2, y} = previewComponent.getLayoutConstraints();
     angularComponent.setLayoutConstraints({x1, x2, y});
     container.pushComponent(`angular-${new Date()}`, angularComponent);
     container.reRender();
-    // angularComponent.setIntersectionTester(intersecitonTester);
-    // angularComponent.setRenderer(renderer);
-    // console.log(angularComponent.getLayoutConstraints());
-    // queriers.push(angularComponent);
-    // instrument.setState("activeQuerierIndex", -1);
-    // renderTargetLayer.clear();
-    // queriers.forEach((query) => {query.render()});
   })
 
   return interactor;

@@ -99,19 +99,12 @@ export default function initializeResizeAngularInteractor() {
     if (!(event instanceof MouseEvent)) return;
     const { container, instrument } = props;
     let { x1, x2, y, startAngle, endAngle } = activeComponent!.getLayoutConstraints()!;
-    // let where = instrument.getState("where")
     switch (localWhere) {
       case "innerArc":
         {
           const currentAngle = Math.atan2(event.offsetY - y, event.offsetX - x1);
-          // console.log("y", event.offsetY - y);
-          // console.log("x", event.offsetX - x1);
-          // console.log(currentAngle);
-          // console.log("off", offsetAngle);
           const newStartAngle = currentAngle - offsetAngle;
           const newEndAngle = newStartAngle + spanAngle;
-          // console.log("startAngle", newStartAngle);
-          // console.log("endAngle", newEndAngle)
           if (newStartAngle > -Math.PI / 2 && newEndAngle < Math.PI / 2) {
             activeComponent!.setLayoutConstraints({ startAngle: newStartAngle, endAngle: newEndAngle });
           }
@@ -143,7 +136,6 @@ export default function initializeResizeAngularInteractor() {
           if (newStartAngle > fixedArc) { endAngle = newStartAngle; startAngle = fixedArc; }
           else startAngle = newStartAngle;
           if (newStartAngle > fixedArc) { localWhere = "arcBottomArc"; fixedArc = endAngle; }
-          console.log(startAngle, endAngle, fixedArc, '*********');
           if (startAngle > -Math.PI / 2 && endAngle < Math.PI / 2) {
             activeComponent!.setLayoutConstraints({ startAngle, endAngle });
           }
@@ -164,9 +156,6 @@ export default function initializeResizeAngularInteractor() {
         }
     }
     container.reRender();
-    // if (localWhere === "innerArc" || localWhere === "hLineLeftRect" || localWhere === "hLineRightRect" || localWhere === "arcBottomArc" || localWhere === "arcTopArc") {
-      // activeQuerier!.render({ highlights: [localWhere] });
-    // }
   })
   interactor.addEventListener("modifyend", (event, props) => {
     const { container, instrument } = props;

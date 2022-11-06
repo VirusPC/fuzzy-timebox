@@ -65,7 +65,6 @@ export default function appendUIController(
       instrument.setState("activeComponentName", where.componentName);
       instrument.setState("activeComponentWhere", where.where);
       instrument.setState("activeComponent", container.getComponent(where.componentName) || null);
-      console.log(where.where);
     } else {
       instrument.setState("activeComponentName", null);
       instrument.setState("activeComponentWhere", null);
@@ -99,7 +98,6 @@ export default function appendUIController(
   // modify angular query component 
   // const createAngularInteractor = initializeTimeboxInteractor(queryLayer);
   // instrument.addInteractor(createTimeboxInteractor);
-  console.log("instrument", instrument);
   return {
     // queriers: instrument.getState("queriers"),
     setQueryMode: function (mode: QueryMode) {
@@ -108,10 +106,11 @@ export default function appendUIController(
     },
     container: container,
     instrument: instrument,
-    clearup: () => instrument.removeFromContainer
+    clearup: () => {
+      instrument.removeFromContainer();
+    }
 
     // deleteQuerier: function (index?: number) {
-    //   console.log("delete query", index)
     //   const queriers = instrument.getState("queriers");
     //   if (index === undefined) {
     //     instrument.setState("queriers", []);

@@ -113,8 +113,6 @@ autorun(async () => {
     dataStore.timeDataType = timeDataType;
     dataStore.valueDataType = valueDataType;
     dataStore.status = "idle";
-    console.log(dataStore.aggregationAttrPos);
-    console.log(dataStore.valueAttrPos);
   }
 });
 

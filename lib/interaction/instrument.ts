@@ -34,8 +34,8 @@ export default class Instrument<S extends State> {
     this.addEventListeners();
   }
   removeFromContainer() {
-    this._container = null;
     this.removeEventListeners();
+    this._container = null;
   }
   addInteractor(interactor: Interactor<InstrumentProps<S>>) {
     this._interactors.push(interactor);
@@ -73,8 +73,7 @@ export default class Instrument<S extends State> {
       return;
     }
     const target = this._container.getContainerElement();
-    events.forEach(eventName => target.addEventListener(eventName, this.throttledDispatch)
-    );
+    events.forEach(eventName => target.addEventListener(eventName, this.throttledDispatch));
   }
 
   private removeEventListeners(events: (keyof HTMLElementEventMap)[] = CONTROLED_EVENTS) {

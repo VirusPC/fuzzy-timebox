@@ -1,4 +1,25 @@
 import * as d3 from "d3"
+import { Colormap, getRandomColor } from "../color";
+
+export function drawLines(ctx: CanvasRenderingContext2D, width: number, height: number,
+  data: { x: any, y: any }[][],
+  xScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number>,
+  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>,
+  colormap: Colormap
+) {
+  ctx.clearRect(0, 0, width, height);
+  const lines = data.map(line => line.map(point => [xScale(point.x), yScale(point.y)]))
+  lines.forEach((line, i) => {
+    ctx.strokeStyle = `rgb(${getRandomColor(colormap).join(",")})`;//colorMap[i % colorMap.length];
+    if (line.length <= 0) return;
+    ctx.beginPath();
+    ctx.moveTo(line[0][0] as number, line[0][1] as number);
+    line.forEach(point => {
+      ctx.lineTo(point[0] as number, point[1] as number);
+    });
+    ctx.stroke();
+  });
+}
 
 export function drawAxes(
   root: SVGSVGElement,
@@ -18,7 +39,6 @@ export function drawAxes(
     titleSize?: number | string
   }
 ) {
-  console.log(options);
   const defaultTitleSize = "12px";
   const container = d3.select(root);
   const xAxis = d3.axisBottom(xScale as d3.ScaleLinear<number, number, never>);
@@ -55,4 +75,4 @@ export function drawAxes(
   }
 }
 
-export {};
+export { };
