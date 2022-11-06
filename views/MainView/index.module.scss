@@ -10,7 +10,11 @@ $padding-left: 100px;
   box-shadow: 5px 5px 5px 2px #888888;
   border: solid 1px;
 }
-.axis, .layer {
+.axis, .layer{
+  position: absolute;
+}
+
+.canvas, .query {
   position: absolute;
   padding-left: $padding-left;
   padding-top: $padding-top;

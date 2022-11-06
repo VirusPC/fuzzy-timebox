@@ -39,6 +39,17 @@ const MainView: React.FC<{}> = observer((props) => {
     queryStore.instrument = instrument;
     queryStore.container = container;
   }, []);
+
+    // console.log({xScale, yScale});
+    // console.log({xScale: xScale?.domain(), yScale: yScale?.domain()});
+    // console.log({xScale: xScale?.range(), yScale: yScale?.range()});
+    // console.log({xScale: xScale?.copy, yScale: yScale?.copy});
+   /* compute scale based on screen */
+   const { xScaleScreen, yScaleScreen } = useMemo(() => ({
+    xScaleScreen: xScale === null ? null : (xScale.copy().domain(xScale.domain()) as any).range([0, layerStyle.width]),
+    yScaleScreen: yScale === null ? null : (yScale.copy().range([layerStyle.height, 0]) as any),
+  }), [xScale, yScale])
+
   // const brushDomain = useAppSelector(selectBrushDomain);
   // const {instrument, container} = queryStore.instrument;
 
@@ -83,28 +94,35 @@ const MainView: React.FC<{}> = observer((props) => {
   return (<div className={styles["container"]}
     id="container"
     style={containerStyle}>
-    <div className={styles["layer"]}>
-      <AxesLayer />
-    </div>
-    {/* <div className={styles["layers-container"]} style={{ position: "absolute", top: layerStyle.top, left: layerStyle.left }} ref={layersContainerRef}> */}
-      {layerInfos.map(layerInfo => (
-        layerInfo.id === "raw_line" ?
-          // <></>
-          (<LineLayer key={layerInfo.id} className={styles["layer"]} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={aggregatedData} xScale={xScale} yScale={yScale}/>)
-          // : layerInfo.id === "raw_density" ?
-            // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree} />)
-            // : layerInfo.id === "selected_line" ?
+    {
+      dataStore.hasApplied ?
+        <>
+          <div className={styles["axis"]}>
+            <AxesLayer data={aggregatedData} width={screenWidth} height={screenHeight} margin={screenMargin} xScale={xScaleScreen} yScale={yScaleScreen} fieldX={timeAttrName} fieldY={valueAttrName} />
+          </div>
+          {/* <div className={styles["layers-container"]} style={{ position: "absolute", top: layerStyle.top, left: layerStyle.left }} ref={layersContainerRef}> */}
+          <div className={styles["canvas"]}>
+          {layerInfos.map(layerInfo => (
+            layerInfo.id === "raw_line" ?
+              // <></>
+              (<LineLayer key={layerInfo.id} className={styles["layer"]} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={aggregatedData} xScale={xScale} yScale={yScale} />)
+              // : layerInfo.id === "raw_density" ?
+              // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree} />)
+              // : layerInfo.id === "selected_line" ?
               // (<LineLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={intersectionResults} xScale={xScale?.copy().domain(brushDomain) as any} yScale={yScale} />)
               // :layerInfo.id==="selected_density" ?
               // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree}/>)
               // : layerInfo.id==="rep_line"?
               // (<LineLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={intersectionResults} xScale={xScale} yScale={yScale}/>)
               : <></>
-      ))}
-    {/* </div> */}
-    <div className={styles["layer"]}>
-      <QueryLayer queryMode={queryMode} instrumentDidMount={instrumentDidMount} />
-    </div>
+          ))}
+        </div>
+          {/* </div> */}
+          <div className={styles["query"]}>
+            <QueryLayer queryMode={queryMode} instrumentDidMount={instrumentDidMount} />
+          </div>
+        </> : <></>
+    }
   </div>)
 })
 

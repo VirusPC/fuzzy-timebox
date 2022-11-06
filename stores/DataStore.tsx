@@ -1,9 +1,9 @@
-import { makeAutoObservable, autorun } from "mobx";
+import { makeAutoObservable, autorun, observable, computed, action, makeObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import datasetConfig from './dataConfig.json';
 import axios from 'axios';
 import Papa from 'papaparse';
-import { aggregateData, inferAttr, getXYScale } from "../helpers/data";
+import { aggregateData, inferAttr, getXYScale, inferType } from "../helpers/data";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -31,36 +31,73 @@ type DatasetConfig = { name: string, url: string, size: string }[];
 
 class DataStore {
   datasetConfig: DatasetConfig;
-  status: 'idle' | 'loading' | 'failed';
+  @observable status: 'idle' | 'loading' | 'failed';
 
-  width: number;
-  height: number;
+  @observable width: number;
+  @observable height: number;
 
-  selectedDatasetName: string | null;
-  rawData: RawData;
-  headers: string[];
+  @observable selectedDatasetName: string | null;
+  @observable rawData: RawData;
+  @observable headers: string[];
   // kdTree: AliTVSTree | null;
 
-  aggregationAttrPos: number;
-  timeAttrPos: number;
-  valueAttrPos: number;
-  timeDataType: TimeDataType;
-  valueDataType: ValueDataType;
+  @observable aggregationAttrPos: number;
+  @observable timeAttrPos: number;
+  @observable valueAttrPos: number;
 
-  aggregatedData: AggregatedData;
+  @observable aggregatedData: AggregatedData;
 
-  timeScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null;
-  valueScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null;
+  @observable hasApplied: boolean;
 
-  get timeAttrName(): string{
+  @computed
+  get timeDataType(): TimeDataType{
+    return this.timeAttrPos >= 0 ? inferType(this.rawData[0][this.timeAttrPos]) as TimeDataType : "number";  // !! check type
+  }
+  @computed
+  get valueDataType(): ValueDataType{
+    return this.valueAttrPos >=0 ? inferType(this.rawData[0][this.timeAttrPos]) as ValueDataType : "number";  // !! check type
+  }
+
+  @computed
+  get timeAttrName(): string {
     return this.headers[this.timeAttrPos]
   }
-  get valueAttrName(): string{
+
+  @computed
+  get valueAttrName(): string {
     return this.headers[this.valueAttrPos]
   }
 
-  get aggregatedData2(){
+  @computed
+  get aggregatedData2() {
     return this.aggregatedData.map(line => line.data);
+  }
+
+  @computed
+  get isComplete() {
+    return this.selectedDatasetName && this.aggregationAttrPos !== -1 && this.timeAttrPos !== -1 && this.valueAttrPos !== -1;
+  }
+
+  @computed
+  get scales(): {
+    timeScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null;
+    valueScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null;
+  } {
+    const { xScale, yScale } = getXYScale(dataStore.aggregatedData, dataStore.timeDataType, dataStore.valueDataType, dataStore.width, dataStore.height);
+    return {
+      timeScale: xScale,
+      valueScale: yScale
+    }
+  }
+
+  @computed 
+  get timeScale(): d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null{
+    return this.scales.timeScale;
+  }
+
+  @computed 
+  get valueScale(): d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null{
+    return this.scales.valueScale;
   }
 
   constructor() {
@@ -74,15 +111,24 @@ class DataStore {
     this.aggregationAttrPos = -1;
     this.timeAttrPos = -1;
     this.valueAttrPos = -1;
-    this.timeDataType = "date";
-    this.valueDataType = "number";
     this.aggregatedData = [];
-    this.timeScale = null;
-    this.valueScale = null;
-    makeAutoObservable(this);
+    this.hasApplied = false;
+    // makeAutoObservable(this);
+    makeObservable(this);
   }
 
+  @action
+  checkConfig() {
+    if (this.selectedDatasetName && this.aggregationAttrPos !== -1 && this.timeAttrPos !== -1 && this.valueAttrPos !== -1
+      && this.width > 0 && this.height > 0) {
+      return true;
+    }
+
+  }
+
+  @action
   apply() {
+    if (!this.checkConfig()) return false;
     this.aggregatedData = aggregateData(
       dataStore.rawData,
       dataStore.aggregationAttrPos,
@@ -90,33 +136,29 @@ class DataStore {
       dataStore.valueAttrPos,
       dataStore.timeDataType,
       dataStore.valueDataType);
-    const { xScale, yScale } = getXYScale(dataStore.aggregatedData, dataStore.timeDataType, dataStore.valueDataType, dataStore.width, dataStore.height);
-    dataStore.timeScale = xScale;
-    dataStore.valueScale = yScale;
+    this.hasApplied = true;
+    return true;
   }
 }
 
 const dataStore = new DataStore();
-autorun(async () => {
-  const selectedName = dataStore.selectedDatasetName;
-  const url = datasetConfig.find(c => c.name === selectedName)?.url;
-  if (url) {
-    dataStore.status = "loading";
-    const response = await axios.get(url);
-    const rawData = Papa.parse(response.data, { skipEmptyLines: true }).data as RawData;
-    dataStore.headers = rawData[0];
-    dataStore.rawData = rawData.slice(1);
-    const { aggregationAttr, timeAttr, valueAttr, timeDataType, valueDataType } = inferAttr(rawData);
-    dataStore.aggregationAttrPos = aggregationAttr;
-    dataStore.timeAttrPos = timeAttr;
-    dataStore.valueAttrPos = valueAttr;
-    dataStore.timeDataType = timeDataType;
-    dataStore.valueDataType = valueDataType;
-    dataStore.status = "idle";
-  }
-});
-
-// autorun(() => {
+// autorun(async () => {
+//   const selectedName = dataStore.selectedDatasetName;
+//   const url = datasetConfig.find(c => c.name === selectedName)?.url;
+//   if (url) {
+//     dataStore.status = "loading";
+//     const response = await axios.get(url);
+//     const rawData = Papa.parse(response.data, { skipEmptyLines: true }).data as RawData;
+//     dataStore.headers = rawData[0];
+//     dataStore.rawData = rawData.slice(1);
+//     const { aggregationAttr, timeAttr, valueAttr, timeDataType, valueDataType } = inferAttr(rawData);
+//     dataStore.aggregationAttrPos = aggregationAttr;
+//     dataStore.timeAttrPos = timeAttr;
+//     dataStore.valueAttrPos = valueAttr;
+//     dataStore.timeDataType = timeDataType;
+//     dataStore.valueDataType = valueDataType;
+//     dataStore.status = "idle";
+//   }
 // });
 
 export default dataStore;

@@ -19,6 +19,8 @@ export function drawLines(ctx: CanvasRenderingContext2D, width: number, height: 
     });
     ctx.stroke();
   });
+  const clearup = () => ctx.clearRect(0, 0, width, height);
+  return clearup;
 }
 
 export function drawAxes(
@@ -73,6 +75,10 @@ export function drawAxes(
       .style("writing-mode", "tb")
       .attr("transform", "rotate(180)");
   }
+  const clearup = () => {
+    container.selectAll("*").remove();
+  };
+  return clearup;
 }
 
 export { };
