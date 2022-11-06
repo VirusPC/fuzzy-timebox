@@ -6,7 +6,7 @@ import { observer } from 'mobx-react';
 import axios from "axios";
 import Papa from "papaparse";
 import { inferAttr } from "../../helpers/data";
-// import { autorun } from "mobx";
+import { autorun } from "mobx";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -25,12 +25,13 @@ const DataConsole: React.FC<{}> = observer(() => {
   const [width, setWidth] = useState(_width);
   const [height, setHeight] = useState(_height);
 
-  // hidden data
-  const [headers, setHeaders] = useState<string[]>(_headers);
-  const [rawData, setRawData] = useState<RawData>([]);
+  // use ref rather than state to optimize
+  const headersRef = useRef<string[]>();
+  const rawDataRef = useRef<RawData>();
+  const headers = headersRef.current || [];
+  const rawData = rawDataRef.current || [];
 
   // const [isLoading, setIsLoading] = useState(false);
-
   const onDataSelectChanged = useCallback((name: string) => {
     const url = datasetConfig.find(c => c.name === name)?.url;
     if(!url) return;
@@ -38,8 +39,8 @@ const DataConsole: React.FC<{}> = observer(() => {
     dataStore.status = "loading";
     axios.get(url).then((response) => {
       const rawData = Papa.parse(response.data, { skipEmptyLines: true }).data as RawData;
-      setHeaders(rawData[0]);
-      setRawData(rawData.slice(1));
+      headersRef.current = rawData[0];
+      rawDataRef.current = rawData.slice(1);
       const { aggregationAttr, timeAttr, valueAttr } = inferAttr(rawData);
       setAggregationAttrPos(aggregationAttr);
       setTimeAttrPos(timeAttr);
@@ -59,7 +60,7 @@ const DataConsole: React.FC<{}> = observer(() => {
   const onResolutionHeightChanged = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setHeight(+event.target.value), []);
 
   const onApply = useCallback(() => {
-    // autorun(() => {
+    autorun(() => {
       dataStore.selectedDatasetName = datasetName;
       dataStore.aggregationAttrPos = aggregationAttrPos;
       dataStore.timeAttrPos = timeAttrPos;
@@ -70,7 +71,7 @@ const DataConsole: React.FC<{}> = observer(() => {
       dataStore.headers = headers;
       dataStore.rawData = rawData;
       dataStore.apply();
-    // });
+    });
   }, [datasetName, aggregationAttrPos, timeAttrPos, valueAttrPos, width, height]);
 
 

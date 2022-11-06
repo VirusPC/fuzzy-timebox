@@ -1,7 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import styles from "./index.module.scss";
 import * as d3 from "d3";
-import { getRandomColor } from "../../helpers/color";
 import { LineLayerInfo } from "../layer";
 import { drawLines } from "../../helpers/chart/drawer";
 

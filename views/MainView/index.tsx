@@ -95,7 +95,7 @@ const MainView: React.FC<{}> = observer((props) => {
     id="container"
     style={containerStyle}>
     {
-      dataStore.hasApplied ?
+      dataStore.selectedDatasetName?
         <>
           <div className={styles["axis"]}>
             <AxesLayer data={aggregatedData} width={screenWidth} height={screenHeight} margin={screenMargin} xScale={xScaleScreen} yScale={yScaleScreen} fieldX={timeAttrName} fieldY={valueAttrName} />

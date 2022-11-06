@@ -1,9 +1,7 @@
-import { makeAutoObservable, autorun, observable, computed, action, makeObservable } from "mobx";
+import { observable, computed, action, makeObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import datasetConfig from './dataConfig.json';
-import axios from 'axios';
-import Papa from 'papaparse';
-import { aggregateData, inferAttr, getXYScale, inferType } from "../helpers/data";
+import { aggregateData, getXYScale, inferType } from "../helpers/data";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -47,15 +45,15 @@ class DataStore {
 
   @observable aggregatedData: AggregatedData;
 
-  @observable hasApplied: boolean;
-
   @computed
   get timeDataType(): TimeDataType{
-    return this.timeAttrPos >= 0 ? inferType(this.rawData[0][this.timeAttrPos]) as TimeDataType : "number";  // !! check type
+    const inferedType = this.timeAttrPos >= 0 ? inferType(this.rawData[0][this.timeAttrPos]) as TimeDataType : "number";  // !! check type
+    return inferedType;
   }
   @computed
   get valueDataType(): ValueDataType{
-    return this.valueAttrPos >=0 ? inferType(this.rawData[0][this.timeAttrPos]) as ValueDataType : "number";  // !! check type
+    const inferedType = this.valueAttrPos >=0 ? inferType(this.rawData[0][this.valueAttrPos]) as ValueDataType : "number";  // !! check type
+    return inferedType;
   }
 
   @computed
@@ -112,8 +110,6 @@ class DataStore {
     this.timeAttrPos = -1;
     this.valueAttrPos = -1;
     this.aggregatedData = [];
-    this.hasApplied = false;
-    // makeAutoObservable(this);
     makeObservable(this);
   }
 
@@ -136,30 +132,11 @@ class DataStore {
       dataStore.valueAttrPos,
       dataStore.timeDataType,
       dataStore.valueDataType);
-    this.hasApplied = true;
     return true;
   }
 }
 
 const dataStore = new DataStore();
-// autorun(async () => {
-//   const selectedName = dataStore.selectedDatasetName;
-//   const url = datasetConfig.find(c => c.name === selectedName)?.url;
-//   if (url) {
-//     dataStore.status = "loading";
-//     const response = await axios.get(url);
-//     const rawData = Papa.parse(response.data, { skipEmptyLines: true }).data as RawData;
-//     dataStore.headers = rawData[0];
-//     dataStore.rawData = rawData.slice(1);
-//     const { aggregationAttr, timeAttr, valueAttr, timeDataType, valueDataType } = inferAttr(rawData);
-//     dataStore.aggregationAttrPos = aggregationAttr;
-//     dataStore.timeAttrPos = timeAttr;
-//     dataStore.valueAttrPos = valueAttr;
-//     dataStore.timeDataType = timeDataType;
-//     dataStore.valueDataType = valueDataType;
-//     dataStore.status = "idle";
-//   }
-// });
 
 export default dataStore;
 

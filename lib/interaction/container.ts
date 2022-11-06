@@ -2,7 +2,7 @@ import { Component } from "../ui";
 import { LayoutConstraints } from "../ui/component";
 // import Instrument from "./instrument";
 // import Layer from "./layer";
-type GeneralComponent = Component<string, string, {}>;
+export type GeneralComponent = Component<string, string, {}>;
 export default class Container {
   private _containerElement: HTMLCanvasElement;
   private _width: number;
