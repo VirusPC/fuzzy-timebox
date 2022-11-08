@@ -17,7 +17,7 @@ const QueryToolsPanel: FC<{}> = observer(() => {
 
   return (<div>
     <Button disabled={!dataStore.selectedDatasetName} type={queryMode === "timebox" ? "primary" : "default"} onClick={setTimeboxQueryMode}>timebox</Button>
-    <Button type={queryMode === "angular" ? "primary" : "default"} onClick={setAngularQueryMode}>angular</Button>
+    <Button disabled={!dataStore.selectedDatasetName} type={queryMode === "angular" ? "primary" : "default"} onClick={setAngularQueryMode}>angular</Button>
   </div>);
 });
 
