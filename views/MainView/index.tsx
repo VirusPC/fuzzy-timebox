@@ -11,8 +11,8 @@ import AxesLayer from "../../components/AxesLayer";
 import { aggregateData } from "../../helpers/data";
 import { observer } from "mobx-react";
 
-const screenWidth = 1000;
-const screenHeight = 500;
+export const screenWidth = 1000;
+export const screenHeight = 500;
 const screenMargin = { top: 50, right: 50, bottom: 70, left: 100 };
 const containerStyle = {
   width: screenWidth + screenMargin.left + screenMargin.right,
@@ -27,9 +27,6 @@ const layerStyle = {
 
 const MainView: React.FC<{}> = observer((props) => {
   console.log("mainview render");
-  const uiContainerRef = useRef<HTMLDivElement>(null);
-  const layersContainerRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
 
   const { width, height, timeAttrName, valueAttrName, timeScale: xScale, valueScale: yScale, aggregatedData2: aggregatedData } = dataStore;
   const { layerInfos } = canvasStore;

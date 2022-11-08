@@ -1,6 +1,13 @@
-.main{
-  display: flex;
+.main {
   padding: 10px 5px;
+}
+
+.v-concat {
+  display: flex;
+}
+.h-concat {
+  display: flex;
+  flex-direction: column;
 }
 // .canvas {
 //   width: min-content;
@@ -14,8 +21,8 @@
 .main-view {
 
 }
-.control-panel {
-  margin: 0px 20px;
+.query-tools-panel {
+  margin: 10px 0px;
 }
 // .layer {
 //   position: absolute;

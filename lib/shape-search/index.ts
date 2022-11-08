@@ -1,2 +1,3 @@
 import parseShapeSearch from "./parseShapeSearch";
-export { parseShapeSearch };
+import parseTask from "./parseTask";
+export { parseShapeSearch, parseTask };

@@ -2,6 +2,8 @@ import { makeAutoObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import { QueryMode, QueryInstrumentState } from "../lib/ui-controller";
 import { Container, Instrument } from "../lib/interaction";
+import { parseShapeSearch, parseTask } from "../lib/shape-search";
+import { screenHeight, screenWidth } from "../views/MainView";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -13,8 +15,6 @@ type SerializedStore = {
 };
 
 class QueryStore {
-  // @observable title: string | undefined;
-  // data: object[];
   queryMode: QueryMode;
   instrument: Instrument<QueryInstrumentState> | null;
   container: Container | null;
@@ -24,17 +24,27 @@ class QueryStore {
     this.container = null;
     makeAutoObservable(this);
   }
+  
   setQueryMode(queryMode: QueryMode){
     this.queryMode = queryMode;
     this.instrument?.setState("queryMode", queryMode);
     console.log(queryMode);
   }
+
+  shapeSearch(text: string){
+    console.log(this.container);
+    if(!this.container) return;
+    this.container.removeAllComponents();
+    const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-90, 90]);
+    if(!tasks) return;
+    const components = tasks.map(task => parseTask(task, screenWidth, screenHeight));
+    components.forEach((component) => {
+      if(!component) return;
+      this.container?.pushComponent(`${component?.type}-${new Date()}`, component);
+    });
+    this.container.reRender();
+  }
 }
 
 const queryStore = new QueryStore();
 export default queryStore;
-
-// export async function fetchInitialStoreState() {
-//   // You can do anything to fetch initial store state
-//   return {};
-// }

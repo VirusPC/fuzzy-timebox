@@ -1,7 +1,7 @@
 import { Component, ConstraintEffect, StyleMap } from "../../ui";
 
 type AngularGeometries = "hLine" | "handle" | "innerArc" | "outerArc" | "hLineLeftRect" | "hLineRightRect" | "arcBottomArc" | "arcTopArc";
-type AngularLayoutConstraints = {
+export type AngularLayoutConstraints = {
   x1: number;
   x2: number;
   y: number;

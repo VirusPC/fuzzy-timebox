@@ -6,7 +6,7 @@ import queryStore from '../../stores/QueryStore';
 import { Button } from 'antd';
 
 
-const ControlPanel: FC<{}> = observer(() => {
+const QueryToolsPanel: FC<{}> = observer(() => {
   const uiContainerRef = useRef<HTMLCanvasElement>(null);
   const queryMode = queryStore.queryMode;
   const setTimeboxQueryMode = useCallback(() => {
@@ -22,4 +22,4 @@ const ControlPanel: FC<{}> = observer(() => {
   </div>);
 });
 
-export default memo(ControlPanel);
+export default memo(QueryToolsPanel);

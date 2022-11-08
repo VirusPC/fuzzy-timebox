@@ -100,10 +100,10 @@ export default function appendUIController(
   // instrument.addInteractor(createTimeboxInteractor);
   return {
     // queriers: instrument.getState("queriers"),
-    setQueryMode: function (mode: QueryMode) {
-      console.log("set query mode on UI: ", mode);
-      instrument.setState("queryMode", mode);
-    },
+    // setQueryMode: function (mode: QueryMode) {
+    //   console.log("set query mode on UI: ", mode);
+    //   instrument.setState("queryMode", mode);
+    // },
     container: container,
     instrument: instrument,
     clearup: () => {

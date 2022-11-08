@@ -1,7 +1,7 @@
 import { Component, ConstraintEffect, StyleMap } from "../../ui"
 
 type TimeboxGeometries = "centerRect" | "topRect" | "rightRect" | "bottomRect" | "leftRect";
-type TimeboxLayoutConstraints = {
+export type TimeboxLayoutConstraints = {
   x: number;
   y: number;
   width: number;
