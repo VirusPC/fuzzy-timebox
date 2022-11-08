@@ -6,27 +6,33 @@ import MonacoEditor from "@monaco-editor/react";
 import styles from "./index.module.scss";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
+const EXAMPLE_SHAPE_SEARCH = `[x.s=100,
+  x.e=200,
+  y.s=2
+  ,y.e=200]
+[x.s=200,
+  x.e=300,
+  y.s=2,
+  y.e=200,
+  s.s=-30,
+  s.e=30]`;
 
 const Editor: FC<{}> = observer(() => {
-  const textRef = useRef<string>("");
+  const textRef = useRef<string>(EXAMPLE_SHAPE_SEARCH);
   const onEditorChange = useCallback((value: any, event: any) => {
     textRef.current = value;
   }, []);
   const onEditorMount= useCallback((editor: monaco.editor.IStandaloneCodeEditor, monaco: any) => {
+    editor.setValue(textRef.current);
   }, []);
   const onGenerate = useCallback(() => {
-    console.log("on generate");
     queryStore.shapeSearch(textRef.current);
-    // const { container } = queryStore
-    // container?.removeAllComponents();
-    // parseShapeSearch();
   }, []);
   return (<div >
     <div className={styles["editor-container"]}>
     <MonacoEditor
       height={500}
       width={300}
-      // defaultLanguage={""}
       onChange={onEditorChange}
       onMount={onEditorMount}
       options={{
@@ -34,7 +40,7 @@ const Editor: FC<{}> = observer(() => {
           vertical: "hidden"
         },
         fontSize: 16,
-        lineNumbers: "off"
+        lineNumbers: "off",
       }}
     />
     </div>
