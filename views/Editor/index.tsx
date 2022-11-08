@@ -9,8 +9,8 @@ import dataStore from '../../stores/DataStore';
 
 const EXAMPLE_SHAPE_SEARCH = `[x.s=100,
   x.e=200,
-  y.s=2
-  ,y.e=200]
+  y.s=2,
+  y.e=200]
 [x.s=200,
   x.e=300,
   s.s=-30,
