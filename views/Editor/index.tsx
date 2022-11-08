@@ -5,6 +5,7 @@ import { Button } from 'antd';
 import MonacoEditor from "@monaco-editor/react";
 import styles from "./index.module.scss";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import dataStore from '../../stores/DataStore';
 
 const EXAMPLE_SHAPE_SEARCH = `[x.s=100,
   x.e=200,
@@ -44,7 +45,7 @@ const Editor: FC<{}> = observer(() => {
       }}
     />
     </div>
-    <Button type="primary" style={{margin: "0px 20px"}} onClick={onGenerate}>Generate</Button>
+    <Button disabled={!dataStore.selectedDatasetName} type="primary" style={{margin: "0px 20px"}} onClick={onGenerate}>Generate</Button>
   </div>);
 });
 
