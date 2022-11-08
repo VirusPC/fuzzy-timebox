@@ -13,8 +13,6 @@ const EXAMPLE_SHAPE_SEARCH = `[x.s=100,
   ,y.e=200]
 [x.s=200,
   x.e=300,
-  y.s=2,
-  y.e=200,
   s.s=-30,
   s.e=30]`;
 
