@@ -31,7 +31,7 @@ export default function Home() {
             <MainView />
           </div>
         </div>
-        <div>
+        <div className={styles["editor"]}>
           <Editor/>
         </div>
       </main>
