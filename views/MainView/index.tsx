@@ -1,14 +1,11 @@
-import React, { useState, useRef, useMemo, useLayoutEffect, useEffect, useCallback } from "react";
+import React, { useMemo, useCallback } from "react";
 import styles from "./index.module.scss";
-import { drawAxes } from "../../helpers/chart";
-import * as d3 from "d3";
 import LineLayer from "../../components/LineLayer";
 import dataStore from "../../stores/DataStore";
 import canvasStore from "../../stores/CanvasStore";
 import queryStore from "../../stores/QueryStore";
 import QueryLayer, { InstrumentDidMount } from "../../components/QueryLayer";
 import AxesLayer from "../../components/AxesLayer";
-import { aggregateData } from "../../helpers/data";
 import { observer } from "mobx-react";
 
 export const screenWidth = 1000;

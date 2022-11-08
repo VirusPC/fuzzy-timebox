@@ -1,6 +1,4 @@
-import { memo, FC, useLayoutEffect, createRef, useRef, useEffect, useCallback } from 'react';
-import { appendUIController } from '../../lib/ui-controller';
-import { QueryComponent } from '../../lib/ui-controller/appendUIController';
+import { memo, FC, useRef, useCallback } from 'react';
 import { observer } from 'mobx-react';
 import queryStore from '../../stores/QueryStore';
 import { Button } from 'antd';

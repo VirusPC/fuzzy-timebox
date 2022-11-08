@@ -8,12 +8,8 @@ import Papa from "papaparse";
 import { inferAttr } from "../../helpers/data";
 import { autorun } from "mobx";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { Option } = Select;
-
-// type Props = {
-//   handleDatasetChange: (url: string) => void;
-// }
 
 const DataConsole: React.FC<{}> = observer(() => {
   const {width: _width, height: _height, selectedDatasetName: _selectedDatasetName, datasetConfig, headers: _headers, aggregationAttrPos: _aggregationAttrPos, timeAttrPos: _timeAttrPos, valueAttrPos: _valueAttrPos} = dataStore;
