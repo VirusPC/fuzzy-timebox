@@ -1,6 +1,5 @@
 import { SSTask } from "./parseShapeSearch";
 import { TimeboxComponent, AngularComponent, initializeTimeboxComponent, initializeAngularComponent } from "../ui-controller/components";
-import type { TimeboxLayoutConstraints, AngularLayoutConstraints } from "../ui-controller";
 
 type Component = TimeboxComponent | AngularComponent
 

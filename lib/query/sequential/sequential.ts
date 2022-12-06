@@ -27,6 +27,7 @@ class Sequential {
     const result: RawData = [];
     for (let i = 0; i < this._screenData.length; ++i) {
       const screenLine = this._screenData[i];
+      // 由于是非均匀采样，需要对于每条线单独定位窗口边界
       const l = sortedIndexBy(screenLine, {x: x1, y: 0}, "x");
       const r = sortedIndexBy(screenLine, {x: x2 + Number.MIN_VALUE, y: 0}, "x") - 1;
       if(l === r) continue;
@@ -43,6 +44,7 @@ class Sequential {
     const result: RawData = [];
     for (let i = 0; i < this._screenData.length; ++i) {
       const screenLine = this._screenData[i];
+      // 由于是非均匀采样，需要对于每条线单独定位窗口边界
       const l = sortedIndexBy(screenLine, {x: x1, y: 0}, "x");
       const r = sortedIndexBy(screenLine, {x: x2 + Number.MIN_VALUE, y: 0}, "x") - 1;
       if(l === r) continue;
