@@ -38,12 +38,15 @@ type GenericSSTask<M extends QueryMode, C extends Constraints> = {
 export type SSTask = GenericSSTask<"timebox", TimeboxConstraints> | GenericSSTask<"angular", AngularConstraints>;
 
 /**
- * shape search regex to component
- * @param expr 
+ * shape search expression parser
+ * 
+ * @param expr shape search expressions
+ * @param xRange the range of x in data domain
+ * @param yRange the range of y in data domain
+ * @param sRange the range of s in data domain
  * @returns 
  */
 export default function parseShapeSearch(expr: string, xRange: [number, number], yRange: [number, number], sRange: [number, number]): SSTask[] | null {
-  // const str1 = '[x.s=1,x.e=10,y.s=2,y.e=20][y.s=2,y.e=20]';
   const formattedExpr = formatExpr(expr);
   const shapeSearchExprs = formattedExpr.slice(1, formattedExpr.length - 1).split("][");
   const controlPointsForTasks = shapeSearchExprs
@@ -80,7 +83,7 @@ function generateControlPoints(shapeSearchExpr: string): ControlPoint[] | null {
       });
     }
   });
-  // // 需要保证至少有一个position
+  // // at least one position required
   // if(controlPoints.findIndex(cp => cp.name === "x" || cp.name === "y" || cp.name === "s") === -1) return null;
   return controlPoints;
 }
@@ -119,32 +122,6 @@ function formatControlPointValue(value: string, type: ControlPointName): number 
   }
   return null;
 }
-
-
-// function generateControlPoints(arr: string[]): ControlPoint[] {
-//   const input = arr[0];
-//   const paritalConstraints = input.slice(1, input.length - 1).split(",");
-//   const controlPoints: ControlPoint[] = paritalConstraints
-//     .map(paritalConstraint => {
-//       const [result] = [...paritalConstraint.matchAll(PARTIAL_CONSTRAINT_REGEX)];
-//       if(!result) return null;
-//       return {
-//         name: result[1],
-//         position:  result[2] === "s" ? "start" : "end",
-//         value: +result[3]
-//       }
-//     }).filter(cp => cp !== null) as ControlPoint[];
-
-//   // const num = Math.floor(arr.length/4);
-//   // const OFFSET = 1;
-//   // for(let i=0; i<num; ++i){
-//   //   const name = arr[OFFSET + i * 4 + 1] as "x";
-//   //   const position = arr[OFFSET + i * 4 + 2] === "s" ? "start" : "end";
-//   //   const value = +arr[OFFSET + i * 4 + 3];
-//   //   controlPoints.push({ name, position, value });
-//   // }
-//   return controlPoints;
-// }
 
 function getTask(controlPoints: ControlPoint[], xRange: [number, number], yRange: [number, number], sRange: [number, number]): SSTask {
   const xStartConstrolPoint = controlPoints.find(cp => cp.name === "x" && cp.position === "start");
