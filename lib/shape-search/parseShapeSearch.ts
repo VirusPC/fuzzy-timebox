@@ -1,10 +1,4 @@
-// import { GeneralComponent } from "../interaction/container";
 import { QueryMode } from "../ui-controller";
-// import { TimeboxLayoutConstraints, AngularLayoutConstraints } from "../ui-controller/";
-
-// const SHAPE_SEARCH_REGEX = /\[((x|y|s).(s|e)=-?(\d+),)*\]/g;
-// const SHAPE_SEARCH_REGEX = /\[(\w|\d|.|,)*\]/g;
-const PARTIAL_CONSTRAINT_REGEX = /(x|y|s).(s|e)=(-?\d*)/g
 
 type PositionControlPointName = "x" | "y" | "s";
 type PercentageControlPointName = "p";
@@ -52,37 +46,33 @@ export default function parseShapeSearch(expr: string, xRange: [number, number],
   // const str1 = '[x.s=1,x.e=10,y.s=2,y.e=20][y.s=2,y.e=20]';
   const formattedExpr = formatExpr(expr);
   const shapeSearchExprs = formattedExpr.slice(1, formattedExpr.length - 1).split("][");
-  const controlPoints = shapeSearchExprs.map(shapeSearchExpr => generateControlPoints(shapeSearchExpr));
-  // const results: string[][] = [...formattedExpr.matchAll(SHAPE_SEARCH_REGEX)];
-  // const controlPoints = results
-  //   .map(generateControlPoints)
-  // const 
-  const tasks = controlPoints.map((cps) => getTask(cps, xRange, yRange, sRange));
-  console.log(tasks);
-  // return tasks;
-  return [];
+  const controlPointsForTasks = shapeSearchExprs
+    .map(shapeSearchExpr => generateControlPoints(shapeSearchExpr))
+    .filter(cpft => cpft !== null) as ControlPoint[][];
+  const tasks = controlPointsForTasks.map((controlPoints) => getTask(controlPoints, xRange, yRange, sRange));
+  return tasks;
 }
 
-function generateControlPoints(shapeSearchExpr: string): ControlPoint[] {
+function generateControlPoints(shapeSearchExpr: string): ControlPoint[] | null {
   const controlPoints: ControlPoint[] = [];
   shapeSearchExpr.split(",").forEach((singleConstraintStr) => {
     const [property, value] = singleConstraintStr.split("=");
-    if (!property || !value) return;
+    if (!property || !value) return null;
     if (property === "p") {
       const formattedValue = formatControlPointValue(value, property);
-      if (formattedValue === null) return;
+      if (formattedValue === null) return null;
       controlPoints.push({
         name: "p",
         value: formattedValue
       });
     } else {
       const [name, position] = property.split(".");
-      if (!name || !position) return;
+      if (!name || !position) return null;
       const formattedName = formatControlPointName(name);
       const formattedPosition = formatControlPointPosition(position);
-      if (formattedName === null || formattedPosition === null) return;
+      if (formattedName === null || formattedPosition === null) return null;
       const formattedValue = formatControlPointValue(value, formattedName);
-      if (formattedValue === null) return;
+      if (formattedValue === null) return null;
       controlPoints.push({
         name: formattedName,
         position: formattedPosition,
@@ -90,6 +80,8 @@ function generateControlPoints(shapeSearchExpr: string): ControlPoint[] {
       });
     }
   });
+  // // 需要保证至少有一个position
+  // if(controlPoints.findIndex(cp => cp.name === "x" || cp.name === "y" || cp.name === "s") === -1) return null;
   return controlPoints;
 }
 
