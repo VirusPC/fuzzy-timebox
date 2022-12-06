@@ -6,6 +6,7 @@ import { parseShapeSearch } from "../lib/shape-search";
 import { parseTask } from "../lib/query";
 import { screenHeight, screenWidth } from "../views/MainView";
 import dataStore from "./DataStore";
+import { GeneralComponent } from "../lib/interaction/container";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -36,16 +37,15 @@ class QueryStore {
   shapeSearch(text: string){
     console.log(this.container);
     if(!this.container) return;
-    this.container.removeAllComponents();
     const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-90, 90]);
     if(!tasks) return;
-    // const components = tasks.map(task => parseTask(task, screenWidth, screenHeight, dataStore.timeScale, dataStore.valueScale));
     const components = tasks.map(task => parseTask(task, screenWidth, screenHeight, (d: number) => d, (d: number) => d));
+    const componentMap: {[name: string]: GeneralComponent} = {};
     components.forEach((component) => {
       if(!component) return;
-      this.container?.pushComponent(`${component?.type}-${new Date()}`, component);
+      componentMap[`${component?.type}-${new Date()}`] = component;
     });
-    this.container.reRender();
+    this.container.reRender(componentMap);
   }
 }
 

@@ -80,7 +80,14 @@ export default class Container {
     this._maxZIndex = Math.max(...Array.from(this._componentZIndexMap.values()));
   }
 
-  reRender() {
+  reRender(componentsMap?:{[name: string]: GeneralComponent}) {
+    if(componentsMap){
+      this.removeAllComponents();
+      Object.entries(componentsMap).forEach(([name, component]) => {
+        this.pushComponent(name, component);
+      });
+    }
+
     const componentOrder = Array
       .from(this._componentZIndexMap.entries())
       .sort((a, b) => {
@@ -91,6 +98,7 @@ export default class Container {
     this._containerElement?.getContext("2d")?.clearRect(0, 0, this._width, this._height);
     orderedComponents.forEach(component => component?.render());
   }
+
 
   onWhere(x: number, y: number): { componentName: string; where: string } | null {
     const componentOrder = Array

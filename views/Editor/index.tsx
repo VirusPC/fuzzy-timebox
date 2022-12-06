@@ -7,14 +7,19 @@ import styles from "./index.module.scss";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import dataStore from '../../stores/DataStore';
 
-const EXAMPLE_SHAPE_SEARCH = `[x.s=100,
+const EXAMPLE_SHAPE_SEARCH = `[
+  x.s=100,
   x.e=200,
   y.s=2,
-  y.e=200]
-[x.s=200,
+  y.e=200,
+  p=0.8
+]
+[
+  x.s=200,
   x.e=300,
   s.s=-30,
-  s.e=30]`;
+  s.e=30
+]`;
 
 const Editor: FC<{}> = observer(() => {
   const textRef = useRef<string>(EXAMPLE_SHAPE_SEARCH);
