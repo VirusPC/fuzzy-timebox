@@ -1,4 +1,4 @@
-import { Component, ConstraintEffect, StyleMap } from "../../ui";
+import { Component, ConstraintEffect, StyleMap } from "../../../lib/ui";
 
 type AngularGeometries = "hLine" | "handle" | "innerArc" | "outerArc" | "hLineLeftRect" | "hLineRightRect" | "arcBottomArc" | "arcTopArc";
 export type AngularLayoutConstraints = {
@@ -7,12 +7,13 @@ export type AngularLayoutConstraints = {
   y: number;
   startAngle: number;
   endAngle: number;
+  p: number;
 };
 type AngularConstraintEffect = ConstraintEffect<"angular", AngularGeometries, AngularLayoutConstraints>;
 export type AngularComponent = Component<"angular", AngularGeometries, AngularLayoutConstraints>;
 
 
-const DEFAULT_ANGULAR_CONSTRAINTS: AngularLayoutConstraints = {x1: 0, x2: 0, y: 0, startAngle: -Math.PI/4, endAngle: Math.PI/4};
+const DEFAULT_ANGULAR_CONSTRAINTS: AngularLayoutConstraints = {x1: 0, x2: 0, y: 0, startAngle: -Math.PI/4, endAngle: Math.PI/4, p: 1};
 
 const NORMAL_STYLE = {
   fill: "rgba(0, 0, 0, 0.5)",

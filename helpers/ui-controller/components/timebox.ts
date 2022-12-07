@@ -1,4 +1,4 @@
-import { Component, ConstraintEffect, StyleMap } from "../../ui"
+import { Component, ConstraintEffect, StyleMap } from "../../../lib/ui"
 
 type TimeboxGeometries = "centerRect" | "topRect" | "rightRect" | "bottomRect" | "leftRect";
 export type TimeboxLayoutConstraints = {
@@ -6,11 +6,12 @@ export type TimeboxLayoutConstraints = {
   y: number;
   width: number;
   height: number;
+  p: number;
 };
 export type TimeboxConstraintEffect = ConstraintEffect<"timebox", TimeboxGeometries, TimeboxLayoutConstraints>;
 export type TimeboxComponent = Component<"timebox", TimeboxGeometries, TimeboxLayoutConstraints>;
 
-const DEFAULT_TIMEBOX_CONSTRAINTS: TimeboxLayoutConstraints = { x: 0, y: 0, width: 0, height: 0 };
+const DEFAULT_TIMEBOX_CONSTRAINTS: TimeboxLayoutConstraints = { x: 0, y: 0, width: 0, height: 0, p: 1};
 const NORMAL_BORDER_RECT_STYLEMAP = {
   fill: "rgba(0, 0, 0, 0)",
   strokeWidth: 0

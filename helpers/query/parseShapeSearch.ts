@@ -1,5 +1,4 @@
-import { QueryMode } from "../ui-controller";
-
+import type { QueryTask } from "./types"
 type PositionControlPointName = "x" | "y" | "s";
 type PercentageControlPointName = "p";
 type ControlPointName = PositionControlPointName | PercentageControlPointName;
@@ -12,30 +11,6 @@ type ControlPoint = {
   name: PercentageControlPointName,
   value: number
 }
-type TimeboxConstraints = {
-  xStart: number,
-  xEnd: number,
-  yStart: number,
-  yEnd: number,
-  p: number,
-};
-
-type AngularConstraints = {
-  xStart: number,
-  xEnd: number,
-  sStart: number,
-  sEnd: number,
-  p: number,
-};
-
-type Constraints = TimeboxConstraints | AngularConstraints;
-
-type GenericSSTask<M extends QueryMode, C extends Constraints> = {
-  queryMode: M,
-  constraint: C
-}
-
-export type SSTask = GenericSSTask<"timebox", TimeboxConstraints> | GenericSSTask<"angular", AngularConstraints>;
 
 /**
  * shape search expression parser
@@ -46,7 +21,7 @@ export type SSTask = GenericSSTask<"timebox", TimeboxConstraints> | GenericSSTas
  * @param sRange the range of s in data domain
  * @returns 
  */
-export default function parseShapeSearch(expr: string, xRange: [number, number], yRange: [number, number], sRange: [number, number]): SSTask[] | null {
+export default function parseShapeSearch(expr: string, xRange: [number, number], yRange: [number, number], sRange: [number, number]): QueryTask[] | null {
   const formattedExpr = formatExpr(expr);
   const shapeSearchExprs = formattedExpr.slice(1, formattedExpr.length - 1).split("][");
   const controlPointsForTasks = shapeSearchExprs
@@ -123,7 +98,7 @@ function formatControlPointValue(value: string, type: ControlPointName): number 
   return null;
 }
 
-function getTask(controlPoints: ControlPoint[], xRange: [number, number], yRange: [number, number], sRange: [number, number]): SSTask {
+function getTask(controlPoints: ControlPoint[], xRange: [number, number], yRange: [number, number], sRange: [number, number]): QueryTask {
   const xStartConstrolPoint = controlPoints.find(cp => cp.name === "x" && cp.position === "start");
   const xEndConstrolPoint = controlPoints.find(cp => cp.name === "x" && cp.position === "end");
   const yStartConstrolPoint = controlPoints.find(cp => cp.name === "y" && cp.position === "start");
@@ -135,7 +110,7 @@ function getTask(controlPoints: ControlPoint[], xRange: [number, number], yRange
   if (!hasS) {
     // timebox
     return {
-      queryMode: "timebox",
+      mode: "timebox",
       constraint: {
         "xStart": xStartConstrolPoint ? xStartConstrolPoint.value : xRange[0],
         "xEnd": xEndConstrolPoint ? xEndConstrolPoint.value : xRange[1],
@@ -147,7 +122,7 @@ function getTask(controlPoints: ControlPoint[], xRange: [number, number], yRange
   } else {
     // angular
     return {
-      queryMode: "angular",
+      mode: "angular",
       constraint: {
         "xStart": xStartConstrolPoint ? xStartConstrolPoint.value : xRange[0],
         "xEnd": xEndConstrolPoint ? xEndConstrolPoint.value : xRange[1],

@@ -1,6 +1,6 @@
 import { memo, FC, useLayoutEffect, createRef, useRef, useEffect } from 'react';
-import { appendUIController } from '../../lib/ui-controller';
-import { QueryComponent, QueryInstrumentState, QueryMode } from '../../lib/ui-controller/appendUIController';
+import { appendUIController } from '../../helpers/ui-controller';
+import { QueryComponent, QueryInstrumentState, QueryMode } from '../../helpers/ui-controller/appendUIController';
 import { observer } from 'mobx-react';
 import { Container, Instrument } from '../../lib/interaction';
 // import queryStore from '../../stores/QueryStore';

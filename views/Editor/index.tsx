@@ -30,7 +30,7 @@ const Editor: FC<{}> = observer(() => {
     editor.setValue(textRef.current);
   }, []);
   const onGenerate = useCallback(() => {
-    queryStore.shapeSearch(textRef.current);
+    queryStore.executeShapeSearch(textRef.current);
   }, []);
   return (<div >
     <div className={styles["editor-container"]}>

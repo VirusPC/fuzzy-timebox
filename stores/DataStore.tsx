@@ -67,8 +67,15 @@ class DataStore {
   }
 
   @computed
-  get aggregatedData2() {
+  get aggregatedPlainData() {
     return this.aggregatedData.map(line => line.data);
+  }
+
+  @computed
+  get aggregatedPlainScreenData() {
+    const { timeScale, valueScale} = this.scales;
+    if(!timeScale || !valueScale) return [];
+    return this.aggregatedPlainData.map((points)=> points.map(point => ({x: timeScale(point.x), y: valueScale(point.y as any) as number})));
   }
 
   @computed

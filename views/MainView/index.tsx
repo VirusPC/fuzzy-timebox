@@ -25,7 +25,7 @@ const layerStyle = {
 const MainView: React.FC<{}> = observer((props) => {
   console.log("mainview render");
 
-  const { width, height, timeAttrName, valueAttrName, timeScale: xScale, valueScale: yScale, aggregatedData2: aggregatedData } = dataStore;
+  const { width, height, timeAttrName, valueAttrName, timeScale: xScale, valueScale: yScale, aggregatedPlainData: aggregatedData } = dataStore;
   const { layerInfos } = canvasStore;
   const { queryMode } = queryStore;
 

@@ -1,4 +1,4 @@
-import { Component, ConstraintEffect, StyleMap } from "../../ui";
+import { Component, ConstraintEffect, StyleMap } from "../../../lib/ui";
 
 type AngularPreviewGeometries = "hLine";
 type AngularPreviewLayoutConstraints = {

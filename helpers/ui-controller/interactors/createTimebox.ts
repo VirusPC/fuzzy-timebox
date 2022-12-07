@@ -1,9 +1,9 @@
-import { Container, Interactor } from "../../interaction";
+import { Interactor } from "../../../lib/interaction";
 import { QueryInstrumentProps } from "../appendUIController";
-import { Component } from "../../ui";
-import { initializeAngularComponent, AngularComponent, initializeAngularPreviewComponent, AngularPreviewComponent } from "../components";
+import { Component } from "../../../lib/ui";
+import { initializeTimeboxComponent, TimeboxComponent } from "../components";
 
-export default function initializeCreateAngularInteractor() {
+export default function initializeCreateTimeboxInteractor() {
   const interactor = new Interactor<QueryInstrumentProps>("start", [
     // angular brush
     {
@@ -11,7 +11,7 @@ export default function initializeCreateAngularInteractor() {
       events: ["mousedown"],
       filter: (event: Event, props: QueryInstrumentProps) => {
         const { container, instrument } = props;
-        return  !instrument.getState("activeComponent") && instrument.getState("queryMode") === "angular";
+        return  !instrument.getState("activeComponent") && instrument.getState("queryMode") === "timebox";
       },
       fromState: "start",
       toState: "running",
@@ -30,35 +30,34 @@ export default function initializeCreateAngularInteractor() {
     },
   ]);
 
-  let previewComponent: AngularPreviewComponent | null = null;
+  let previewComponent: TimeboxComponent | null = null;
   let startPos = { x: 0, y: 0 };
+
   interactor.addEventListener("createstart", (event, props) => {
     const { container, instrument } = props;
     if (!(event instanceof MouseEvent)) return;
-    previewComponent = initializeAngularPreviewComponent();
-    previewComponent.setLayoutConstraints({ x1: event.offsetX, x2: event.offsetX, y: event.offsetY });
+    previewComponent = initializeTimeboxComponent();
+    previewComponent.setLayoutConstraints({ x: event.offsetX, y: event.offsetY });
+    previewComponent.setStyleMap("highlight");
     startPos = { x: event.offsetX, y: event.offsetY };
-    container.pushComponent(`angular-${new Date()}`, previewComponent);
-    container.reRender();
+    container.pushComponent(`timebox-${new Date()}`, previewComponent);
   });
   interactor.addEventListener("creating", (event, props) => {
     const { container, instrument } = props;
     if (!(event instanceof MouseEvent)) return;
     if(!previewComponent) return;
     previewComponent.setLayoutConstraints({
-      x1: Math.min(startPos.x, event.offsetX),
-      x2: Math.max(startPos.x, event.offsetX),
+      x: Math.min(startPos.x, event.offsetX),
+      y: Math.min(startPos.y, event.offsetY),
+      width: Math.abs(event.offsetX - startPos.x),
+      height: Math.abs(event.offsetY - startPos.y),
     });
     container.reRender();
   })
   interactor.addEventListener("createend", (event, props) => {
     const { container, instrument } = props;
     if(!previewComponent) return;
-    container.popComponent();
-    const angularComponent = initializeAngularComponent();
-    const {x1, x2, y} = previewComponent.getLayoutConstraints();
-    angularComponent.setLayoutConstraints({x1, x2, y});
-    container.pushComponent(`angular-${new Date()}`, angularComponent);
+    previewComponent.setStyleMap("normal");
     container.reRender();
   })
 

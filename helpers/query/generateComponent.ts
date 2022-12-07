@@ -1,11 +1,20 @@
-import { SSTask } from "../shape-search/parseShapeSearch";
+import { LegalComponent, QueryTask } from "./types";
 import { TimeboxComponent, AngularComponent, initializeTimeboxComponent, initializeAngularComponent } from "../ui-controller/components";
 
-type Component = TimeboxComponent | AngularComponent
 type Scale = (d: number) => number;
 
-export default function parseTask(task: SSTask, screenWidth: number, screenHeight: number, scaleX: Scale, scaleY: Scale): Component | null {
-  if(task.queryMode === "timebox") {
+export default function generateComponents(task: QueryTask | QueryTask[], screenWidth: number, screenHeight: number, scaleX: Scale, scaleY: Scale): LegalComponent[] {
+  if(Array.isArray(task)) {
+    const components = task.map((t) => generateSingleComponent(t, screenWidth, screenHeight, scaleX, scaleY)).filter(t => t!==null) as LegalComponent[];
+    return components;
+  } else {
+    const component = generateSingleComponent(task, screenWidth, screenHeight, scaleX, scaleY);
+    return component ? [component] : [];
+  }
+}
+
+function generateSingleComponent(task: QueryTask, screenWidth: number, screenHeight: number, scaleX: Scale, scaleY: Scale): LegalComponent | null {
+  if(task.mode === "timebox") {
     const timeboxComponent = initializeTimeboxComponent();
     const { xStart, xEnd, yStart, yEnd } = task.constraint;
     const [screenX1, screenX2] = [xStart, xEnd].map(scaleX);
@@ -17,7 +26,7 @@ export default function parseTask(task: SSTask, screenWidth: number, screenHeigh
       height: screenY2 - screenY1
     });
     return timeboxComponent;
-  } else if(task.queryMode) {
+  } else if(task.mode) {
     const angularComponent = initializeAngularComponent();
     const { xStart, xEnd, sStart, sEnd } = task.constraint;
     const [screenX1, screenX2] = [xStart, xEnd].map(scaleX);

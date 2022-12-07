@@ -1,4 +1,4 @@
-import parseShapeSearch from "../lib/shape-search/parseShapeSearch"
+import parseShapeSearch from "../helpers/query/parseShapeSearch"
 
 const X_RANGE: [number, number] = [0, 1000];
 const Y_RANGE: [number, number]= [0, 1000];
@@ -22,11 +22,11 @@ test("test shape search 1", () => {
   ]`;
   const expectedTasks = [
     {
-      queryMode: 'timebox',
+      mode: 'timebox',
       constraint: { xStart: 100, xEnd: 200, yStart: 2, yEnd: 200, p: 0.5 }
     },
     {
-      queryMode: 'angular',
+      mode: 'angular',
       constraint: { xStart: 200, xEnd: 300, sStart: -30, sEnd: 30, p: 0.6 }
     }
   ];
@@ -54,15 +54,15 @@ test("test shape search 2", () => {
   ]`;
   const expectedTasks = [
     {
-      queryMode: 'timebox',
+      mode: 'timebox',
       constraint: { xStart: 100, xEnd: 200, yStart: 2, yEnd: 200, p: 0.5 }
     },
     {
-      queryMode: 'angular',
+      mode: 'angular',
       constraint: { xStart: 200, xEnd: 300, sStart: -30, sEnd: 30, p: 1 }
     },
     {
-      queryMode: 'timebox',
+      mode: 'timebox',
       constraint: { xStart: X_RANGE[0], xEnd: X_RANGE[1], yStart: Y_RANGE[0], yEnd: Y_RANGE[1], p: 1 }
     },
   ];

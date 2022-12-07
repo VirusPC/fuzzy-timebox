@@ -1,4 +1,4 @@
-import { Interactor } from "../../interaction";
+import { Interactor } from "../../../lib/interaction";
 import { QueryInstrumentProps } from "../appendUIController";
 import { AngularComponent, TimeboxComponent } from "../components";
 

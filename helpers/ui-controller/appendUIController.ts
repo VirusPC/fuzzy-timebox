@@ -1,6 +1,6 @@
-import { Container, Instrument, Interactor } from "../interaction";
-import { InstrumentProps } from "../interaction";
-import { Component } from "../ui";
+import { Container, Instrument, Interactor } from "../../lib/interaction";
+import { InstrumentProps } from "../../lib/interaction";
+import { Component } from "../../lib/ui";
 import { initializeCreateTimeboxInteractor, initializePanAndResizeTimeboxInteractor } from "./interactors";
 import { initializeCreateAngularInteractor, initializePanAngularInteractor, initializeResizeAngularInteractor } from "./interactors";
 import { TimeboxComponent, AngularPreviewComponent, AngularComponent } from "./components";
