@@ -24,7 +24,7 @@ function generateSingleShapeSearch(task: QueryTask, screenWidth: number, screenH
   x.e=${screenX2},
   y.s=${screenY1},
   y.e=${screenY2},
-  s=${p}
+  p=${p}
 ]`;
   } else if (task.mode) {
     const { xStart, xEnd, sStart, sEnd, p } = task.constraint;
@@ -34,7 +34,7 @@ function generateSingleShapeSearch(task: QueryTask, screenWidth: number, screenH
   x.e=${screenX2},
   s.s=${sStart / Math.PI * 180},
   s.e=${sEnd / Math.PI * 180},
-  s=${p}
+  p=${p}
 ]`;
   }
   return null;

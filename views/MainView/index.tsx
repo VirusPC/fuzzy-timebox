@@ -23,8 +23,6 @@ const layerStyle = {
 }
 
 const MainView: React.FC<{}> = observer((props) => {
-  console.log("mainview render");
-
   const { width, height, timeAttrName, valueAttrName, timeScale: xScale, valueScale: yScale, aggregatedPlainData: aggregatedData } = dataStore;
   const { layerInfos } = canvasStore;
   const { queryMode } = queryStore;
@@ -33,32 +31,11 @@ const MainView: React.FC<{}> = observer((props) => {
     queryStore.uiController = controller;
   }, []);
 
-    // console.log({xScale, yScale});
-    // console.log({xScale: xScale?.domain(), yScale: yScale?.domain()});
-    // console.log({xScale: xScale?.range(), yScale: yScale?.range()});
-    // console.log({xScale: xScale?.copy, yScale: yScale?.copy});
    /* compute scale based on screen */
    const { xScaleScreen, yScaleScreen } = useMemo(() => ({
     xScaleScreen: xScale === null ? null : (xScale.copy().domain(xScale.domain()) as any).range([0, layerStyle.width]),
     yScaleScreen: yScale === null ? null : (yScale.copy().range([layerStyle.height, 0]) as any),
   }), [xScale, yScale])
-
-
-  /* ui controller */
-  // useLayoutEffect(() => {
-  //   const uiContainer = uiContainerRef.current;
-  //   if (uiContainer === null) return;
-  //   if (kdTree === null) return;
-  //   const {setQueryMode, deleteQuerier, reRenderAll} = appendUIController(uiContainer, layerStyle.width, layerStyle.height, "timebox", 
-  //     (queriers: QueryComponent[]) => {
-  //       // console.warn("dispatch deleteQuerier.....", queriers);
-  //       dispatch(setQueriers(queriers))
-  //     });
-  //   dispatch(setSetQueryMode(setQueryMode));
-  //   dispatch(setDeleteQuerier(deleteQuerier));
-  //   dispatch(setReRenderAll(reRenderAll));
-  // }, [kdTree]);
-
 
   return (<div className={styles["container"]}
     id="container"

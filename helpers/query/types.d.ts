@@ -21,6 +21,7 @@ export type timeboxOption = {
   x2: number,
   y1: number,
   y2: number,
+  p: number,
 }
 
 export type angularOption = {
@@ -28,6 +29,7 @@ export type angularOption = {
   x2: number,
   slope1: number,
   slope2: number,
+  p: number
 }
 
 export type TimeboxConstraints = {

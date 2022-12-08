@@ -59,19 +59,18 @@ class QueryStore {
     const shapeSearchExpr = generateShapeSearch(tasks, screenWidth, screenHeight,  (d: number) => d, (d: number) => d);
     this._editor?.setValue(shapeSearchExpr);
     this.executeTasks();
-    console.log({tasks, shapeSearchExpr });
   }
 
   executeShapeSearch(text: string) {
     const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-90, 90])?.filter(task => task !== null);
     if (!tasks) return;
     this.tasks = tasks;
-    console.log({tasks});
     this._reRenderComponentsWithTasks();
     this.executeTasks();
   }
 
   executeTasks() {
+    console.log("tasks: ", this.tasks);
     const resultsForTasks: number[][] =  this.tasks.map((task) => {
       let results: number[] = [];
       if(task.mode === "timebox") {
@@ -79,14 +78,16 @@ class QueryStore {
           x1: task.constraint.xStart,
           x2: task.constraint.xEnd,
           y1: task.constraint.yStart,
-          y2: task.constraint.yEnd
+          y2: task.constraint.yEnd,
+          p: task.constraint.p
         }) || [];
       } else if(task.mode === "angular"){
         results = dataStore.sequentialSearch?.angular({
           x1: task.constraint.xStart,
           x2: task.constraint.xEnd,
           slope1: task.constraint.sStart,
-          slope2: task.constraint.sEnd
+          slope2: task.constraint.sEnd,
+          p: task.constraint.p
         }) || [];
       }
       return results;
@@ -108,7 +109,6 @@ class QueryStore {
   }
 
   private _controlEditor(controller: UIController) {
-    console.log("control editor");
     controller.addEventListener([
       "createTimebox_createend", 
       "createAngular_createend", 
