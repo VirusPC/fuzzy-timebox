@@ -125,7 +125,7 @@ function initializeQueryInstrument(instrument: Instrument<QueryInstrumentState>,
 
   function getCommonListener(newActionName: string): (event: Event, props: QueryInstrumentProps ) => void{
     return (event, props) => {
-      const listeners = listenerMap[newActionName];
+      const listeners = [...listenerMap[newActionName], ...listenerMap[ALL_LISTENER_TYPE]];
       if (listeners) {
         listeners.forEach((listener) => {
           const [name, component, position] = [instrument.getState("activeComponentName"), instrument.getState("activeComponent"), instrument.getState("activeComponentWhere")];
