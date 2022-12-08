@@ -9,6 +9,7 @@ import { QueryTask, generateComponent } from "../helpers/query";
 import { AngularComponent, TimeboxComponent } from "../helpers/ui-controller/components";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import dataStore from "./DataStore";
+import { intersection } from "lodash";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -71,8 +72,7 @@ class QueryStore {
   }
 
   executeTasks() {
-    const resultSet = new Set<number>();
-    this.tasks.forEach((task) => {
+    const resultsForTasks: number[][] =  this.tasks.map((task) => {
       let results: number[] = [];
       if(task.mode === "timebox") {
         results = dataStore.sequentialSearch?.timebox({
@@ -89,9 +89,10 @@ class QueryStore {
           slope2: task.constraint.sEnd
         }) || [];
       }
-      results.forEach(lineId => resultSet.add(lineId));
+      return results;
     });
-    const lines = [...resultSet].map(lineId => dataStore.aggregatedPlainData[lineId]);
+    const intersectionResults = intersection(...resultsForTasks);
+    const lines = intersectionResults.map(lineId => dataStore.aggregatedPlainData[lineId]);
     this.results = lines;
     console.log("search results: ", lines);
   }
