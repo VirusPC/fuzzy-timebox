@@ -12,17 +12,17 @@ import { AngularQueryTask, LegalComponent, QueryTask, TimeboxQueryTask } from ".
 // }
 
 
-export default function parseComponent(component: LegalComponent | LegalComponent[] ): QueryTask[] {
+export default function parseComponent(component: LegalComponent | LegalComponent[], screenHeight: number ): QueryTask[] {
   if(Array.isArray(component)) {
-    const tasks = component.map((c) => parseSingleComponent(c)).filter(c => c!==null) as QueryTask[];
+    const tasks = component.map((c) => parseSingleComponent(c, screenHeight)).filter(c => c!==null) as QueryTask[];
     return tasks;
   } else {
-    const task = parseSingleComponent(component);
+    const task = parseSingleComponent(component, screenHeight);
     return task ? [task] : [];
   }
 }
 
-function parseSingleComponent(component: TimeboxComponent | AngularComponent): TimeboxQueryTask | AngularQueryTask | null {
+function parseSingleComponent(component: TimeboxComponent | AngularComponent, screenHeight: number): TimeboxQueryTask | AngularQueryTask | null {
   if (component.type === "timebox") {
     const { x, y, width, height, p } = component.getLayoutConstraints();
     const task: TimeboxQueryTask = {
@@ -30,7 +30,9 @@ function parseSingleComponent(component: TimeboxComponent | AngularComponent): T
       constraint: {
         xStart: x,
         xEnd: x + width,
-        yStart: y,
+        // yStart: screenHeight -  y - height,
+        // yEnd: screenHeight - y,
+        yStart:  y,
         yEnd: y + height,
         p: p
       }

@@ -2,12 +2,13 @@ import { makeAutoObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import { QueryMode, QueryInstrumentState, UIController } from "../helpers/ui-controller";
 import { Container, Instrument } from "../lib/interaction";
-import { AngularQueryTask, generateShapeSearch, parseComponent, parseShapeSearch, TimeboxQueryTask } from "../helpers/query";
+import { AngularQueryTask, generateShapeSearch, parseComponent, parseShapeSearch, SequentialSearch, TimeboxQueryTask } from "../helpers/query";
 import { screenHeight, screenWidth } from "../views/MainView";
 import { GeneralComponent } from "../lib/interaction/container";
 import { QueryTask, generateComponent } from "../helpers/query";
 import { AngularComponent, TimeboxComponent } from "../helpers/ui-controller/components";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import dataStore from "./DataStore";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -18,7 +19,7 @@ class QueryStore {
   _uiController: UIController | null;
   _editor: monaco.editor.IStandaloneCodeEditor | null;
   tasks: QueryTask[];
-  results: unknown[];
+  results: (Point<number, string>[] | Point<number, number>[] | Point<Date, number>[] | Point<Date, string>[])[];
 
   constructor() {
     this.queryMode = "timebox";
@@ -52,10 +53,11 @@ class QueryStore {
   }
 
   _executeVisualQuery(components: (TimeboxComponent | AngularComponent)[]) {
-    const tasks = parseComponent(components);
+    const tasks = parseComponent(components, screenHeight);
     this.tasks = tasks;
     const shapeSearchExpr = generateShapeSearch(tasks, screenWidth, screenHeight,  (d: number) => d, (d: number) => d);
     this._editor?.setValue(shapeSearchExpr);
+    this.executeTasks();
     console.log({tasks, shapeSearchExpr });
   }
 
@@ -65,12 +67,37 @@ class QueryStore {
     this.tasks = tasks;
     console.log({tasks});
     this._reRenderComponentsWithTasks();
+    this.executeTasks();
   }
 
-  executeTasks(tasks: QueryTask[]) { }
+  executeTasks() {
+    const resultSet = new Set<number>();
+    this.tasks.forEach((task) => {
+      let results: number[] = [];
+      if(task.mode === "timebox") {
+        results = dataStore.sequentialSearch?.timebox({
+          x1: task.constraint.xStart,
+          x2: task.constraint.xEnd,
+          y1: task.constraint.yStart,
+          y2: task.constraint.yEnd
+        }) || [];
+      } else if(task.mode === "angular"){
+        results = dataStore.sequentialSearch?.angular({
+          x1: task.constraint.xStart,
+          x2: task.constraint.xEnd,
+          slope1: task.constraint.sStart,
+          slope2: task.constraint.sEnd
+        }) || [];
+      }
+      results.forEach(lineId => resultSet.add(lineId));
+    });
+    const lines = [...resultSet].map(lineId => dataStore.aggregatedPlainData[lineId]);
+    this.results = lines;
+    console.log("search results: ", lines);
+  }
 
   private _reRenderComponentsWithTasks() {
-    const components = generateComponent(this.tasks, screenWidth, screenHeight, (d: number) => d, (d: number) => d);
+    const components = generateComponent(this.tasks, screenWidth, screenHeight, (d: number) => d, (d: number) =>  d);
     const componentMap: { [name: string]: GeneralComponent } = {};
     components.forEach((component) => {
       if (!component) return;

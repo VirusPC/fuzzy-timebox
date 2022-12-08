@@ -22,7 +22,7 @@ class CanvasStore {
       id: "raw_line",
       name: "raw line",
       colormap: colormaps[17].value,
-      opacity: 0,
+      opacity: 0.01,
     }, 
     // {
     //   type: "density",
@@ -30,13 +30,15 @@ class CanvasStore {
     //   name: "density",
     //   colormap: colormaps[17].value,
     //   opacity: 1,
-    // }, {
-    //   type: "line",
-    //   id: "selected_line",
-    //   name: "selected line",
-    //   colormap: colormaps[17].value,
-    //   opacity: 0.5,
-    // }, {
+    // }, 
+    {
+      type: "line",
+      id: "selected_line",
+      name: "selected line",
+      colormap: colormaps[17].value,
+      opacity: 1,
+    }, 
+    // {
     //   type: "density",
     //   id: "selected_density",
     //   name: "selected density",

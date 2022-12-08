@@ -5,12 +5,13 @@ export function drawLines(ctx: CanvasRenderingContext2D, width: number, height: 
   data: { x: any, y: any }[][],
   xScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number>,
   yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>,
-  colormap: Colormap
+  colormap: Colormap,
+  opacity: number = 1
 ) {
   ctx.clearRect(0, 0, width, height);
   const lines = data.map(line => line.map(point => [xScale(point.x), yScale(point.y)]))
   lines.forEach((line, i) => {
-    ctx.strokeStyle = `rgb(${getRandomColor(colormap).join(",")})`;//colorMap[i % colorMap.length];
+    ctx.strokeStyle = `rgba(${[...getRandomColor(colormap), opacity].join(",")})`;//colorMap[i % colorMap.length];
     if (line.length <= 0) return;
     ctx.beginPath();
     ctx.moveTo(line[0][0] as number, line[0][1] as number);

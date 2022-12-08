@@ -24,7 +24,7 @@ const LineLayer: React.FC<Props> = ({ layerInfo, width, height, screenWidth, scr
         if (canvasElem === null) return;
         const ctx = canvasElem.getContext("2d");
         if (ctx === null) return;
-        const clearup = drawLines(ctx, width, height, data, xScale, yScale, layerInfo.colormap);
+        const clearup = drawLines(ctx, width, height, data, xScale, yScale, layerInfo.colormap, layerInfo.opacity);
         return clearup;
     });
     return (<canvas id={layerInfo.id} className={className} width={width} height={height} style={{ width: screenWidth, height: screenHeight }} ref={canvasRef}></canvas>);

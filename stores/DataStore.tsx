@@ -2,6 +2,8 @@ import { observable, computed, action, makeObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import datasetConfig from './dataConfig.json';
 import { aggregateData, getXYScale, inferType } from "../helpers/data";
+import queryStore from "./QueryStore";
+import { SequentialSearch } from "../helpers/query";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -44,6 +46,7 @@ class DataStore {
   @observable valueAttrPos: number;
 
   @observable aggregatedData: AggregatedData;
+  sequentialSearch: SequentialSearch | null;
 
   @computed
   get timeDataType(): TimeDataType{
@@ -117,6 +120,7 @@ class DataStore {
     this.timeAttrPos = -1;
     this.valueAttrPos = -1;
     this.aggregatedData = [];
+    this.sequentialSearch = null;
     makeObservable(this);
   }
 
@@ -139,6 +143,12 @@ class DataStore {
       dataStore.valueAttrPos,
       dataStore.timeDataType,
       dataStore.valueDataType);
+    if(this.timeScale === null || this.valueScale === null) return false;
+    this.sequentialSearch = new SequentialSearch(
+      dataStore.aggregatedPlainScreenData,
+      "x",
+      "y",
+    );
     return true;
   }
 }

@@ -109,7 +109,7 @@ const DataConsole: React.FC<{}> = observer(() => {
       </Space>
     </div>
     <div className={styles["submit-block"]}>
-      <Button className={styles["apply"]} disabled={!datasetName} type={"primary"} onClick={onApply}>Apply</Button>
+      <Button className={styles["apply"]} disabled={!datasetName || dataStore.status !== "idle"} type={"primary"} onClick={onApply}>Apply</Button>
     </div>
   </div>)
 })
