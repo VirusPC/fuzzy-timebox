@@ -1,10 +1,10 @@
 import { Interactor } from "../../../lib/interaction";
-import { QueryInstrumentProps } from "../appendUIController";
+import { QueryInstrumentProps } from "../uiController";
 import { Component } from "../../../lib/ui";
 import { initializeTimeboxComponent, TimeboxComponent } from "../components";
 
 export default function initializeCreateTimeboxInteractor() {
-  const interactor = new Interactor<QueryInstrumentProps>("start", [
+  const interactor = new Interactor<QueryInstrumentProps>("createTimebox", "start", [
     // angular brush
     {
       action: "createstart",

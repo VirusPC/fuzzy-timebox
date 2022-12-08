@@ -23,6 +23,11 @@ export default class Instrument<S extends State> {
     this._postEffect = null;
     this._shouldStopNextDispatch = false;
   }
+
+  get interactors(){
+    return this._interactors;
+  }
+
   getState<T extends keyof S>(key: T): S[T] {
     return this._state[key];
   }

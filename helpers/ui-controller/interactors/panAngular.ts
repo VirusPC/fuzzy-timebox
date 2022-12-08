@@ -1,9 +1,9 @@
 import { Interactor } from "../../../lib/interaction";
-import { QueryInstrumentProps } from "../appendUIController";
+import { QueryInstrumentProps } from "../uiController";
 import { AngularComponent, TimeboxComponent } from "../components";
 
 export default function initializePanAngularInteractor() {
-  const interactor = new Interactor<QueryInstrumentProps>("start", [
+  const interactor = new Interactor<QueryInstrumentProps>("panAngular", "start", [
     // angular brush
     {
       action: "modifystart",  // resize

@@ -22,36 +22,54 @@ export type QueryInstrumentState = {
   } | null,
 }
 export type QueryInstrumentProps = InstrumentProps<QueryInstrumentState>;
+export type Listener = (event: Event, props: QueryInstrumentProps) => void;
 
-/**
- *
- *
- * @export
- * @param {HTMLDivElement} root
- * @param {AliTVSTree} kdTree
- * @param {{width: number, height: number, top: number, left: number}} layerStyle
- */
-export default function appendUIController(
-  root: HTMLCanvasElement,
-  // kdTree: AliTVSTree,
-  width: number,
-  height: number,
-  defaultQueryMode: QueryMode = "timebox",
-  // setQueriers: (queriers: QueryComponent[]) => void,
-) {
-  const container = new Container(root, width, height);
+export class UIController {
+  container: Container;
+  instrument: Instrument<QueryInstrumentState>;
+  listeners: { [eventName: string]: Listener[] }
 
-  /** add interaction */
-  const defaultState: QueryInstrumentState = {
-    queryMode: defaultQueryMode,
-    activeComponentName: null,
-    activeComponent: null,
-    activeComponentWhere: null,
-    syntheticEvent: null,
+  constructor(root: HTMLCanvasElement, width: number, height: number, defaultQueryMode: QueryMode = "timebox",) {
+    // container
+    this.container = new Container(root, width, height);
+
+    // listeners
+    this.listeners = {};
+
+    // instrument
+    const defaultState: QueryInstrumentState = {
+      queryMode: defaultQueryMode,
+      activeComponentName: null,
+      activeComponent: null,
+      activeComponentWhere: null,
+      syntheticEvent: null,
+    }
+    this.instrument = new Instrument<QueryInstrumentState>(defaultState);
+    this.instrument.setContainer(this.container);
+    initializeQueryInstrument(this.instrument, this.listeners);
   }
-  const instrument = new Instrument<QueryInstrumentState>(defaultState);
-  instrument.setContainer(container);
 
+  clearup() {
+    this.instrument.removeFromContainer();
+  }
+
+  addEventListener(eventName: string, listener: Listener) {
+    this.listeners[eventName] ? this.listeners[eventName].push(listener) : this.listeners[eventName] = [listener];
+  }
+
+  removeEventListener(eventName: string, listener?: Listener) {
+    if (!this.listeners[eventName]) return;
+    if (!listener) {
+      delete this.listeners[eventName];
+    } else {
+      this.listeners[eventName] = this.listeners[eventName].filter(l => l !== l);
+      if (this.listeners[eventName].length === 0) delete this.listeners[eventName];
+    }
+  }
+
+}
+
+function initializeQueryInstrument(instrument: Instrument<QueryInstrumentState>, listenerMap: { [eventName: string]: Listener[] }) {
   instrument.setPreEffect((event, props) => {
     if (!(event instanceof MouseEvent)) return;
     const { container, instrument } = props;
@@ -72,6 +90,17 @@ export default function appendUIController(
     }
   });
 
+  function getCommonListener(newActionName: string): Listener {
+    return (event, props) => {
+      const listeners = listenerMap[newActionName];
+      if (listeners) {
+        listeners.forEach((listener) => {
+          listener(event, props);
+        });
+      }
+    };
+  }
+
   // timebox
   const createTimeboxQueryInteractor = initializeCreateTimeboxInteractor();
   instrument.addInteractor(createTimeboxQueryInteractor);
@@ -81,51 +110,18 @@ export default function appendUIController(
 
   // angular
   const createAngularQueryInteractor = initializeCreateAngularInteractor();
-  // createAngularQueryInteractor.addEventListener("createend", setQueriersState)
   instrument.addInteractor(createAngularQueryInteractor);
 
   const panAngularQueryInteractor = initializePanAngularInteractor();
-  // panAngularQueryInteractor.addEventListener("modifyend", setQueriersState)
   instrument.addInteractor(panAngularQueryInteractor);
 
   const resizeAngularQueryInteractor = initializeResizeAngularInteractor();
-  // resizeAngularQueryInteractor.addEventListener("modifyend", setQueriersState)
   instrument.addInteractor(resizeAngularQueryInteractor);
-  // modify timebox query component 
-  // const createTimeboxInteractor = initializeTimeboxInteractor(queryLayer);
-  // instrument.addInteractor(createTimeboxInteractor);
 
-  // modify angular query component 
-  // const createAngularInteractor = initializeTimeboxInteractor(queryLayer);
-  // instrument.addInteractor(createTimeboxInteractor);
-  return {
-    // queriers: instrument.getState("queriers"),
-    // setQueryMode: function (mode: QueryMode) {
-    //   console.log("set query mode on UI: ", mode);
-    //   instrument.setState("queryMode", mode);
-    // },
-    container: container,
-    instrument: instrument,
-    clearup: () => {
-      instrument.removeFromContainer();
-    }
+  instrument.interactors.forEach((interactor) => {
+    interactor.actions.forEach((action) => {
+      interactor.addEventListener(action, getCommonListener(`${interactor.name}_${action}`));
+    });
+  });
 
-    // deleteQuerier: function (index?: number) {
-    //   const queriers = instrument.getState("queriers");
-    //   if (index === undefined) {
-    //     instrument.setState("queriers", []);
-    //     queryLayer.clear();
-    //   } else {
-    //     queriers.splice(index, 1);
-    //     queryLayer.clear();
-    //     queriers.forEach((querier) => querier.render());
-    //   }
-    //   setQueriersState();
-    // },
-    // reRenderAll: function () {
-    //   const queriers = instrument.getState("queriers");
-    //   queryLayer.clear();
-    //   queriers.forEach((querier) => querier.render());
-    // }
-  }
 }

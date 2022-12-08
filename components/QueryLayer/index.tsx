@@ -1,9 +1,6 @@
-import { memo, FC, useLayoutEffect, createRef, useRef, useEffect } from 'react';
-import { appendUIController } from '../../helpers/ui-controller';
-import { QueryComponent, QueryInstrumentState, QueryMode } from '../../helpers/ui-controller/appendUIController';
-import { observer } from 'mobx-react';
-import { Container, Instrument } from '../../lib/interaction';
-// import queryStore from '../../stores/QueryStore';
+import { memo, FC, useRef, useEffect } from 'react';
+import { UIController } from '../../helpers/ui-controller';
+import { QueryMode } from '../../helpers/ui-controller';
 
 const screenWidth = 1000;
 const screenHeight = 500;
@@ -19,7 +16,7 @@ const layerStyle = {
   height: screenHeight
 }
 
-export type InstrumentDidMount =  (instrument: Instrument<QueryInstrumentState>, container: Container) => void;
+export type InstrumentDidMount =  (controller: UIController) => void;
 
 type QueryLayerProps = {
   queryMode: QueryMode;
@@ -31,9 +28,9 @@ const QueryLayer: FC<QueryLayerProps> = ({queryMode, instrumentDidMount}) => {
     useEffect(() => {
       const uiContainer = uiContainerRef.current;
       if (uiContainer === null) return;
-      const {instrument, container, clearup } = appendUIController(uiContainer, layerStyle.width, layerStyle.height, queryMode);
-      instrumentDidMount && instrumentDidMount(instrument, container);
-      return clearup;
+      const controller = new UIController(uiContainer, layerStyle.width, layerStyle.height, queryMode);
+      instrumentDidMount && instrumentDidMount(controller);
+      return () => controller.clearup();
     }, []);
 
   return (<canvas ref={uiContainerRef}></canvas>);

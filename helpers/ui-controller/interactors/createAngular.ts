@@ -1,16 +1,22 @@
-import { Container, Interactor } from "../../../lib/interaction";
-import { QueryInstrumentProps } from "../appendUIController";
-import { Component } from "../../../lib/ui";
-import { initializeAngularComponent, AngularComponent, initializeAngularPreviewComponent, AngularPreviewComponent } from "../components";
+import { Interactor } from "../../../lib/interaction";
+import { QueryInstrumentProps } from "../uiController";
+import { initializeAngularComponent, initializeAngularPreviewComponent, AngularPreviewComponent } from "../components";
+
+export const NAME = "CREATE_ANGULAR"; 
+export const ACTIONS = [
+  "createstart", 
+  "creating",
+  "createend"
+]; 
 
 export default function initializeCreateAngularInteractor() {
-  const interactor = new Interactor<QueryInstrumentProps>("start", [
+  const interactor = new Interactor<QueryInstrumentProps>("createAngular", "start", [
     // angular brush
     {
       action: "createstart",
       events: ["mousedown"],
       filter: (event: Event, props: QueryInstrumentProps) => {
-        const { container, instrument } = props;
+        const { instrument } = props;
         return  !instrument.getState("activeComponent") && instrument.getState("queryMode") === "angular";
       },
       fromState: "start",

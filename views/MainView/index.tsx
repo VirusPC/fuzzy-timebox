@@ -29,9 +29,9 @@ const MainView: React.FC<{}> = observer((props) => {
   const { layerInfos } = canvasStore;
   const { queryMode } = queryStore;
 
-  const instrumentDidMount = useCallback<InstrumentDidMount>((instrument, container) => {
-    queryStore.instrument = instrument;
-    queryStore.container = container;
+  const instrumentDidMount = useCallback<InstrumentDidMount>((controller) => {
+    queryStore.instrument = controller.instrument;
+    queryStore.container = controller.container;
   }, []);
 
     // console.log({xScale, yScale});

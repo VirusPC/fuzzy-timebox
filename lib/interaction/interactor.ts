@@ -15,15 +15,27 @@ export default class Interactor<P extends Props> {
   private _currentState: string;
   private _transitions: Transition<P>[];
   private _listenerMap: { [action: string]: ((event: Event, props: P) => boolean | undefined | void)[] };
+  private _actions: string[];
+  private _name: string;
 
-  constructor(initState: string, transitions: Transition<P>[], listenerMap: { [action: string]: ((event: Event, props: P) => boolean | undefined | void)[] } = {}) {
+  constructor(name: string, initState: string, transitions: Transition<P>[], listenerMap: { [action: string]: ((event: Event, props: P) => boolean | undefined | void)[] } = {}) {
+    this._name = name;
     this._currentState = initState;
     this._transitions = transitions;
     this._listenerMap = listenerMap;
+    this._actions = transitions.map(transition => transition.action);
+  }
+
+  get name() {
+    return this._name;
   }
 
   get currentState() {
     return this._currentState;
+  }
+
+  get actions() {
+    return this._actions;
   }
 
   dispatch(event: Event, props: P = {} as P): boolean | undefined {
