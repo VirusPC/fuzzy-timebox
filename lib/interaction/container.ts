@@ -50,6 +50,10 @@ export default class Container {
     return this._componentMap.get(componentName);
   }
 
+  getComponents() {
+    return this._componentMap;
+  }
+
   pushComponent(componentName: string, component: GeneralComponent) {
     component.setContext(this._containerElement.getContext("2d")!);
     this._componentMap.set(componentName, component);

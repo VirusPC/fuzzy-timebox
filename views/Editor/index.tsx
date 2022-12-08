@@ -1,11 +1,11 @@
 import { memo, FC, useRef, useCallback } from 'react';
 import { observer } from 'mobx-react';
-import queryStore from '../../stores/QueryStore';
 import { Button } from 'antd';
 import MonacoEditor from "@monaco-editor/react";
 import styles from "./index.module.scss";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import dataStore from '../../stores/DataStore';
+import queryStore from '../../stores/QueryStore';
 
 const EXAMPLE_SHAPE_SEARCH = `[
   x.s=100,
@@ -28,6 +28,7 @@ const Editor: FC<{}> = observer(() => {
   }, []);
   const onEditorMount= useCallback((editor: monaco.editor.IStandaloneCodeEditor, monaco: any) => {
     editor.setValue(textRef.current);
+    queryStore.editor = editor;
   }, []);
   const onGenerate = useCallback(() => {
     queryStore.executeShapeSearch(textRef.current);

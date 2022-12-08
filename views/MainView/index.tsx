@@ -29,9 +29,8 @@ const MainView: React.FC<{}> = observer((props) => {
   const { layerInfos } = canvasStore;
   const { queryMode } = queryStore;
 
-  const instrumentDidMount = useCallback<InstrumentDidMount>((controller) => {
-    queryStore.instrument = controller.instrument;
-    queryStore.container = controller.container;
+  const uiControllerDidMount = useCallback<InstrumentDidMount>((controller) => {
+    queryStore.uiController = controller;
   }, []);
 
     // console.log({xScale, yScale});
@@ -43,30 +42,6 @@ const MainView: React.FC<{}> = observer((props) => {
     xScaleScreen: xScale === null ? null : (xScale.copy().domain(xScale.domain()) as any).range([0, layerStyle.width]),
     yScaleScreen: yScale === null ? null : (yScale.copy().range([layerStyle.height, 0]) as any),
   }), [xScale, yScale])
-
-  // const brushDomain = useAppSelector(selectBrushDomain);
-  // const {instrument, container} = queryStore.instrument;
-
-
-  // /* compute scale based on screen */
-  // const { xScaleScreen, yScaleScreen } = useMemo(() => ({
-  //   xScaleScreen: xScale === null ? null : (xScale.copy().domain(brushDomain) as any).range([0, layerStyle.width]),
-  //   yScaleScreen: yScale === null ? null : yScale.copy().range([layerStyle.height, 0]),
-  // }), [xScale, yScale])
-
-
-  // /* Draw Axis */
-  // useEffect(() => {
-  //   if (xScaleScreen === null || yScaleScreen === null) return;
-  //   if (svgRef.current === null) return;
-  //   svgRef.current.innerHTML = "";
-  //   drawAxes(
-  //     svgRef.current,
-  //     xScaleScreen as d3.AxisScale<d3.NumberValue>, yScaleScreen as unknown as  d3.AxisScale<d3.NumberValue>,
-  //     screenWidth, screenHeight, screenMargin,
-  //     { fieldX: timeAttrName, fieldY: valueAttrName, titleSize: "16px" }
-  //   );
-  // }, [xScaleScreen, yScaleScreen, timeAttrName, valueAttrName])
 
 
   /* ui controller */
@@ -113,7 +88,7 @@ const MainView: React.FC<{}> = observer((props) => {
         </div>
           {/* </div> */}
           <div className={styles["query"]}>
-            <QueryLayer queryMode={queryMode} instrumentDidMount={instrumentDidMount} />
+            <QueryLayer queryMode={queryMode} uiControllerDidMount={uiControllerDidMount} />
           </div>
         </> : <></>
     }

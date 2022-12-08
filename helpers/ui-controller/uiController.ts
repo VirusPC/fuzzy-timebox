@@ -4,6 +4,7 @@ import { Component } from "../../lib/ui";
 import { initializeCreateTimeboxInteractor, initializePanAndResizeTimeboxInteractor } from "./interactors";
 import { initializeCreateAngularInteractor, initializePanAngularInteractor, initializeResizeAngularInteractor } from "./interactors";
 import { TimeboxComponent, AngularPreviewComponent, AngularComponent } from "./components";
+import { GeneralComponent } from "../../lib/interaction/container";
 
 export type QueryMode = "timebox" | "angular" | "mix" | "knn" | "rnn" | "hover" | "sketch" | "zoom";
 export type InteractorType = "create" | QueryMode;
@@ -22,7 +23,9 @@ export type QueryInstrumentState = {
   } | null,
 }
 export type QueryInstrumentProps = InstrumentProps<QueryInstrumentState>;
-export type Listener = (event: Event, props: QueryInstrumentProps) => void;
+export type Listener = (activeComponent: {name: string, component: GeneralComponent, position: string} | null, event: Event, props: QueryInstrumentProps) => void;
+
+const ALL_LISTENER_TYPE = "*";
 
 export class UIController {
   container: Container;
@@ -53,18 +56,48 @@ export class UIController {
     this.instrument.removeFromContainer();
   }
 
-  addEventListener(eventName: string, listener: Listener) {
-    this.listeners[eventName] ? this.listeners[eventName].push(listener) : this.listeners[eventName] = [listener];
+  addEventListener(eventName: string | string[], listener: Listener) {
+    if(Array.isArray(eventName)){
+      eventName.forEach(en => this.addEventListener(en, listener));
+    } else {
+      this.listeners[eventName] ? this.listeners[eventName].push(listener) : this.listeners[eventName] = [listener];
+    };
   }
 
-  removeEventListener(eventName: string, listener?: Listener) {
-    if (!this.listeners[eventName]) return;
-    if (!listener) {
-      delete this.listeners[eventName];
+  removeEventListener(eventName: string | string[], listener?: Listener) {
+    if(Array.isArray(eventName)){
+      eventName.forEach(en => this.removeEventListener(en, listener));
     } else {
-      this.listeners[eventName] = this.listeners[eventName].filter(l => l !== l);
-      if (this.listeners[eventName].length === 0) delete this.listeners[eventName];
-    }
+      if(eventName === ALL_LISTENER_TYPE) {
+        this.removeAllEventListener();
+        return;
+      };
+      if (!this.listeners[eventName]) return;
+      if (!listener) {
+        delete this.listeners[eventName];
+      } else {
+        this.listeners[eventName] = this.listeners[eventName].filter(l => l !== l);
+        if (this.listeners[eventName].length === 0) delete this.listeners[eventName];
+      }
+    };
+  }
+
+  removeAllEventListener(){
+    this.listeners = {};
+  }
+
+  reRenderComponents(componentsMap?: {
+    [name: string]: GeneralComponent;
+  } | undefined) {
+    this.container.reRender(componentsMap);
+  }
+
+  getComponents(){
+    return this.container.getComponents();
+  }
+
+  setMode(mode: QueryMode){
+    this.instrument.setState("queryMode", mode);
   }
 
 }
@@ -90,12 +123,13 @@ function initializeQueryInstrument(instrument: Instrument<QueryInstrumentState>,
     }
   });
 
-  function getCommonListener(newActionName: string): Listener {
+  function getCommonListener(newActionName: string): (event: Event, props: QueryInstrumentProps ) => void{
     return (event, props) => {
       const listeners = listenerMap[newActionName];
       if (listeners) {
         listeners.forEach((listener) => {
-          listener(event, props);
+          const [name, component, position] = [instrument.getState("activeComponentName"), instrument.getState("activeComponent"), instrument.getState("activeComponentWhere")];
+          listener(name && component && position ? {name, component, position} : null, event, props);
         });
       }
     };

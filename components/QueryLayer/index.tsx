@@ -20,16 +20,16 @@ export type InstrumentDidMount =  (controller: UIController) => void;
 
 type QueryLayerProps = {
   queryMode: QueryMode;
-  instrumentDidMount?: InstrumentDidMount;
+  uiControllerDidMount?: InstrumentDidMount;
 }
 
-const QueryLayer: FC<QueryLayerProps> = ({queryMode, instrumentDidMount}) => {
+const QueryLayer: FC<QueryLayerProps> = ({queryMode, uiControllerDidMount}) => {
   const uiContainerRef = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
       const uiContainer = uiContainerRef.current;
       if (uiContainer === null) return;
       const controller = new UIController(uiContainer, layerStyle.width, layerStyle.height, queryMode);
-      instrumentDidMount && instrumentDidMount(controller);
+      uiControllerDidMount && uiControllerDidMount(controller);
       return () => controller.clearup();
     }, []);
 
