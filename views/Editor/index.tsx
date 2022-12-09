@@ -8,11 +8,11 @@ import dataStore from '../../stores/DataStore';
 import queryStore from '../../stores/QueryStore';
 
 const EXAMPLE_SHAPE_SEARCH = `[
-  x.s=100,
-  x.e=200,
-  y.s=2,
-  y.e=200,
-  p=0.8
+  x.s=789,
+  x.e=829,
+  y.s=20,
+  y.e=40,
+  p=0.5
 ]
 [
   x.s=200,
