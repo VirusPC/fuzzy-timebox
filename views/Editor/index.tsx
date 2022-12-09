@@ -50,7 +50,7 @@ const Editor: FC<{}> = observer(() => {
       }}
     />
     </div>
-    <Button className={styles["generate-btn"]} disabled={!dataStore.selectedDatasetName || dataStore.status !== "idle"} type="primary" onClick={onGenerate}>Generate</Button>
+    <Button className={styles["generate-btn"]} disabled={!dataStore.selectedDatasetName} type="primary" onClick={onGenerate}>Generate</Button>
   </div>);
 });
 

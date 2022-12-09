@@ -31,7 +31,7 @@ type DatasetConfig = { name: string, url: string, size: string }[];
 
 class DataStore {
   datasetConfig: DatasetConfig;
-  @observable status: 'idle' | 'loading' | 'failed';
+  // @observable status: 'idle' | 'loading' | 'failed';
 
   @observable width: number;
   @observable height: number;
@@ -109,7 +109,7 @@ class DataStore {
   }
 
   constructor() {
-    this.status = 'idle';
+    // this.status = 'idle';
     this.datasetConfig = datasetConfig;
     this.width = 1000;
     this.height = 500;

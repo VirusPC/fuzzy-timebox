@@ -14,6 +14,7 @@ const { Option } = Select;
 const DataConsole: React.FC<{}> = observer(() => {
   const {width: _width, height: _height, selectedDatasetName: _selectedDatasetName, datasetConfig, headers: _headers, aggregationAttrPos: _aggregationAttrPos, timeAttrPos: _timeAttrPos, valueAttrPos: _valueAttrPos} = dataStore;
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [datasetName, setDatasetName] = useState(_selectedDatasetName);
   const [aggregationAttrPos, setAggregationAttrPos] = useState(_aggregationAttrPos);
   const [timeAttrPos, setTimeAttrPos] = useState(_timeAttrPos);
@@ -27,11 +28,10 @@ const DataConsole: React.FC<{}> = observer(() => {
   const headers = headersRef.current || [];
   const rawData = rawDataRef.current || [];
 
-  // const [isLoading, setIsLoading] = useState(false);
   const onDataSelectChanged = useCallback((name: string) => {
     const url = datasetConfig.find(c => c.name === name)?.url;
     if(!url) return;
-    dataStore.status = "loading";
+    setIsLoading(true);
     axios.get(url).then((response) => {
       const rawData = Papa.parse(response.data, { skipEmptyLines: true }).data as RawData;
       headersRef.current = rawData[0];
@@ -40,9 +40,9 @@ const DataConsole: React.FC<{}> = observer(() => {
       setAggregationAttrPos(aggregationAttr);
       setTimeAttrPos(timeAttr);
       setValueAttrPos(valueAttr);
-      dataStore.status = "idle";
+      setIsLoading(false);
     }, () => {
-      dataStore.status = "failed";
+      setIsLoading(false);
     });
     setDatasetName(name);
   }, []);
@@ -79,19 +79,19 @@ const DataConsole: React.FC<{}> = observer(() => {
     </div>
     <div className={styles["param-block"]}>
       <Title level={5} className={styles["title"]}>Aggregation Attribute:</Title>
-      <Select className={styles["select"]} disabled={!datasetName || dataStore.status !== "idle"} defaultValue={"Select Dataset"} value={aggregationAttrPos < 0 ? void 0 : headers[aggregationAttrPos]} onChange={ onAggregationAttrChanged}>
+      <Select className={styles["select"]} disabled={!datasetName || isLoading} defaultValue={"Select Dataset"} value={aggregationAttrPos < 0 ? void 0 : headers[aggregationAttrPos]} onChange={ onAggregationAttrChanged}>
         {headers.map((attr, i) => (<Option key={attr} value={i}>{attr}</Option>))}
       </Select>
     </div>
     <div className={styles["param-block"]}>
       <Title level={5} className={styles["title"]}>Time Attribute:</Title>
-      <Select className={styles["select"]} disabled={!datasetName || dataStore.status !== "idle"} defaultValue={"Select Dataset"} value={timeAttrPos < 0? void 0 : headers[timeAttrPos]} onChange={ onTimeAttrChanged }>
+      <Select className={styles["select"]} disabled={!datasetName || isLoading} defaultValue={"Select Dataset"} value={timeAttrPos < 0? void 0 : headers[timeAttrPos]} onChange={ onTimeAttrChanged }>
         {headers.map((attr, i) => (<Option key={attr} value={i}>{attr}</Option>))}
       </Select>
     </div>
     <div className={styles["param-block"]}>
       <Title level={5} className={styles["title"]}>Value Attribute:</Title>
-      <Select className={styles["select"]} disabled={!datasetName || dataStore.status !== "idle"} defaultValue={"Select Dataset"} value={valueAttrPos < 0? void 0 : headers[valueAttrPos]} onChange={ onValueAttrChanged }>
+      <Select className={styles["select"]} disabled={!datasetName || isLoading} defaultValue={"Select Dataset"} value={valueAttrPos < 0? void 0 : headers[valueAttrPos]} onChange={ onValueAttrChanged }>
         {headers.map((attr, i) => (<Option key={attr} value={i}>{attr}</Option>))}
       </Select>
     </div>
@@ -100,16 +100,16 @@ const DataConsole: React.FC<{}> = observer(() => {
       <Title level={5} className={styles["title"]}>Resolution:</Title>
       <Space size={"small"}>
         <div className={styles["resolution-input"]}>
-          <Input type="number" className={styles["resolution-input"]} disabled={!datasetName || dataStore.status !== "idle"} onChange={onResolutionWidthChanged} value={width}></Input>
+          <Input type="number" className={styles["resolution-input"]} disabled={!datasetName || isLoading} onChange={onResolutionWidthChanged} value={width}></Input>
         </div>
         x
         <div className={styles["resolution-input"]}>
-          <Input type="number" className={styles["resolution-input"]} disabled={!datasetName || dataStore.status !== "idle"} onChange={onResolutionHeightChanged} value={height}></Input>
+          <Input type="number" className={styles["resolution-input"]} disabled={!datasetName || isLoading} onChange={onResolutionHeightChanged} value={height}></Input>
         </div>
       </Space>
     </div>
     <div className={styles["submit-block"]}>
-      <Button className={styles["apply"]} disabled={!datasetName || dataStore.status !== "idle"} type={"primary"} onClick={onApply}>Apply</Button>
+      <Button className={styles["apply"]} disabled={!datasetName || isLoading} type={"primary"} onClick={onApply}>Apply</Button>
     </div>
   </div>)
 })
