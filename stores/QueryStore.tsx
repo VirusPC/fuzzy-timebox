@@ -74,13 +74,21 @@ class QueryStore {
     const resultsForTasks: number[][] =  this.tasks.map((task) => {
       let results: number[] = [];
       if(task.mode === "timebox") {
-        results = dataStore.sequentialSearch?.timebox({
-          x1: task.constraint.xStart,
-          x2: task.constraint.xEnd,
-          y1: task.constraint.yStart,
-          y2: task.constraint.yEnd,
-          p: task.constraint.p
+        console.log("kd tree", dataStore.kdTree);
+        results = dataStore.kdTree?.timebox({
+              x1: task.constraint.xStart,
+              x2: task.constraint.xEnd,
+              y1: task.constraint.yStart,
+              y2: task.constraint.yEnd,
+              p: task.constraint.p
         }) || [];
+        // results = dataStore.sequentialSearch?.timebox({
+        //   x1: task.constraint.xStart,
+        //   x2: task.constraint.xEnd,
+        //   y1: task.constraint.yStart,
+        //   y2: task.constraint.yEnd,
+        //   p: task.constraint.p
+        // }) || [];
       } else if(task.mode === "angular"){
         results = dataStore.sequentialSearch?.angular({
           x1: task.constraint.xStart,
@@ -111,6 +119,7 @@ class QueryStore {
   private _controlEditor(controller: UIController) {
     controller.addEventListener([
       "createTimebox_createend", 
+      // "createTimebox_creating", 
       "createAngular_createend", 
       "panAndResizeTimebox_modifyend",
       "panAngular_modifyend",
