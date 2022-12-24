@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import { QueryMode, QueryInstrumentState, UIController } from "../helpers/ui-controller";
 import { Container, Instrument } from "../lib/interaction";
-import { AngularQueryTask, generateShapeSearch, parseComponent, parseShapeSearch, SequentialSearch, TimeboxQueryTask } from "../helpers/query";
+import { AngularQueryTask, generateShapeSearch, parseComponent, parseShapeSearch, ScreenData, SequentialSearch, TimeboxQueryTask } from "../helpers/query";
 import { screenHeight, screenWidth } from "../views/MainView";
 import { GeneralComponent } from "../lib/interaction/container";
 import { QueryTask, generateComponent } from "../helpers/query";
@@ -73,9 +73,11 @@ class QueryStore {
     console.log("tasks: ", this.tasks);
     const resultsForTasks: number[][] =  this.tasks.map((task) => {
       let results: number[] = [];
+      console.time("query time");
       if(task.mode === "timebox") {
         console.log("kd tree", dataStore.kdTree);
-        results = dataStore.kdTree?.timebox({
+        results = dataStore.kdTree?.getPixelData({ // .timebox({
+              type: "timebox",
               x1: task.constraint.xStart,
               x2: task.constraint.xEnd,
               y1: task.constraint.yStart,
@@ -90,7 +92,8 @@ class QueryStore {
         //   p: task.constraint.p
         // }) || [];
       } else if(task.mode === "angular"){
-        results = dataStore.sequentialSearch?.angular({
+        results = dataStore.kdTree?.getPixelData({//.angular({
+          type: "angular",
           x1: task.constraint.xStart,
           x2: task.constraint.xEnd,
           slope1: task.constraint.sStart,
@@ -100,8 +103,10 @@ class QueryStore {
       }
       return results;
     });
+    console.timeEnd("query time");
     const intersectionResults = intersection(...resultsForTasks);
     const lines = intersectionResults.map(lineId => dataStore.aggregatedPlainData[lineId]);
+    // const lines = intersectionResults;
     this.results = lines;
     console.log("search results: ", lines);
   }
@@ -118,8 +123,11 @@ class QueryStore {
 
   private _controlEditor(controller: UIController) {
     controller.addEventListener([
-      "createTimebox_createend", 
-      // "createTimebox_creating", 
+      // "createTimebox_createend", 
+      "createTimebox_creating", 
+      "panAndResizeTimebox_modifystart", 
+      "panAndResizeTimebox_modifying", 
+      // "panAndResizeTimebox_modifyend", 
       "createAngular_createend", 
       "panAndResizeTimebox_modifyend",
       "panAngular_modifyend",

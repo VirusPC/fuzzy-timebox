@@ -3,12 +3,11 @@ import { AngularComponent, TimeboxComponent } from "../ui-controller/components"
 export type RawPoint = { [attribute: string]: any };
 export type ScreenPoint = { x: number, y: number };
 export type Point = RawPoint | ScreenPoint;
-export type Line<P extends Point> = P[];
-export type Data<P extends Point> = Line<P>[];
-export type RawLine = Line<RawPoint>;
-export type ScreenLine = Line<ScreenPoint>;
-export type RawData = Data<RawPoint>;
-export type ScreenData = Data<ScreenPoint>;
+// export type Line<P extends Point> = P[];
+// export type RawLine = Line<RawPoint>;
+// export type ScreenLine = Line<ScreenPoint>;
+export type RawData = Line<RawPoint>[];
+export type ScreenData = Line<ScreenPoint>[];
 
 export type Scale = {
   (dataLevelData: any): number,
@@ -17,6 +16,7 @@ export type Scale = {
 }
 
 export type timeboxOption = {
+  type: "timebox",
   x1: number,
   x2: number,
   y1: number,
@@ -25,12 +25,15 @@ export type timeboxOption = {
 }
 
 export type angularOption = {
+  type: "angular"
   x1: number,
   x2: number,
   slope1: number,
   slope2: number,
   p: number
 }
+
+export type Option = timeboxOption | angularOption;
 
 export type TimeboxConstraints = {
   xStart: number,

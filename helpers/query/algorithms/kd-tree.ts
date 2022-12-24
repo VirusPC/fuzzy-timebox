@@ -1,6 +1,7 @@
-import { formatAngularOption, formatTimeboxOption, rawData2ScreenData, computeSlope } from "../helpers";
-import { angularOption, RawData, Scale, ScreenData, ScreenLine, timeboxOption, ScreenPoint } from "../types";
+import { formatAngularOption, formatTimeboxOption, computeSlope } from "../helpers";
+import { angularOption, ScreenData, timeboxOption } from "../types";
 import _, { keys, sortedIndexBy } from "lodash";
+import CCHTree from "./cch-kd-tree/cchtree";
 
 
 class Node {

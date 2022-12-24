@@ -4,7 +4,7 @@ import datasetConfig from './dataConfig.json';
 import { aggregateData, getXYScale, inferType } from "../helpers/data";
 import queryStore from "./QueryStore";
 import { SequentialSearch } from "../helpers/query";
-import { KDTree } from "../helpers/query/algorithms/kd-tree";
+import { CCHKDTree } from "../helpers/query/algorithms";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -48,7 +48,8 @@ class DataStore {
 
   @observable aggregatedData: AggregatedData;
   sequentialSearch: SequentialSearch | null;
-  kdTree: KDTree| null;
+  // kdTree: KDTree| null;
+  kdTree: CCHKDTree| null;
 
   @computed
   get timeDataType(): TimeDataType{
@@ -152,9 +153,9 @@ class DataStore {
       "x",
       "y",
     );
-    this.kdTree = new KDTree(
-      dataStore.aggregatedPlainScreenData,
-      ["x", "y"]
+    this.kdTree = new CCHKDTree(
+      dataStore.aggregatedPlainScreenData, "x", "y", 1
+      // ["x", "y"]
     );
     return true;
   }

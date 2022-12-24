@@ -1,5 +1,5 @@
-import { formatAngularOption, formatTimeboxOption, rawData2ScreenData, computeSlope } from "../helpers";
-import { angularOption, RawData, Scale, ScreenData, ScreenLine, timeboxOption, ScreenPoint } from "../types";
+import { formatAngularOption, formatTimeboxOption, computeSlope } from "../helpers";
+import { angularOption, ScreenData, timeboxOption } from "../types";
 import { sortedIndexBy } from "lodash";
 
 /**

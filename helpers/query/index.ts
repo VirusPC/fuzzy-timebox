@@ -5,4 +5,4 @@ import generateShapeSearch from "./generateShapeSearch";
 import { SequentialSearch } from "./algorithms/sequential";
 export { parseComponent, parseShapeSearch, generateComponent, generateShapeSearch};
 export * from "./types.d";
-export { SequentialSearch } from "./algorithms/sequential";
+export { SequentialSearch, KDTree, CCHKDTree } from "./algorithms";
