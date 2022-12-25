@@ -9,7 +9,17 @@ export function drawLines(ctx: CanvasRenderingContext2D, width: number, height: 
   opacity: number = 1
 ) {
   ctx.clearRect(0, 0, width, height);
-  const lines = data.map(line => line.map(point => [xScale(point.x), yScale(point.y)]))
+  let notLineNum = 0;
+  const lines = data.map((line, i) => {
+    if(!line) {
+      notLineNum ++;
+      return [];
+    }
+    return line.map(point => [xScale(point.x), yScale(point.y)])
+  });
+  if(notLineNum) {
+    console.log("!line num", notLineNum, data.length);
+  }
   lines.forEach((line, i) => {
     ctx.strokeStyle = `rgba(${[...getRandomColor(colormap), opacity].join(",")})`;//colorMap[i % colorMap.length];
     if (line.length <= 0) return;

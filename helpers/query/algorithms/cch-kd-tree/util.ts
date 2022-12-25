@@ -1134,6 +1134,55 @@ export function lineSegmentsCollide(p0: Point2D, p1: Point2D, p2: Point2D, p3: P
 //   }
 // }
 
+
+/**
+ *
+ * @param {[Point, Point]} ls
+ * @param {number} id
+ * @param {Map<string, number[]>} hashmap
+ */
+ export function brensenham(ls: [Point, Point], id: number, hashmap: Map<string, number[]>) {
+  let xx = Math.floor(ls[1].x);
+  let yy = Math.floor(ls[1].y);
+  let x = Math.floor(ls[0].x);
+  let y = Math.floor(ls[0].y);
+  if (Math.abs(yy - y) > Math.abs(xx - x)) {
+    if (yy < y) return brensenhamHigh(xx, yy, x, y, id, hashmap);
+    return brensenhamHigh(x, y, xx, yy, id, hashmap);
+  } else {
+    if (xx < x) return brensenhamLow(xx, yy, x, y, id, hashmap);
+    return brensenhamLow(x, y, xx, yy, id, hashmap);
+  }
+}
+
+function brensenhamLow(x0: number, y0: number, x1: number, y1: number, id: number, hashmap: Map<string, number[]>) {
+  let dx = x1 - x0;
+  let dy = y1 - y0;
+  let yi = dy < 0 ? ((dy = -dy), -1) : 1;
+  let D = 2 * dy - dx;
+  for (let x = x0, y = y0; x <= x1; ++x, D += 2 * dy) {
+    hashmap.get(`${x}-${y}`)?.push(id);
+    if (D > 0) {
+      y += yi;
+      D -= 2 * dx;
+    }
+  }
+}
+
+function brensenhamHigh(x0: number, y0: number, x1: number, y1: number, id: number, hashmap: Map<string, number[]>) {
+  let dx = x1 - x0;
+  let dy = y1 - y0;
+  let xi = dx < 0 ? ((dx = -dx), -1) : 1;
+  let D = 2 * dx - dy;
+  for (let x = x0, y = y0; y <= y1; ++y, D += 2 * dx) {
+    hashmap.get(`${x}-${y}`)?.push(id);
+    if (D > 0) {
+      x += xi;
+      D -= 2 * dy;
+    }
+  }
+}
+
 /**
  * 
  * @param ls 
@@ -1263,3 +1312,77 @@ function brensenhamArrHigh(x0: number, y0: number, x1: number, y1: number, hashm
 
 //   return { x: x, y: y, i: i, fTo: fTo, fFrom: fFrom };
 // }
+
+export function computeCurvature(p1: Point, p2: Point, p3: Point): number {
+  const a = pointDist(p1, p2);
+  const b = pointDist(p3, p2);
+  const c = pointDist(p1, p3);
+
+  const cosC = (a * a + b * b - c * c) / 2 / a / b;
+  const sinC = Math.sqrt(1 - sqr(cosC));
+  const curvature = (2 * sinC) / c;
+  return curvature;
+}
+
+export function pointDist(p1: Point, p2: Point): number{
+  return Math.sqrt(
+    sqr(p1.x - p2.x) + sqr(p1.y - p2.y) + sqr(((p1 as Point3D).z ?? 0) - ((p2 as Point3D).z ?? 0))
+  );
+}
+
+export function pointDist2D(p1: Point2D, p2: Point2D): number{
+  return Math.sqrt(sqr(p1.x - p2.x) + sqr(p1.y - p2.y));
+}
+
+export function pointAdd(p1: Point, p2: Point): Point3D {
+  return { x: p1.x + p2.x, y: p1.y + p2.y, z: ((p1 as Point3D).z ?? 0) + ((p2 as Point3D).z ?? 0) };
+}
+
+export function pointSub(p1: Point, p2: Point) {
+  return { x: p1.x - p2.x, y: p1.y - p2.y, z: ((p1 as Point3D).z ?? 0) - ((p2 as Point3D).z ?? 0) };
+}
+
+export function pointMultiply(p1: Point, p2: Point): Point3D {
+  return {
+    x: p1.x * p2.x,
+    y: p1.y * p2.y,
+    z: ((p1 as Point3D).z ?? 0) * ((p2 as Point3D).z ?? 0),
+  };
+}
+
+export function pointMul(p1: Point, scalar: number) {
+  return { x: p1.x * scalar, y: p1.y * scalar, z: ((p1 as Point3D).z ?? 0) * scalar };
+}
+
+export function pointDiv(p1: Point, scalar: number): Point3D {
+  return { x: p1.x / scalar, y: p1.y / scalar, z: ((p1 as Point3D).z ?? 0) / scalar };
+}
+
+export function pointMin(p1: Point, p2: Point): Point3D {
+  return {
+    x: Math.min(p1.x, p2.x),
+    y: Math.min(p1.y, p2.y),
+    z: Math.min((p1 as Point3D).z ?? 0, (p2 as Point3D).z ?? 0),
+  };
+}
+
+export function pointMax(p1: Point, p2: Point): Point3D {
+  return {
+    x: Math.max(p1.x, p2.x),
+    y: Math.max(p1.y, p2.y),
+    z: Math.max((p1 as Point3D).z ?? 0, (p2 as Point3D).z ?? 0),
+  };
+}
+
+export function pointDot(p1: Point, p2: Point) {
+  return p1.x * p2.x + p1.y * p2.y + ((p1 as Point3D).z ?? 0) * ((p2 as Point3D).z ?? 0);
+}
+
+export function pointNormalize(p: Point): Point3D {
+  const l = Math.sqrt(sqr(p.x) + sqr(p.y) + sqr((p as Point3D).z ?? 0));
+  return { x: p.x / l, y: p.y / l, z: ((p as Point3D).z ?? 0) / l };
+}
+
+export function sqr(n: number): number {
+  return n * n;
+}

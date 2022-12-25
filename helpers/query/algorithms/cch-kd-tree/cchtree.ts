@@ -1,48 +1,19 @@
-/**
- * @typedef {{x:number, y: number, z?: number}} Point
- * @typedef {Object} TSRD time series resample data, segIndex: [segStart id, segEnd id, slope][]
- * @property {Point[]} pos flatten points
- * @property {Float32Array} cuv curvature of each point.
- * @property {Uint16Array | Uint32Array} offsets the start index in the pos of each line.
- * @property {Uint8Array | Uint16Array | Uint32Array} sizes: the size of each line.
- * @property {Uint16Array | Uint32Array} fastID the line index of each point, map point index to line index.
- *
- * @property {number[]} lineID the line index of each segement after rdp, it has the same length with segINdex.
- * @property {[number, number][]} segIndex the start and end point of all segments after rdp.
- *
- * @typedef {[number, number, number, number]} SegInfo start pos, end pos, angle, lineIndex
- * @typedef {{lineId: number, points: Point[]}} ConcreteSegInfo start point, end point, angle, lineIndex, backpoints
- * @typedef {{segs: number[]}} CCHLeafNode
- * @typedef {{dim: number, pos: number, left: CCHInternalode|CCHLeafNode, right: CCHInternalode|CCHLeafNode}} CCHInternalode
- *
- * @typedef {Object} AABB aabb
- * @property {Point} a start point
- * @property {Point} b end point
- * 
- * @typedef {Object} CurveInfo infomation of lines
- * @property {number} from start point index of the line
- * @property {number} to end point index of the line
- * @property {AABB} aabb aabb
- * @property {number[]} sp split points of the line after rdp
- *
- */
-import { lineRectCollide } from "./util";
-import Heap from "heap";
+import { computeCurvature, lineRectCollide, pointDist, pointDot, pointMax, pointMin, pointNormalize, pointSub } from "./util";
 import { Point, Point2D, Point3D } from "./types";
+import { schemeRdPu } from "d3";
 
 
-// time series resample data, segIndex: [segStart id, segEnd id, slope][]
-// type SegStartID = number;
-// type SegEndID = number;
-// type Slope = number;
+/**
+ * indexed data
+ */
 type TSRD = {
   pos: Point3D[], //  flatten points
   cuv: Float32Array, // curvature of each point
   offsets: Uint16Array | Uint32Array,  //  the start index in the pos of each line
   sizes: Uint8Array | Uint16Array | Uint32Array,  //  the size of each line
   fastID: Uint16Array | Uint32Array,  //  the line index of each point, map point index to line index
-  lineID: number[], // the line index of each segement after rdp, it has the same length with segINdex.
-  segIndex: [number, number][], // the start and end point of all segments after rdp.
+  lineID: number[], // RDP. the line index of each segement after rdp, it has the same length with segINdex.
+  segIndex: [number, number][], // RDP. the start and end point of all segments after rdp.
 };
 
 // start pos, end pos, angle, lineIndex
@@ -136,162 +107,17 @@ export default class CCHTree {
 
 
 
-    // #region 1. pre-compute offsets, sizes, pos, fastid and curve;
-    const totalPoints = lines.reduce((p, v) => p + v.length, 0);
-    const maxPoints = lines.reduce((p, v) => Math.max(p, v.length), 0);
-    const lineIndexType = lines.length > 65535 ? Uint32Array : Uint16Array;
-    const pointIndexType = totalPoints > 65535 ? Uint32Array : Uint16Array;
-    const sizeType =
-      maxPoints > 65535
-        ? Uint32Array
-        : maxPoints > 127
-          ? Uint16Array
-          : Uint8Array;
-    const tsrd: TSRD = {
-      pos: new Array(totalPoints),
-      cuv: new Float32Array(totalPoints),
-      offsets: new pointIndexType(lines.length),
-      sizes: new sizeType(lines.length),
-      fastID: new lineIndexType(totalPoints),
-      lineID: [],
-      segIndex: [],
-    };
-    let pointer = 0;
-    lines.forEach((line, i) => {
-      tsrd.offsets[i] = pointer;
-      tsrd.sizes[i] = line.length;
-      line.forEach((point, j) => {
-        tsrd.pos[pointer] = { ...point, z: 0};
-        tsrd.fastID[pointer] = i;
-        if (j <= 0 || j >= line.length - 1) {
-          tsrd.cuv[pointer] = 0;
-        } else {
-          tsrd.cuv[pointer] = computeCurvature(line[j - 1], point, line[j + 1]);
-        }
-        pointer++;
-      });
-    });
+    // #region 1. prepare data
+    const tsrd = initializeTSRD(lines);
+    // console.time("rdp");
+    rdp(tsrd, precision);
+    // console.timeEnd("rdp");
+    computeSlope(tsrd);
+    const allci: CurveInfo[] = computeCurveInfos(tsrd);
     this.pos = tsrd.pos;
     //#endregion
 
-    // #region 2. RDP compute lineID, segIndex.
-    console.time("rdp");
-    tsrd.sizes.forEach((size, i) => {
-      const beginIndex = tsrd.offsets[i];
-      const endIndex = size + beginIndex - 1;
-      splitIntoSegmentsByMaximumDistance(
-        beginIndex,
-        endIndex,
-        precision,
-        i,
-        tsrd
-      );
-    });
-    console.timeEnd("rdp");
-    //#endregion
-    //console.timeEnd('resample data');
-    //_endregion
-    //console.timeEnd('init tsrd');
-    //_endregion
-
-    //#region 3. compute z (slope)
-
-    //_region prepare data
-    //console.time('prepare data');
-    // const weights = new Float64Array(tsrd.pos.length);
-
-    //#region 3.1 compute length of each line segment before rdp
-    const length = new Float32Array(tsrd.pos.length); // length of each line segement before rdp.
-    // let totalLen = 0;
-    // let totalCount = 0;
-    tsrd.sizes.forEach((size, i) => {
-      const beginIndex = tsrd.offsets[i];
-      const endIndex = size + beginIndex - 1;
-      for (let j = beginIndex; j < endIndex; j++) {
-        const distance = pointDist(tsrd.pos[j], tsrd.pos[j + 1]);
-        length[j] = distance;
-        // totalLen += distance;
-        // ++totalCount;
-      }
-      length[endIndex] = 0;
-    });
-    //#endregion
-    // const averageLen = totalLen / totalCount;
-    // const expectCurvature = precision / averageLen;
-    // const defaultWeight = precision * averageLen;
-
-    //#region 3.2 compute slope
-    tsrd.sizes.forEach((size, i) => {
-      const beginIndex = tsrd.offsets[i];
-      const endIndex = size + beginIndex - 1;
-      for (let j = beginIndex + 1; j < endIndex; j++) {
-        // const avgLength = (length[j] + length[j - 1]) / 2;
-        // weights[j] = tsrd.cuv[j] * avgLength;
-        const right = pointSub(tsrd.pos[j + 1], tsrd.pos[j]);
-        const left = pointSub(tsrd.pos[j], tsrd.pos[j - 1]);
-        tsrd.pos[j].z =
-          (length[j] * (right.y / right.x) +
-            length[j - 1] * (left.y / left.x)) /
-          (length[j] + length[j - 1]);
-        if (j === beginIndex + 1) {
-          tsrd.pos[beginIndex].z = left.y / left.x;
-        }
-        if (j === endIndex - 1) {
-          tsrd.pos[endIndex].z = right.y / right.x;
-        }
-      }
-      // weights[beginIndex] = defaultWeight;
-      // weights[endIndex] = defaultWeight;
-    });
-    //#endregion
-    //#endregion
-
-    //#region 4. compute curve infos (aabb, from, to, sp);
-    const allci: CurveInfo[] = [];
-    let curSegIndex = 0;
-
-    tsrd.sizes.forEach((size, i) => {
-      const beginIndex = tsrd.offsets[i];
-      const endIndex = size + beginIndex;
-      const ci: CurveInfo = {
-        aabb: {a: {x: 0, y: 0, z: 0}, b: {x: 0, y: 0, z: 0}}, // aabb
-        from: beginIndex, // from point index
-        to: endIndex - 1, // to point index
-        sp: [], // split points
-      };
-      allci.push(ci);
-      updateAABB(ci, tsrd.pos);
-      let lastIndex = -1;
-      while (curSegIndex < tsrd.segIndex.length) {
-        const cs = tsrd.segIndex[curSegIndex];
-        // if the segment is ahead of the current line, continue to find the first segment.
-        if (tsrd.fastID[cs[0]] < i) {
-          ++curSegIndex;
-          continue;
-        } else if (tsrd.fastID[cs[0]] > i) {
-          // if the segment is behind the current line, stop.
-          --curSegIndex;
-          break;
-        }
-        if (lastIndex !== cs[0]) {
-          ci.sp.push(cs[0]);
-        }
-        ci.sp.push(cs[1]);
-        lastIndex = cs[1];
-        ++curSegIndex;
-      }
-    });
-
-    // console.log("lines", lines);
-    // console.log("tsrd", tsrd);
-    // console.log("allci", allci);
-
-    //console.timeEnd('prepare data');
-    //_endregion
-    //_region split
-    //#endregion
-
-    //#region 5. construct kd-tree
+    //#region 2. construct kd-tree
     console.time('split');
     // [curveInfo[], isLeft, cchInternalNode, level }]
     const stacks: any[] = [];
@@ -456,8 +282,7 @@ export default class CCHTree {
 
       //console.time('LR split');
       if (pass) {
-        /** @type {CCHInternalode} */
-        const ns = {
+        const ns: CCHInternalNode = {
           dim,
           pos: expectPos,
           left: {segs: []},
@@ -610,6 +435,9 @@ export default class CCHTree {
   //   // console.log(Object.values(result));
   //   return Object.values(result);
   // }
+
+
+
 
 
   /**
@@ -911,11 +739,25 @@ export default class CCHTree {
   //   }
   // }
 
+  /**
+   * 
+   * @param result 
+   * @param p1 min search point
+   * @param p2  max search point
+   * @param aabb parent search space
+   * @param node 
+   * @returns 
+   */
   _range(result: Set<number>, p1: Point3D, p2: Point3D, aabb: AABB, node: CCHInternalNode|CCHLeafNode|null) {
-    if (p1.x >= p2.x || p1.y >= p2.y || p1.z >= p2.z || !node) return;
+    // 1. ensure that p1 < p2 and node is not null.
+    if (p1.x > p2.x || p1.y > p2.y || p1.z > p2.z || !node) return;
+
+    // 2. search leaf directly
     if ((node as CCHLeafNode).segs) {
       return this._rangeLeaf(result, p1, p2, node as CCHLeafNode);
     }
+
+    // 3. totally inside. 
     if (
       aabb.a.x >= p1.x &&
       aabb.a.y >= p1.y &&
@@ -926,6 +768,8 @@ export default class CCHTree {
     ) {
       return this._iterRange(result, p1, p2, node);
     }
+
+    // 4. intersect
     node = node as CCHInternalNode;
     const s1 = p1[dim2xyz(node.dim)];
     const s2 = p2[dim2xyz(node.dim)];
@@ -964,10 +808,18 @@ export default class CCHTree {
   _iterRange(result: Set<number>, p1: Point3D, p2: Point3D, node: CCHInternalNode | CCHLeafNode | null) {
     if (!node) return;
     if ((node as CCHLeafNode).segs) {
-      return this._rangeLeaf(result, p1, p2, (node as CCHLeafNode));
+      return this._rangeLeafAll(result, p1, p2, (node as CCHLeafNode));
     }
     this._iterRange(result, p1, p2, (node as CCHInternalNode).left);
     this._iterRange(result, p1, p2, (node as CCHInternalNode).right);
+  }
+
+  _rangeLeafAll(result: Set<number>, p1: Point3D, p2: Point3D, node: CCHLeafNode) {
+    for(const i of node.segs) {
+      const [lineId] = this.segs[i];
+      // if(!result.has(lineId)) result.add(lineId);
+      result.add(lineId);
+    }
   }
 
   _rangeLeaf(result: Set<number>, p1: Point3D, p2: Point3D, node: CCHLeafNode) {
@@ -1117,79 +969,6 @@ export default class CCHTree {
   }
 }
 
-function computeCurvature(p1: Point, p2: Point, p3: Point): number {
-  const a = pointDist(p1, p2);
-  const b = pointDist(p3, p2);
-  const c = pointDist(p1, p3);
-
-  const cosC = (a * a + b * b - c * c) / 2 / a / b;
-  const sinC = Math.sqrt(1 - sqr(cosC));
-  const curvature = (2 * sinC) / c;
-  return curvature;
-}
-
-function pointDist(p1: Point, p2: Point): number{
-  return Math.sqrt(
-    sqr(p1.x - p2.x) + sqr(p1.y - p2.y) + sqr(((p1 as Point3D).z ?? 0) - ((p2 as Point3D).z ?? 0))
-  );
-}
-
-function pointDist2D(p1: Point2D, p2: Point2D): number{
-  return Math.sqrt(sqr(p1.x - p2.x) + sqr(p1.y - p2.y));
-}
-
-function pointAdd(p1: Point, p2: Point): Point3D {
-  return { x: p1.x + p2.x, y: p1.y + p2.y, z: ((p1 as Point3D).z ?? 0) + ((p2 as Point3D).z ?? 0) };
-}
-
-function pointSub(p1: Point, p2: Point) {
-  return { x: p1.x - p2.x, y: p1.y - p2.y, z: ((p1 as Point3D).z ?? 0) - ((p2 as Point3D).z ?? 0) };
-}
-
-function pointMultiply(p1: Point, p2: Point): Point3D {
-  return {
-    x: p1.x * p2.x,
-    y: p1.y * p2.y,
-    z: ((p1 as Point3D).z ?? 0) * ((p2 as Point3D).z ?? 0),
-  };
-}
-
-function pointMul(p1: Point, scalar: number) {
-  return { x: p1.x * scalar, y: p1.y * scalar, z: ((p1 as Point3D).z ?? 0) * scalar };
-}
-
-function pointDiv(p1: Point, scalar: number): Point3D {
-  return { x: p1.x / scalar, y: p1.y / scalar, z: ((p1 as Point3D).z ?? 0) / scalar };
-}
-
-function pointMin(p1: Point, p2: Point): Point3D {
-  return {
-    x: Math.min(p1.x, p2.x),
-    y: Math.min(p1.y, p2.y),
-    z: Math.min((p1 as Point3D).z ?? 0, (p2 as Point3D).z ?? 0),
-  };
-}
-
-function pointMax(p1: Point, p2: Point): Point3D {
-  return {
-    x: Math.max(p1.x, p2.x),
-    y: Math.max(p1.y, p2.y),
-    z: Math.max((p1 as Point3D).z ?? 0, (p2 as Point3D).z ?? 0),
-  };
-}
-
-function pointDot(p1: Point, p2: Point) {
-  return p1.x * p2.x + p1.y * p2.y + ((p1 as Point3D).z ?? 0) * ((p2 as Point3D).z ?? 0);
-}
-
-function pointNormalize(p: Point): Point3D {
-  const l = Math.sqrt(sqr(p.x) + sqr(p.y) + sqr((p as Point3D).z ?? 0));
-  return { x: p.x / l, y: p.y / l, z: ((p as Point3D).z ?? 0) / l };
-}
-
-function sqr(n: number): number {
-  return n * n;
-}
 
 
 function splitIntoSegmentsByMaximumDistance(from: number, to: number, threshold: number, line: number, tsrd: TSRD) {
@@ -1549,50 +1328,151 @@ function connectNode(father: CCHInternalNode, node: CCHLeafNode | CCHInternalNod
 //   const segID = segs.length;
 // }
 
+
+//#region helpers about prepare data
+function initializeTSRD(lines: Point2D[][]): TSRD{
+  const totalPoints = lines.reduce((p, v) => p + v.length, 0);
+  const maxPoints = lines.reduce((p, v) => Math.max(p, v.length), 0);
+  const lineIndexType = lines.length > 65535 ? Uint32Array : Uint16Array;
+  const pointIndexType = totalPoints > 65535 ? Uint32Array : Uint16Array;
+  const sizeType =
+    maxPoints > 65535
+      ? Uint32Array
+      : maxPoints > 127
+        ? Uint16Array
+        : Uint8Array;
+  // const tsrd: TSRD = {
+  //   pos: new Array(totalPoints),
+  //   cuv: new Float32Array(totalPoints),
+  //   offsets: new pointIndexType(lines.length),
+  //   sizes: new sizeType(lines.length),
+  //   fastID: new lineIndexType(totalPoints),
+  //   lineID: [],
+  //   segIndex: [],
+  // };
+  let pointer = 0;
+  const offsets = new pointIndexType(lines.length);
+  const sizes = new sizeType(lines.length);
+  const pos = new Array(totalPoints);
+  const fastID = new lineIndexType(totalPoints);
+  const cuv = new Float32Array(totalPoints);
+  lines.forEach((line, i) => {
+    offsets[i] = pointer;
+    sizes[i] = line.length;
+    line.forEach((point, j) => {
+      pos[pointer] = { ...point, z: 0};
+      fastID[pointer] = i;
+      if (j <= 0 || j >= line.length - 1) {
+        cuv[pointer] = 0;
+      } else {
+        cuv[pointer] = computeCurvature(line[j - 1], point, line[j + 1]);
+      }
+      pointer++;
+    });
+  });
+  return {
+    pos: pos,
+    cuv: cuv,
+    offsets: offsets,
+    sizes: sizes,
+    fastID: fastID,
+    lineID: [],
+    segIndex: [],
+  };;
+}
+
 /**
- *
- * @param {[Point, Point]} ls
- * @param {number} id
- * @param {Map<string, number[]>} hashmap
+ * rdp, ignore the z dimension
+ * @param tsrd 
+ * @param precision 
  */
-export function brensenham(ls: [Point, Point], id: number, hashmap: Map<string, number[]>) {
-  let xx = Math.floor(ls[1].x);
-  let yy = Math.floor(ls[1].y);
-  let x = Math.floor(ls[0].x);
-  let y = Math.floor(ls[0].y);
-  if (Math.abs(yy - y) > Math.abs(xx - x)) {
-    if (yy < y) return brensenhamHigh(xx, yy, x, y, id, hashmap);
-    return brensenhamHigh(x, y, xx, yy, id, hashmap);
-  } else {
-    if (xx < x) return brensenhamLow(xx, yy, x, y, id, hashmap);
-    return brensenhamLow(x, y, xx, yy, id, hashmap);
-  }
+function rdp(tsrd: TSRD, precision: number): void{
+  tsrd.sizes.forEach((size, i) => {
+    const beginIndex = tsrd.offsets[i];
+    const endIndex = size + beginIndex - 1;
+    splitIntoSegmentsByMaximumDistance(
+      beginIndex,
+      endIndex,
+      precision,
+      i,
+      tsrd
+    );
+  });
 }
 
-function brensenhamLow(x0: number, y0: number, x1: number, y1: number, id: number, hashmap: Map<string, number[]>) {
-  let dx = x1 - x0;
-  let dy = y1 - y0;
-  let yi = dy < 0 ? ((dy = -dy), -1) : 1;
-  let D = 2 * dy - dx;
-  for (let x = x0, y = y0; x <= x1; ++x, D += 2 * dy) {
-    hashmap.get(`${x}-${y}`)?.push(id);
-    if (D > 0) {
-      y += yi;
-      D -= 2 * dx;
-    }
-  }
+function computeSlope(tsrd: TSRD){
+      //#region 3.1 compute length of each line segment before rdp
+      const length = new Float32Array(tsrd.pos.length); // length of each line segement before rdp.
+      tsrd.sizes.forEach((size, i) => {
+        const beginIndex = tsrd.offsets[i];
+        const endIndex = size + beginIndex - 1;
+        for (let j = beginIndex; j < endIndex; j++) {
+          const distance = pointDist(tsrd.pos[j], tsrd.pos[j + 1]);
+          length[j] = distance;
+        }
+        length[endIndex] = 0;
+      });
+      //#endregion
+
+      //#region 3.2 compute slope
+      tsrd.sizes.forEach((size, i) => {
+        const beginIndex = tsrd.offsets[i];
+        const endIndex = size + beginIndex - 1;
+        for (let j = beginIndex + 1; j < endIndex; j++) {
+          // const avgLength = (length[j] + length[j - 1]) / 2;
+          // weights[j] = tsrd.cuv[j] * avgLength;
+          const right = pointSub(tsrd.pos[j + 1], tsrd.pos[j]);
+          const left = pointSub(tsrd.pos[j], tsrd.pos[j - 1]);
+          tsrd.pos[j].z =
+            (length[j] * (right.y / right.x) +
+              length[j - 1] * (left.y / left.x)) /
+            (length[j] + length[j - 1]);
+          if (j === beginIndex + 1) {
+            tsrd.pos[beginIndex].z = left.y / left.x;
+          }
+          if (j === endIndex - 1) {
+            tsrd.pos[endIndex].z = right.y / right.x;
+          }
+        }
+      });
+      //#endregion
 }
 
-function brensenhamHigh(x0: number, y0: number, x1: number, y1: number, id: number, hashmap: Map<string, number[]>) {
-  let dx = x1 - x0;
-  let dy = y1 - y0;
-  let xi = dx < 0 ? ((dx = -dx), -1) : 1;
-  let D = 2 * dx - dy;
-  for (let x = x0, y = y0; y <= y1; ++y, D += 2 * dx) {
-    hashmap.get(`${x}-${y}`)?.push(id);
-    if (D > 0) {
-      x += xi;
-      D -= 2 * dy;
+function computeCurveInfos(tsrd: TSRD): CurveInfo[]{
+  const allci: CurveInfo[] = [];
+  let curSegIndex = 0;
+
+  tsrd.sizes.forEach((size, i) => {
+    const beginIndex = tsrd.offsets[i];
+    const endIndex = size + beginIndex;
+    const ci: CurveInfo = {
+      aabb: {a: {x: 0, y: 0, z: 0}, b: {x: 0, y: 0, z: 0}}, // aabb
+      from: beginIndex, // from point index
+      to: endIndex - 1, // to point index
+      sp: [], // split points
+    };
+    allci.push(ci);
+    updateAABB(ci, tsrd.pos);
+    let lastIndex = -1;
+    while (curSegIndex < tsrd.segIndex.length) {
+      const cs = tsrd.segIndex[curSegIndex];
+      // if the segment is ahead of the current line, continue to find the first segment.
+      if (tsrd.fastID[cs[0]] < i) {
+        ++curSegIndex;
+        continue;
+      } else if (tsrd.fastID[cs[0]] > i) {
+        // if the segment is behind the current line, stop.
+        --curSegIndex;
+        break;
+      }
+      if (lastIndex !== cs[0]) {
+        ci.sp.push(cs[0]);
+      }
+      ci.sp.push(cs[1]);
+      lastIndex = cs[1];
+      ++curSegIndex;
     }
-  }
+  });
+  return allci;
 }
+//#endregion helpers about prepare data
