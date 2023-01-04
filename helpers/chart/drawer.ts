@@ -1,32 +1,38 @@
 import * as d3 from "d3"
-import { Colormap, getRandomColor } from "../color";
+// import { Colormap, getRandomColor } from "../color";
 
 export function drawLines(ctx: CanvasRenderingContext2D, width: number, height: number,
-  data: { x: any, y: any }[][],
-  xScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number>,
-  yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>,
-  colormap: Colormap,
+  data: {[id: number]: { x: number, y: number}[]},
+  // xScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number>,
+  // yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number>,
+  // colormap: Colormap,
+  colorScale: (id: number) => [number, number, number],
   opacity: number = 1
 ) {
   ctx.clearRect(0, 0, width, height);
-  let notLineNum = 0;
-  const lines = data.map((line, i) => {
-    if(!line) {
-      notLineNum ++;
-      return [];
-    }
-    return line.map(point => [xScale(point.x), yScale(point.y)])
-  });
-  if(notLineNum) {
-    console.log("!line num", notLineNum, data.length);
-  }
-  lines.forEach((line, i) => {
-    ctx.strokeStyle = `rgba(${[...getRandomColor(colormap), opacity].join(",")})`;//colorMap[i % colorMap.length];
+  // let notLineNum = 0;
+
+
+  // const lines = data.map((line, i) => {
+  //   if(!line) {
+  //     notLineNum ++;
+  //     return [];
+  //   }
+  //   return line.map(point => [xScale(point.x), yScale(point.y)])
+  // });
+  // if(notLineNum) {
+  //   console.log("!line num", notLineNum, data.length);
+  // }
+  Object.keys(data).forEach((i) => {
+    const line = data[+i];
+    ctx.strokeStyle = `rgba(${[...colorScale(+i), opacity].join(",")})`;//colorMap[i % colorMap.length];
     if (line.length <= 0) return;
     ctx.beginPath();
-    ctx.moveTo(line[0][0] as number, line[0][1] as number);
+    // ctx.moveTo(xScale(line[0].x) as number, yScale(line[0].y) as number);
+    ctx.moveTo(line[0].x, line[0].y);
     line.forEach(point => {
-      ctx.lineTo(point[0] as number, point[1] as number);
+      // ctx.lineTo(xScale(point.x) as number, yScale(point.y) as number);
+      ctx.lineTo(point.x, point.y);
     });
     ctx.stroke();
   });

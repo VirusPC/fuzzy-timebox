@@ -11,7 +11,6 @@ type AxesLayerProps = {
         bottom: number,
         left: number
     },
-    data: { x: any, y: any }[][]
     xScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null;
     yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null;
     className?: string;

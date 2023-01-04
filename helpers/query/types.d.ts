@@ -6,8 +6,8 @@ export type Point = RawPoint | ScreenPoint;
 // export type Line<P extends Point> = P[];
 // export type RawLine = Line<RawPoint>;
 // export type ScreenLine = Line<ScreenPoint>;
-export type RawData = Line<RawPoint>[];
-export type ScreenData = Line<ScreenPoint>[];
+export type RawData = RawPoint[][];
+export type ScreenData = ScreenPoint[][];
 
 export type Scale = {
   (dataLevelData: any): number,

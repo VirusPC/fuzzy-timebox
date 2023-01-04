@@ -337,7 +337,6 @@ export default class CCHTree {
             } else {
               const diff = pointSub(tsrd.pos[currIndex], tsrd.pos[lastIndex]);
               /** @type {SegInfo} */
-              // !!! 需要存，一共有多少个线段，每个线段的斜率怎样
               const ls: SegInfo = [
                 lastIndex,
                 ci.to,
@@ -1349,8 +1348,6 @@ function updateAABB(ci: CurveInfo, pos: Point[]) {
 function splitCurves(dim: number, pos: number, org: CurveInfo[], tsrd: TSRD) {
   const resultLeft = [];
   const resultRight = [];
-  // !!!
-  if(dim===2){};
   for (let ci of org) {
     let a = ci.aabb.a[dim2xyz(dim)];
     let b = ci.aabb.b[dim2xyz(dim)];
@@ -1636,17 +1633,17 @@ function computeSlope(tsrd: TSRD) {
       // weights[j] = tsrd.cuv[j] * avgLength;
       const right = pointSub(tsrd.pos[j + 1], tsrd.pos[j]);
       const left = pointSub(tsrd.pos[j], tsrd.pos[j - 1]);
-      // tsrd.pos[j].z =
-      // // 左右斜率的加权平均
-      //   (length[j] * (right.y / right.x) +
-      //     length[j - 1] * (left.y / left.x)) /
-      //   (length[j] + length[j - 1]);
+      tsrd.pos[j].z =
+      // 左右斜率的加权平均
+        (length[j] * (right.y / right.x) +
+          length[j - 1] * (left.y / left.x)) /
+        (length[j] + length[j - 1]);
       if (j === beginIndex + 1) {
         tsrd.pos[beginIndex].z = left.y / left.x;
       }
-      // if (j === endIndex - 1) {
+      if (j === endIndex - 1) {
         tsrd.pos[endIndex].z = right.y / right.x;
-      // }
+      }
     }
   });
   //#endregion

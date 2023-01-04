@@ -4,7 +4,7 @@ type ValueDataType = Extract<DataType, "string" | "number">;
 type Time = number | Date;
 type Value = number | string;
 
-type RawData = string[][];
+export type RawData = string[][];
 
 type Attr = {
   type: DataType,
@@ -43,9 +43,9 @@ type AggregatedData =
   | AggregatedDataGeneric<Extract<Time, Date>, Extract<Value, number>>
   | AggregatedDataGeneric<Extract<Time, Date>, Extract<Value, string>>
 type AggregatedDataGeneric<T extends Time, V extends Value> = {
-  id: string;
-  data: Point<T, V>[];
-}[]
+  [id: string]: Point<T, V>[];
+}
 type Point<X, Y> = {x: X, y: Y}
 //type Line<T extends Time, V extends Value> = Point<T, V>[];
 //type Lines<T extends Time, V extends Value> = Line<T, V>[];
+

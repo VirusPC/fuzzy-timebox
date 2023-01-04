@@ -20,7 +20,8 @@ class QueryStore {
   _uiController: UIController | null;
   _editor: monaco.editor.IStandaloneCodeEditor | null;
   tasks: QueryTask[];
-  results: (Point<number, string>[] | Point<number, number>[] | Point<Date, number>[] | Point<Date, string>[])[];
+  // results: (Point<number, string>[] | Point<number, number>[] | Point<Date, number>[] | Point<Date, string>[])[];
+  results: number[];
 
   constructor() {
     this.queryMode = "timebox";
@@ -46,6 +47,13 @@ class QueryStore {
       this._uiController?.removeAllEventListener();
     }
     this._editor = editor;
+  }
+
+  reset(){
+    this.queryMode = "timebox";
+    this._uiController?.clearup();
+    this.tasks = [];
+    this.results = [];
   }
 
   setQueryMode(queryMode: QueryMode) {
@@ -105,10 +113,10 @@ class QueryStore {
     });
     console.timeEnd("query time");
     const intersectionResults = intersection(...resultsForTasks);
-    const lines = intersectionResults.map(lineId => dataStore.aggregatedPlainData[lineId]);
+    // const lines = intersectionResults.map(lineId => dataStore.aggregatedPlainData[lineId]);
     // const lines = intersectionResults;
-    this.results = lines;
-    console.log("search results: ", lines);
+    this.results = intersectionResults;
+    console.log("search results: ", intersectionResults);
   }
 
   private _reRenderComponentsWithTasks() {

@@ -2,6 +2,7 @@ import axios from "axios";
 import Papa from "papaparse";
 import _ from "lodash";
 import * as d3 from "d3";
+import { AggregatedData, AggregatedDataGeneric, DataType, RawData, TimeDataType, ValueDataType } from "./data";
 
 export async function getData(url: string) {
   const response = await axios.get(url);
@@ -88,75 +89,59 @@ export function aggregateData(rawData: RawData, aggregationAttrPos: number, time
         }))
     }));
 
-  let result: AggregatedData = [];
+  let result: AggregatedData = {};
 
   // formatting data
   if (timeDataType === "date" && valueDataType === "number") {
     aggregatedDataWithoutFormatting
-      .forEach(group =>
-        (result as AggregatedDataGeneric<Date, number>).push(
-          {
-            id: group.id,
-            data: (group.data.map(
-              (lineData) => ({
-                x: new Date(lineData.x),
-                y: +lineData.y,
-              })
-            ).value())
-          }
+      .forEach((group, i) =>
+        (result as AggregatedDataGeneric<Date, number>)[i] =
+        group.data.map(
+          (lineData) => ({
+            x: new Date(lineData.x),
+            y: +lineData.y,
+          })
+        ).value()
 
-        )
       )
       .value();
   } else if (timeDataType === "date" && valueDataType === "string") {
     aggregatedDataWithoutFormatting
-      .forEach(group =>
-        (result as AggregatedDataGeneric<Date, string>).push(
-          {
-            id: group.id,
-            data: (group.data.map(
-              (lineData) => ({
-                x: new Date(lineData.x),
-                y: lineData.y,
-              })
-            ).value())
-          }
+      .forEach((group, i) =>
+        (result as AggregatedDataGeneric<Date, string>)[i] =
+        group.data.map(
+          (lineData) => ({
+            x: new Date(lineData.x),
+            y: lineData.y,
+          })
+        ).value()
 
-        )
       )
       .value();
   } else if (timeDataType === "number" && valueDataType === "number") {
     aggregatedDataWithoutFormatting
-      .forEach(group =>
-        (result as AggregatedDataGeneric<number, number>).push(
-          {
-            id: group.id,
-            data: (group.data.map(
-              (lineData) => ({
-                x: + lineData.x,
-                y: +lineData.y,
-              })
-            ).value())
-          }
+      .forEach((group, i) =>
+        (result as AggregatedDataGeneric<number, number>)[i] =
+        (group.data.map(
+          (lineData) => ({
+            x: + lineData.x,
+            y: +lineData.y,
+          })
+        ).value())
 
-        )
       )
       .value();
   } else if (timeDataType === "number" && valueDataType === "string") {
     aggregatedDataWithoutFormatting
-      .forEach(group =>
-        (result as AggregatedDataGeneric<number, string>).push(
-          {
-            id: group.id,
-            data: (group.data.map(
-              (lineData) => ({
-                x: + lineData.x,
-                y: lineData.y,
-              })
-            ).value())
-          }
+      .forEach((group, i) =>
+        (result as AggregatedDataGeneric<number, string>)[i] =
+        (group.data.map(
+          (lineData) => ({
+            x: + lineData.x,
+            y: lineData.y,
+          })
+        ).value())
 
-        )
       )
       .value();
   }
@@ -166,8 +151,8 @@ export function aggregateData(rawData: RawData, aggregationAttrPos: number, time
 
 // export function formatAggregatedData(data: AggregatedData): {}
 
-export function aggregatedDataToLines(aggregateData: AggregatedData){
-  return aggregateData.map(group => group.data);
+export function aggregatedDataToLines(aggregateData: AggregatedData) {
+  return Object.values(aggregateData);//map(group => group.data);
 }
 
 // function getScale(aggregatedData: AggregatedData, attrName: string, attrType: DataType, length: number){

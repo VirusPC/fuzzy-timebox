@@ -12,7 +12,7 @@
 //  * @typedef {{type: 'attr', field: string, values: any[]}} AttrFilterOption 属性筛选模式。field：需要筛选的字段；values：可以接受的值列表
 //  */
 
-import { Scale, BrushFilterOption, BrushXFilterOption, BrushYFilterOption, AngularFilterOption, AttrFilterOption } from "./types.d"
+import { Scale, BrushFilterOption, BrushXFilterOption, BrushYFilterOption, AngularFilterOption, AttrFilterOption } from "./types"
 
 import KDTree, { ConcreteSegInfo } from "./cchtree";
 import { mix, brensenhamArr } from "./util";
