@@ -7,7 +7,7 @@ import queryStore from "../../stores/QueryStore";
 import QueryLayer, { InstrumentDidMount } from "../../components/QueryLayer";
 import AxesLayer from "../../components/AxesLayer";
 import { observer } from "mobx-react";
-import { ScreenData, ScreenPoint } from "../../helpers/query";
+import { ScreenData, ScreenPoint } from "../../helpers/data";
 
 export const screenWidth = 1000;
 export const screenHeight = 500;
