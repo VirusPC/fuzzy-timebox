@@ -14,6 +14,7 @@ export interface QueryDataStructure {
   timebox(option: timeboxOption): number[];
   angular(option: angularOption): number[];
 }
+
 // export type Scale = {
 //   domain(): [number,number]
 //   range(): [number,number]

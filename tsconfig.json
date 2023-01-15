@@ -17,6 +17,6 @@
     "experimentalDecorators": true,
     "downlevelIteration": true 
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "helpers/query/algorithms/medianOfMedians.js"],
   "exclude": ["node_modules"]
 }
