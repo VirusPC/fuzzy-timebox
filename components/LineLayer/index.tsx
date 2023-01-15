@@ -9,23 +9,23 @@ type Props = {
     screenHeight: number;
     width: number;
     height: number;
-    data: { x: any, y: any }[][]
-    xScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null;
-    yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null;
+    data: {[id: string]: { x: number, y: number}[]};
+    // xScale: d3.ScaleTime<Date, number> | d3.ScaleLinear<number, number> | null;
+    // yScale: d3.ScaleBand<string> | d3.ScaleLinear<number, number> | null;
+    colorScale: (id: number) => [number, number, number],
     className?: string;
 }
 
-const LineLayer: React.FC<Props> = ({ layerInfo, width, height, screenWidth, screenHeight, data, xScale, yScale, className }) => {
+const LineLayer: React.FC<Props> = ({ layerInfo, width, height, screenWidth, screenHeight, data, colorScale, className }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
-        if (xScale === null || yScale === null) return;
+        // if (xScale === null || yScale === null) return;
         const canvasElem = canvasRef.current;
         if (canvasElem === null) return;
         const ctx = canvasElem.getContext("2d");
         if (ctx === null) return;
-        const clearup = drawLines(ctx, width, height, data, xScale, yScale, layerInfo.colormap, layerInfo.opacity);
-        return clearup;
+        drawLines(ctx, width, height, data, colorScale, layerInfo.opacity);
     });
     return (<canvas id={layerInfo.id} className={className} width={width} height={height} style={{ width: screenWidth, height: screenHeight }} ref={canvasRef}></canvas>);
 }

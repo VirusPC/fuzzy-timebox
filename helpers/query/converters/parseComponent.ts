@@ -1,6 +1,6 @@
-import { GeneralComponent } from "../../lib/interaction/container";
-import { AngularComponent, TimeboxComponent } from "../ui-controller/components";
-import { AngularQueryTask, LegalComponent, QueryTask, TimeboxQueryTask } from "./types";
+import { GeneralComponent } from "../../../lib/interaction/container";
+import { AngularComponent, TimeboxComponent } from "../../ui-controller/components";
+import { AngularQueryTask, LegalComponent, QueryTask, TimeboxQueryTask } from "../types";
 
 // export default function parseComponents(components: GeneralComponent[] | GeneralComponent): QueryTask[] {
 //   if(Array.isArray(components)){
@@ -45,8 +45,8 @@ function parseSingleComponent(component: TimeboxComponent | AngularComponent, sc
       constraint: {
         xStart: x1,
         xEnd: x2,
-        sStart: startAngle,
-        sEnd: endAngle,
+        sStart: -endAngle, // reverse y-axis
+        sEnd: -startAngle,
         p: p
       }
     }

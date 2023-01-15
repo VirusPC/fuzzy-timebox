@@ -7,6 +7,7 @@ import queryStore from "../../stores/QueryStore";
 import QueryLayer, { InstrumentDidMount } from "../../components/QueryLayer";
 import AxesLayer from "../../components/AxesLayer";
 import { observer } from "mobx-react";
+import { ScreenData, ScreenPoint } from "../../helpers/data";
 
 export const screenWidth = 1000;
 export const screenHeight = 500;
@@ -23,9 +24,9 @@ const layerStyle = {
 }
 
 const MainView: React.FC<{}> = observer((props) => {
-  const { width, height, timeAttrName, valueAttrName, timeScale: xScale, valueScale: yScale, aggregatedPlainData: aggregatedData } = dataStore;
-  const { layerInfos } = canvasStore;
-  const { queryMode } = queryStore;
+  const { width, height, timeAttrName, valueAttrName, timeScale: xScale, valueScale: yScale, aggregatedScreenData: screenData} = dataStore;
+  const { layerInfos, linesColorScale } = canvasStore;
+  const { queryMode, results } = queryStore;
 
   const uiControllerDidMount = useCallback<InstrumentDidMount>((controller) => {
     queryStore.uiController = controller;
@@ -37,6 +38,14 @@ const MainView: React.FC<{}> = observer((props) => {
     yScaleScreen: yScale === null ? null : (yScale.copy().range([layerStyle.height, 0]) as any),
   }), [xScale, yScale])
 
+  const resultData = useMemo(() => {
+    const resultData: {[id: number]: ScreenPoint[]} = {};
+    for(const id of results){
+      resultData[id] = screenData[id];
+    }
+    return resultData;
+  }, [screenData, results]);
+
   return (<div className={styles["container"]}
     id="container"
     style={containerStyle}>
@@ -44,17 +53,17 @@ const MainView: React.FC<{}> = observer((props) => {
       dataStore.selectedDatasetName?
         <>
           <div className={styles["axis"]}>
-            <AxesLayer data={aggregatedData} width={screenWidth} height={screenHeight} margin={screenMargin} xScale={xScaleScreen} yScale={yScaleScreen} fieldX={timeAttrName} fieldY={valueAttrName} />
+            <AxesLayer width={screenWidth} height={screenHeight} margin={screenMargin} xScale={xScaleScreen} yScale={yScaleScreen} fieldX={timeAttrName} fieldY={valueAttrName} />
           </div>
           {/* <div className={styles["layers-container"]} style={{ position: "absolute", top: layerStyle.top, left: layerStyle.left }} ref={layersContainerRef}> */}
           <div className={styles["canvas"]}>
           {layerInfos.map(layerInfo => (
             layerInfo.id === "raw_line" ?
-              (<LineLayer key={layerInfo.id} className={styles["layer"]} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={aggregatedData} xScale={xScale} yScale={yScale}/>)
+              (<LineLayer key={layerInfo.id} className={styles["layer"]} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={screenData}  colorScale={linesColorScale}/>)
               // : layerInfo.id === "raw_density" ?
               // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree} />)
               : layerInfo.id === "selected_line" ?
-              (<LineLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={queryStore.results} xScale={xScale} yScale={yScale} />)
+              (<LineLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={resultData} colorScale={linesColorScale} />)
               // :layerInfo.id==="selected_density" ?
               // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree}/>)
               // : layerInfo.id==="rep_line"?

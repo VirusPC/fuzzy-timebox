@@ -1,7 +1,6 @@
-import { QueryTask } from "./types";
-import { TimeboxComponent, AngularComponent, initializeTimeboxComponent, initializeAngularComponent } from "../ui-controller/components";
+import { QueryTask } from "../types";
+import { TimeboxComponent, AngularComponent } from "../../ui-controller/components";
 
-type Component = TimeboxComponent | AngularComponent
 type Scale = (d: number) => number;
 
 export default function generateShapeSearch(task: QueryTask | QueryTask[], screenWidth: number, screenHeight: number, scaleX: Scale, scaleY: Scale): string {
@@ -26,7 +25,7 @@ function generateSingleShapeSearch(task: QueryTask, screenWidth: number, screenH
   y.e=${screenY2},
   p=${p}
 ]`;
-  } else if (task.mode) {
+  } else if (task.mode === "angular") {
     const { xStart, xEnd, sStart, sEnd, p } = task.constraint;
     const [screenX1, screenX2] = [xStart, xEnd].map(scaleX);
     return `[

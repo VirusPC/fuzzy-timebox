@@ -1,7 +1,10 @@
+
 type CommonLayerInfo = {
+  id: string;
   name: string,
   opacity: number,
-  colormap: Colormap,
+  // colormap: Colormap,
+  // strokeStyleScale: (id: number) => string,
   lineCount?: number,
   diverse?: number,
 }

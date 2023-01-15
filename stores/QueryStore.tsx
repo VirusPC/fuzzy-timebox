@@ -1,8 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
-import { QueryMode, QueryInstrumentState, UIController } from "../helpers/ui-controller";
-import { Container, Instrument } from "../lib/interaction";
-import { AngularQueryTask, generateShapeSearch, parseComponent, parseShapeSearch, SequentialSearch, TimeboxQueryTask } from "../helpers/query";
+import { QueryMode, UIController } from "../helpers/ui-controller";
+import { AngularConstraints,  generateShapeSearch, parseComponent, parseShapeSearch,  TimeboxConstraints } from "../helpers/query";
 import { screenHeight, screenWidth } from "../views/MainView";
 import { GeneralComponent } from "../lib/interaction/container";
 import { QueryTask, generateComponent } from "../helpers/query";
@@ -20,11 +19,14 @@ class QueryStore {
   _uiController: UIController | null;
   _editor: monaco.editor.IStandaloneCodeEditor | null;
   tasks: QueryTask[];
-  results: (Point<number, string>[] | Point<number, number>[] | Point<Date, number>[] | Point<Date, string>[])[];
+  resultsEachTask: number[][];
+  // results: (Point<number, string>[] | Point<number, number>[] | Point<Date, number>[] | Point<Date, string>[])[];
+  results: number[];
 
   constructor() {
     this.queryMode = "timebox";
     this.tasks = [];
+    this.resultsEachTask = [];
     this.results = [];
     this._uiController = null;
     this._editor = null;
@@ -32,7 +34,7 @@ class QueryStore {
   }
 
   set uiController(controller: UIController | null) {
-    if(this._uiController === controller) return;
+    if (this._uiController === controller) return;
     this._uiController?.clearup();
     if (controller) {
       this._controlEditor(controller);
@@ -41,11 +43,19 @@ class QueryStore {
   }
 
   set editor(editor: monaco.editor.IStandaloneCodeEditor | null) {
-    if(this._editor === editor) return;
-    if(!editor) {
+    if (this._editor === editor) return;
+    if (!editor) {
       this._uiController?.removeAllEventListener();
     }
     this._editor = editor;
+  }
+
+  reset() {
+    this.queryMode = "timebox";
+    this._uiController?.clearup();
+    this.tasks = [];
+    this.resultsEachTask = [];
+    this.results = [];
   }
 
   setQueryMode(queryMode: QueryMode) {
@@ -55,34 +65,36 @@ class QueryStore {
 
   _executeVisualQuery(components: (TimeboxComponent | AngularComponent)[]) {
     const tasks = parseComponent(components, screenHeight);
-    this.tasks = tasks;
-    const shapeSearchExpr = generateShapeSearch(tasks, screenWidth, screenHeight,  (d: number) => d, (d: number) => d);
+    const shapeSearchExpr = generateShapeSearch(tasks, screenWidth, screenHeight, (d: number) => d, (d: number) => d);
     this._editor?.setValue(shapeSearchExpr);
-    this.executeTasks();
+    this.executeTasks(tasks);
   }
 
   executeShapeSearch(text: string) {
     const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-90, 90])?.filter(task => task !== null);
     if (!tasks) return;
-    this.tasks = tasks;
-    this._reRenderComponentsWithTasks();
-    this.executeTasks();
+    this._reRenderComponentsWithTasks(tasks);
+    this.executeTasks(tasks);
   }
 
-  executeTasks() {
-    console.log("tasks: ", this.tasks);
-    const resultsForTasks: number[][] =  this.tasks.map((task) => {
+  executeTasks(tasks: QueryTask[]) {
+    console.log("tasks", tasks);
+    this.tasks = tasks;
+    const resultsForTasks: number[][] = tasks.map((task) => {
       let results: number[] = [];
-      if(task.mode === "timebox") {
-        results = dataStore.sequentialSearch?.timebox({
+      console.time("query time");
+      if (task.mode === "timebox") {
+        results = dataStore.CCHKDTree?.timebox({ 
+          type: "timebox",
           x1: task.constraint.xStart,
           x2: task.constraint.xEnd,
           y1: task.constraint.yStart,
           y2: task.constraint.yEnd,
           p: task.constraint.p
         }) || [];
-      } else if(task.mode === "angular"){
-        results = dataStore.sequentialSearch?.angular({
+      } else if (task.mode === "angular") {
+        results = dataStore.CCHKDTree?.angular({
+          type: "angular",
           x1: task.constraint.xStart,
           x2: task.constraint.xEnd,
           slope1: task.constraint.sStart,
@@ -92,14 +104,14 @@ class QueryStore {
       }
       return results;
     });
+    console.timeEnd("query time");
     const intersectionResults = intersection(...resultsForTasks);
-    const lines = intersectionResults.map(lineId => dataStore.aggregatedPlainData[lineId]);
-    this.results = lines;
-    console.log("search results: ", lines);
+    this.results = intersectionResults;
+    console.log("search results: ", intersectionResults);
   }
 
-  private _reRenderComponentsWithTasks() {
-    const components = generateComponent(this.tasks, screenWidth, screenHeight, (d: number) => d, (d: number) =>  d);
+  private _reRenderComponentsWithTasks(tasks: QueryTask[]) {
+    const components = generateComponent(tasks, screenWidth, screenHeight, (d: number) => d, (d: number) => d);
     const componentMap: { [name: string]: GeneralComponent } = {};
     components.forEach((component) => {
       if (!component) return;
@@ -110,8 +122,12 @@ class QueryStore {
 
   private _controlEditor(controller: UIController) {
     controller.addEventListener([
-      "createTimebox_createend", 
-      "createAngular_createend", 
+      // "createTimebox_createend", 
+      "createTimebox_creating",
+      "panAndResizeTimebox_modifystart",
+      "panAndResizeTimebox_modifying",
+      // "panAndResizeTimebox_modifyend", 
+      "createAngular_createend",
       "panAndResizeTimebox_modifyend",
       "panAngular_modifyend",
       "resizeAngular_modifyend",
@@ -124,7 +140,27 @@ class QueryStore {
 
 }
 
-function diff(task1: QueryTask, task2: QueryTask) { }
+// function diffTasks(task1: QueryTask, task2: QueryTask): QueryTask[]{}
+
+function diffTask(task1: QueryTask, task2: QueryTask): boolean {
+  if (task1.mode !== task2.mode) return false;
+  const { mode, constraint: constraint1 } = task1;
+  const { constraint: constraint2 } = task2;
+  if (mode === "timebox") {
+    return (constraint1.xStart === constraint2.xStart)
+      && (constraint1.xEnd === constraint2.xEnd)
+      && (constraint1.yStart === (constraint2 as TimeboxConstraints).yStart)
+      && (constraint1.yEnd === (constraint2 as TimeboxConstraints).yEnd)
+      && (constraint1.p === constraint2.p)
+  } else if (mode === "angular") {
+    return (constraint1.xStart === constraint2.xStart)
+      && (constraint1.xEnd === constraint2.xEnd)
+      && (constraint1.sStart === (constraint2 as AngularConstraints).sStart)
+      && (constraint1.sEnd === (constraint2 as AngularConstraints).sEnd)
+      && (constraint1.p === constraint2.p)
+  }
+  return false;
+}
 
 const queryStore = new QueryStore();
 export default queryStore;

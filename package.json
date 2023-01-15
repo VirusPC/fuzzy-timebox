@@ -16,6 +16,7 @@
     "classnames": "^2.3.2",
     "d3": "^7.6.1",
     "d3-polygon": "^3.0.1",
+    "heap": "^0.2.7",
     "lodash": "^4.17.21",
     "mobx": "^6.6.2",
     "mobx-react": "^7.5.3",
@@ -24,13 +25,15 @@
     "papaparse": "^5.3.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "sass": "^1.55.0"
+    "sass": "^1.55.0",
+    "tinyqueue": "^2.0.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@types/d3": "^7.4.0",
     "@types/d3-polygon": "^3.0.0",
+    "@types/heap": "^0.2.31",
     "@types/jest": "^29.2.4",
     "@types/lodash": "^4.14.188",
     "@types/ndarray": "^1.0.11",

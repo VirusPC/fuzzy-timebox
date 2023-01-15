@@ -1,11 +1,12 @@
-import { LegalComponent, QueryTask } from "./types";
-import { TimeboxComponent, AngularComponent, initializeTimeboxComponent, initializeAngularComponent } from "../ui-controller/components";
+import { LegalComponent, QueryTask } from "../types";
+import { TimeboxComponent, AngularComponent, initializeTimeboxComponent, initializeAngularComponent } from "../../ui-controller/components";
 
 type Scale = (d: number) => number;
 
 export default function generateComponents(task: QueryTask | QueryTask[], screenWidth: number, screenHeight: number, scaleX: Scale, scaleY: Scale): LegalComponent[] {
   if(Array.isArray(task)) {
     const components = task.map((t) => generateSingleComponent(t, screenWidth, screenHeight, scaleX, scaleY)).filter(t => t!==null) as LegalComponent[];
+    console.log(components);
     return components;
   } else {
     const component = generateSingleComponent(task, screenWidth, screenHeight, scaleX, scaleY);

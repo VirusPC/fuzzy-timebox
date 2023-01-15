@@ -1,4 +1,4 @@
-import parseShapeSearch from "../helpers/query/parseShapeSearch"
+import parseShapeSearch from "../helpers/query/converters/parseShapeSearch"
 
 const X_RANGE: [number, number] = [0, 1000];
 const Y_RANGE: [number, number]= [0, 1000];

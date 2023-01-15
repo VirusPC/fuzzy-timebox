@@ -1,6 +1,7 @@
-import { formatAngularOption, formatTimeboxOption, rawData2ScreenData, computeSlope } from "../helpers";
-import { angularOption, RawData, Scale, ScreenData, ScreenLine, timeboxOption, ScreenPoint } from "../types";
+import { formatAngularOption, formatTimeboxOption, computeSlope } from "../../converters/helpers";
+import { angularOption, timeboxOption } from "../../types";
 import { sortedIndexBy } from "lodash";
+import { ScreenData } from "../../../data";
 
 /**
  * 注意考虑 1. 非均匀采样 2. 可能有空值
@@ -9,16 +10,16 @@ import { sortedIndexBy } from "lodash";
 export class SequentialSearch {
   // _rawData: RawData;
   _screenData: ScreenData;
-  _xField: string;
-  _yField: string;
+  // _xField: string;
+  // _yField: string;
   // _xScale: Scale;
   // _yScale: Scale;
-  constructor(data: ScreenData, xField: string, yField: string) {
+  constructor(data: ScreenData) {
     this._screenData= data;
     // this._xScale = xScale;
     // this._yScale = yScale;
-    this._xField = xField;
-    this._yField = yField;
+    // this._xField = xField;
+    // this._yField = yField;
     // this._screenData = rawData2ScreenData(data, xField, yField, xScale, yScale);
   }
 
