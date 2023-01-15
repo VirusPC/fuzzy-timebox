@@ -7,6 +7,7 @@ import axios from "axios";
 import Papa from "papaparse";
 import { inferAttr } from "../../helpers/data";
 import { autorun } from "mobx";
+import { RawData } from "../../helpers/data";
 
 const { Title } = Typography;
 const { Option } = Select;

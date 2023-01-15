@@ -1,13 +1,11 @@
 import { AngularComponent, TimeboxComponent } from "../ui-controller/components";
 
-export type RawPoint = { [attribute: string]: any };
-export type ScreenPoint = { x: number, y: number };
-export type Point = RawPoint | ScreenPoint;
+// export type RawPoint = { [attribute: string]: any };
+// export type Point = RawPoint | ScreenPoint;
 // export type Line<P extends Point> = P[];
 // export type RawLine = Line<RawPoint>;
 // export type ScreenLine = Line<ScreenPoint>;
-export type RawData = RawPoint[][];
-export type ScreenData = ScreenPoint[][];
+// export type RawData = RawPoint[][];
 
 export type Scale = {
   (dataLevelData: any): number,

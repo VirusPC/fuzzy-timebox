@@ -17,7 +17,7 @@ import { Scale, BrushFilterOption, BrushXFilterOption, BrushYFilterOption, Angul
 import KDTree, { ConcreteSegInfo } from "./cchtree";
 import { mix, brensenhamArr } from "./util";
 import { Option, ScreenData } from "../../types";
-import { formatAngularOption, formatTimeboxOption } from "../../helpers";
+import { formatAngularOption, formatTimeboxOption } from "../../converters/helpers";
 
 export default class CCHKDTree {
   _kdtree: KDTree;

@@ -1,4 +1,4 @@
-import type { QueryTask } from "./types"
+import type { QueryTask } from "../types"
 type PositionControlPointName = "x" | "y" | "s";
 type PercentageControlPointName = "p";
 type ControlPointName = PositionControlPointName | PercentageControlPointName;
@@ -23,6 +23,9 @@ type ControlPoint = {
  */
 export default function parseShapeSearch(expr: string, xRange: [number, number], yRange: [number, number], sRange: [number, number]): QueryTask[] | null {
   const formattedExpr = formatExpr(expr);
+  if(formattedExpr.length<=0){
+    return [];
+  }
   const shapeSearchExprs = formattedExpr.slice(1, formattedExpr.length - 1).split("][");
   const controlPointsForTasks = shapeSearchExprs
     .map(shapeSearchExpr => generateControlPoints(shapeSearchExpr))

@@ -1,5 +1,3 @@
-import CCHKDTree from "./cch-kd-tree";
-
 export { SequentialSearch } from "./sequential";
-export { KDTree } from "./kd-tree";
-export { CCHKDTree };
+export { CCHKDTree } from "./cch-kd-tree";
+export * from "./types.d";

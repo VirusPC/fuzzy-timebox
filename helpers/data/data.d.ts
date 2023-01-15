@@ -5,12 +5,15 @@ type Time = number | Date;
 type Value = number | string;
 
 export type RawData = string[][];
+export type ScreenPoint = { x: number, y: number };
+export type ScreenData = ScreenPoint[][];
 
 type Attr = {
   type: DataType,
   name: string,
   column: number,
 }
+
 
 
 // type TimeArrayType = Date[] | Float64Array;

@@ -1,4 +1,4 @@
-import { Point, Point2D, Point3D } from "./types.d";
+import { Point, Point2D, Point3D } from "../types";
 // // import Heap from "heap";
 // import Queue from "tinyqueue";
 // import { RBush3D } from "rbush-3d";

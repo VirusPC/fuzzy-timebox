@@ -1,7 +1,6 @@
 import { computeCurvature, lineRectCollide, pointDist, pointDot, pointMax, pointMin, pointNormalize, pointSub } from "./util";
-import { Point, Point2D, Point3D } from "./types";
-import { schemeRdPu } from "d3";
-import IntersectionTester from "../../../../lib/ui/intersectionTestUtil";
+import { Point, Point2D, Point3D } from "../types";
+import { MinMaxSet } from "../MinMaxSet";
 import { sortedIndexBy } from "lodash";
 
 
@@ -20,6 +19,7 @@ type TSRD = {
 
 // start pos, end pos, angle, lineIndex
 type SegInfo = [number, number, number, number]
+
 
 // start point, end point, angle, lineIndex, backpoints
 export type ConcreteSegInfo = {
@@ -198,8 +198,8 @@ export default class CCHTree {
       // Accelerate first 3 level
       const level = si[3];
       // if level greater than 2, try all dim. Othewise, // try only the dim with the largest variance. Beacause the cost is too higth at the begin.
-      const startDim = level > 2 ? 0 : level;
-      const endDim = level > 2 ? 2 : level;
+      const startDim = level > 1 ? 0 : level;
+      const endDim = level > 1 ? 2 : level;
       // const startDim = 0;
       // const endDim = 2;
 
@@ -325,6 +325,7 @@ export default class CCHTree {
           si[3] + 1
         );
       } else {
+        //!!! 可以不存diff
         const nl: CCHLeafNode = { segs: [] };
         for (let ci of si[0]) {
           let lastIndex = ci.from;
@@ -340,7 +341,8 @@ export default class CCHTree {
               // !!! 需要存，一共有多少个线段，每个线段的斜率怎样
               const ls: SegInfo = [
                 lastIndex,
-                ci.to,
+                // ci.to,
+                currIndex,
                 diff.y / diff.x,
                 tsrd.fastID[currIndex],
               ];
@@ -996,7 +998,7 @@ export default class CCHTree {
  */
   fuzzyBrush(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[] {
     // lineID: Set<pointIDInBox>
-    const result = new Map<number, Set<number>>();
+    const result = new Map<number, MinMaxSet>();
     console.time("fuzzy range");
     console.log("lo-hi", lo, hi);
     this._fuzzyRange(
@@ -1019,12 +1021,14 @@ export default class CCHTree {
     for (const [lineID, pointIDSet] of entries) {
       const line = this.lines[lineID];
       if (!line) continue;
-      // Optimize: 以随机一个point将line分成两半，左边找l，右边找r。
-      const l = sortedIndexBy(line, { x: lo[0], y: 0 }, "x");
-      const r = sortedIndexBy(line, { x: hi[0] + Number.MIN_VALUE, y: 0 }, "x") - 1;
+      const l = lefIndexInBox(line, "x", lo[0], pointIDSet.min);
+      const r = rightIndexInBox(line, "x", hi[0], pointIDSet.max);
       const totalNum = r - l + 1;
+      // const l = sortedIndexBy(line, { x: lo[0], y: 0 }, "x");
+      // const r = sortedIndexBy(line, { x: hi[0] + Number.MIN_VALUE, y: 0 }, "x") - 1;
+      // const totalNum = r - l + 1;
       if (totalNum <= 0) continue;
-      const pointIDs = [...pointIDSet];
+      const pointIDs = [...pointIDSet.set];
       // score1: percentage
       const pScore = pointIDs.length / totalNum;
       // score2: distance
@@ -1039,11 +1043,70 @@ export default class CCHTree {
       //   // }
       // }
       distanceScore /= totalNum;
-      if (pScore>= p) result2.push(lineID);
+      if (pScore >= p) result2.push(lineID);
     }
     console.timeEnd("fuzzy range2");
     return result2;
   }
+
+
+  /**
+* xy brush (no z)
+* @param {[number, number]} lo  low x and s
+* @param {[number, number]} hi high x and s
+* @returns 
+*/
+  fuzzyAngular(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[] {
+    // lineID: Set<pointIDInBox>
+    const result = new Map<number, MinMaxSet>();
+    console.time("fuzzy angular");
+    console.log("lo-hi", lo, hi);
+    this._fuzzyRange(
+      result,
+      { x: lo[0], y: -Infinity, z: lo[1] },
+      { x: hi[0], y: Infinity, z: hi[1] },
+      {
+        a: { x: -Infinity, y: -Infinity, z: -Infinity },
+        b: { x: Infinity, y: Infinity, z: Infinity },
+      },
+      this.root
+    );
+    console.timeEnd("fuzzy angular");
+    console.log("result", result);
+    // console.log("fuzzy range", lo, hi, p, result);
+    // const r = [...result];
+    const result2: number[] = [];
+    const entries = result.entries();
+    console.time("fuzzy angular2");
+    for (const [lineID, pointIDSet] of entries) {
+      const line = this.lines[lineID];
+      if (!line) continue;
+      // Optimize: 以随机一个point将line分成两半，左边找l，右边找r。
+      const l = lefIndexInBox(line, "x", lo[0], pointIDSet.min);
+      const r = rightIndexInBox(line, "x", hi[0], pointIDSet.max);
+      const totalNum = r - l + 1;
+      if (totalNum <= 0) continue;
+      const pointIDs = [...pointIDSet.set];
+      // score1: percentage
+      const pScore = pointIDs.length / totalNum;
+      // score2: distance
+      let distanceScore = 0;
+      // score3: bottom 
+      let bottomScore = 0;
+      // for(let i=l; i<=r; i++){
+      //   const distance = computePointBoxDistance(this.pos[i].y, lo[1], hi[1]);
+      //   distanceScore += distance;
+      //   // if(distance>0){
+      //     // bottomScore += ;
+      //   // }
+      // }
+      distanceScore /= totalNum;
+      if (pScore >= p) result2.push(lineID);
+    }
+    console.timeEnd("fuzzy angular2");
+    return result2;
+  }
+
 
   /**
    * 
@@ -1054,7 +1117,7 @@ export default class CCHTree {
    * @param node 
    * @returns 
    */
-  _fuzzyRange(result: Map<number, Set<number>>, p1: Point3D, p2: Point3D, aabb: AABB, node: CCHInternalNode | CCHLeafNode | null) {
+  _fuzzyRange(result: Map<number, MinMaxSet>, p1: Point3D, p2: Point3D, aabb: AABB, node: CCHInternalNode | CCHLeafNode | null) {
     // 1. ensure that p1 < p2 and node is not null.
     if (p1.x > p2.x || p1.y > p2.y || p1.z > p2.z || !node) return;
 
@@ -1111,7 +1174,7 @@ export default class CCHTree {
       );
   }
 
-  _fuzzyIterRange(result: Map<number, Set<number>>, p1: Point3D, p2: Point3D, node: CCHInternalNode | CCHLeafNode | null) {
+  _fuzzyIterRange(result: Map<number, MinMaxSet>, p1: Point3D, p2: Point3D, node: CCHInternalNode | CCHLeafNode | null) {
     if (!node) return;
     if ((node as CCHLeafNode).segs) {
       return this._fuzzyRangeLeaf(result, p1, p2, (node as CCHLeafNode));
@@ -1135,19 +1198,21 @@ export default class CCHTree {
   //   }
   // }
 
-  _fuzzyRangeLeaf(result: Map<number, Set<number>>, p1: Point3D, p2: Point3D, node: CCHLeafNode) {
+  _fuzzyRangeLeaf(result: Map<number, MinMaxSet>, p1: Point3D, p2: Point3D, node: CCHLeafNode) {
+    // console.log("fuzzy leaf", node.segs, this.segs);
     for (let i of node.segs) {
-      const [from, to, angle, lineId] = this.segs[i];
+      let [from, to, angle, lineId] = this.segs[i];
 
       let pointSet = result.get(lineId)!;
       const resultPointID: number[] = [];
       const isAngularQuery = isFinite(p1.z) || isFinite(p2.z);
 
+      // if(isAngularQuery) to--;
       for (let pointID = from; pointID <= to; pointID++) {
         if (pointSet && pointSet.has(pointID)) continue;
         const point = this.pos[pointID];
         if (isAngularQuery) { // angular
-          if (angle >= p1.z && angle <= p2.z 
+          if (point.z >= p1.z && point.z <= p2.z
             && point.x >= p1.x && point.x <= p2.x) {
             resultPointID.push(pointID);
           }
@@ -1164,7 +1229,7 @@ export default class CCHTree {
         if (result.has(lineId)) {
           resultPointID.forEach(pi => pointSet.add(pi));
         } else {
-          pointSet = new Set<number>();
+          pointSet = new MinMaxSet();
           result.set(lineId, pointSet);
           resultPointID.forEach(pi => pointSet.add(pi));
         }
@@ -1173,6 +1238,11 @@ export default class CCHTree {
     }
   }
 }
+
+
+
+
+
 
 
 
@@ -1350,7 +1420,7 @@ function splitCurves(dim: number, pos: number, org: CurveInfo[], tsrd: TSRD) {
   const resultLeft = [];
   const resultRight = [];
   // !!!
-  if(dim===2){};
+  if (dim === 2) { };
   for (let ci of org) {
     let a = ci.aabb.a[dim2xyz(dim)];
     let b = ci.aabb.b[dim2xyz(dim)];
@@ -1631,23 +1701,25 @@ function computeSlope(tsrd: TSRD) {
   tsrd.sizes.forEach((size, i) => {
     const beginIndex = tsrd.offsets[i];
     const endIndex = size + beginIndex - 1;
-    for (let j = beginIndex + 1; j < endIndex; j++) { // not calculate the first and the last
+    // for (let j = beginIndex + 1; j < endIndex; j++) { // not calculate the first and the last
+    for (let j = beginIndex; j < endIndex; j++) { // not calculate the first and the last
       // const avgLength = (length[j] + length[j - 1]) / 2;
       // weights[j] = tsrd.cuv[j] * avgLength;
       const right = pointSub(tsrd.pos[j + 1], tsrd.pos[j]);
-      const left = pointSub(tsrd.pos[j], tsrd.pos[j - 1]);
+      //const left = pointSub(tsrd.pos[j], tsrd.pos[j - 1]);
       // tsrd.pos[j].z =
       // // 左右斜率的加权平均
       //   (length[j] * (right.y / right.x) +
       //     length[j - 1] * (left.y / left.x)) /
       //   (length[j] + length[j - 1]);
-      if (j === beginIndex + 1) {
-        tsrd.pos[beginIndex].z = left.y / left.x;
-      }
+      // if (j === beginIndex + 1) {
+      //   tsrd.pos[beginIndex].z = left.y / left.x;
+      // }
       // if (j === endIndex - 1) {
-        tsrd.pos[endIndex].z = right.y / right.x;
+      tsrd.pos[j].z = right.y / right.x;
       // }
     }
+    tsrd.pos[endIndex].z = Infinity;
   });
   //#endregion
 }
@@ -1691,11 +1763,71 @@ function computeCurveInfos(tsrd: TSRD): CurveInfo[] {
 }
 //#endregion helpers about prepare data
 
-function computePointBoxDistance(pointPos: number, boxMin: number, boxMax: number): number{
-  if(pointPos < boxMin){
+function computePointBoxDistance(pointPos: number, boxMin: number, boxMax: number): number {
+  if (pointPos < boxMin) {
     return boxMin - pointPos;
-  } else if(pointPos > boxMax){
+  } else if (pointPos > boxMax) {
     return pointPos - boxMax;
   }
   return 0;
 }
+
+function lefIndexInBox<Datum extends Point2D | Point3D = Point3D>(data: Datum[], key: keyof Datum, leftValue: Datum[keyof Datum], high = data.length - 1) {
+  // const low = 0;
+  // high = Math.min(high, data.length - 1);
+  const low = 0;
+  high = data.length - 1;
+  if (high - low <= 0) return -1;
+  const insertIndex = sortedIndex<Datum, keyof Datum>(data, key, leftValue, low, high);;
+  return insertIndex;
+}
+
+function rightIndexInBox<Datum extends Point2D | Point3D = Point3D>(data: Datum[], key: keyof Datum, rightValue: Datum[keyof Datum], low = 0) {
+  // low = Math.max(0, low);
+  // const high = data.length - 1;
+  low = 0;
+  const high = data.length - 1;
+  if (high - low <= 0) return -1;
+  const insertIndex = sortedIndex<Datum, keyof Datum>(data, key, (rightValue as number + Number.MIN_VALUE) as Datum[keyof Datum], low, high);
+  return insertIndex - 1;
+  // if (insertIndex >= data.length) {
+  //   return insertIndex - 1;
+  // } else if (data[insertIndex][key] === rightValue) {
+  //   for (let i = insertIndex; i < data.length; ++i) {
+  //     if (data[insertIndex][key] > rightValue) {
+  //       return i - 1;
+  //     }
+  //   }
+  //   return data.length - 1;
+  // }
+  // return Math.max(0, insertIndex - 1);
+}
+
+
+/**
+ * The base implementation of `sortedIndexBy` and `sortedLastIndexBy`
+ * which invokes `iteratee` for `value` and each element of `array` to compute
+ * their sort ranking. The iteratee is invoked with one argument (value).
+ * 空时，返回0，
+ * 否则，返回
+ * @returns {number} Returns the index at which `value` should be inserted into `array`.
+ */
+function sortedIndex<O extends Object, K extends keyof O>(array: O[], key: K, targetValue: O[K], low: number, high: number): number {
+  high++;
+  // return sortedIndexBy<O>(array, {[key]: targetValue} as unknown as O, (o: any) => o[key]);
+  if (high === low) {
+    return 0
+  }
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2)
+    const computed = array[mid][key];
+    if (computed < targetValue) {
+      low = mid + 1
+    } else {
+      high = mid
+    }
+  }
+  return high;
+}
+
+
