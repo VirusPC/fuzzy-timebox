@@ -94,6 +94,9 @@ export default class CCHTree {
   segs: SegInfo[];
   pos: Point3D[];
   lines: Point2D[][];
+  minMaxSet: null | Map<number, MinMaxSet>;
+  percentages: null | Map<number, number>;
+
 
   /**
    *
@@ -105,6 +108,8 @@ export default class CCHTree {
     this.root = null;
     this.segs = [];
     this.lines = [];
+    this.minMaxSet = null;
+    this.percentages = null;
     console.time("seg to lines");
     segs.sort((seg1, seg2) => seg1.lineId === seg2.lineId ? seg1.points[0].x - seg2.points[0].x : seg1.lineId - seg2.lineId);
 
@@ -996,7 +1001,7 @@ export default class CCHTree {
  * @param {[number, number]} hi high x and y
  * @returns 
  */
-  fuzzyBrush(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[] {
+  fuzzyBrush(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[]{
     // lineID: Set<pointIDInBox>
     const result = new Map<number, MinMaxSet>();
     console.time("fuzzy range");
@@ -1012,41 +1017,16 @@ export default class CCHTree {
       this.root
     );
     console.timeEnd("fuzzy range");
-    console.log("result", result);
-    // console.log("fuzzy range", lo, hi, p, result);
-    // const r = [...result];
     const result2: number[] = [];
-    const entries = result.entries();
     console.time("fuzzy range2");
-    for (const [lineID, pointIDSet] of entries) {
-      const line = this.lines[lineID];
-      if (!line) continue;
-      const l = lefIndexInBox(line, "x", lo[0], pointIDSet.min);
-      const r = rightIndexInBox(line, "x", hi[0], pointIDSet.max);
-      const totalNum = r - l + 1;
-      // const l = sortedIndexBy(line, { x: lo[0], y: 0 }, "x");
-      // const r = sortedIndexBy(line, { x: hi[0] + Number.MIN_VALUE, y: 0 }, "x") - 1;
-      // const totalNum = r - l + 1;
-      if (totalNum <= 0) continue;
-      const pointIDs = [...pointIDSet.set];
-      // score1: percentage
-      const pScore = pointIDs.length / totalNum;
-      // score2: distance
-      let distanceScore = 0;
-      // score3: bottom 
-      let bottomScore = 0;
-      // for(let i=l; i<=r; i++){
-      //   const distance = computePointBoxDistance(this.pos[i].y, lo[1], hi[1]);
-      //   distanceScore += distance;
-      //   // if(distance>0){
-      //     // bottomScore += ;
-      //   // }
-      // }
-      distanceScore /= totalNum;
-      if (pScore >= p) result2.push(lineID);
+    const percentages = computePercentageAndUpdateMinMax(result, this.lines, lo, hi);
+    for (let [lineId, percentage] of percentages) {
+      if (percentage >= p) result2.push(lineId);
     }
     console.timeEnd("fuzzy range2");
-    return result2;
+    this.minMaxSet = result;
+    this.percentages = percentages;
+    return  result2;
   }
 
 
@@ -1056,7 +1036,7 @@ export default class CCHTree {
 * @param {[number, number]} hi high x and s
 * @returns 
 */
-  fuzzyAngular(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[] {
+  fuzzyAngular(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[]{
     // lineID: Set<pointIDInBox>
     const result = new Map<number, MinMaxSet>();
     console.time("fuzzy angular");
@@ -1078,32 +1058,13 @@ export default class CCHTree {
     const result2: number[] = [];
     const entries = result.entries();
     console.time("fuzzy angular2");
-    for (const [lineID, pointIDSet] of entries) {
-      const line = this.lines[lineID];
-      if (!line) continue;
-      // Optimize: 以随机一个point将line分成两半，左边找l，右边找r。
-      const l = lefIndexInBox(line, "x", lo[0], pointIDSet.min);
-      const r = rightIndexInBox(line, "x", hi[0], pointIDSet.max);
-      const totalNum = r - l + 1;
-      if (totalNum <= 0) continue;
-      const pointIDs = [...pointIDSet.set];
-      // score1: percentage
-      const pScore = pointIDs.length / totalNum;
-      // score2: distance
-      let distanceScore = 0;
-      // score3: bottom 
-      let bottomScore = 0;
-      // for(let i=l; i<=r; i++){
-      //   const distance = computePointBoxDistance(this.pos[i].y, lo[1], hi[1]);
-      //   distanceScore += distance;
-      //   // if(distance>0){
-      //     // bottomScore += ;
-      //   // }
-      // }
-      distanceScore /= totalNum;
-      if (pScore >= p) result2.push(lineID);
+    const percentages = computePercentageAndUpdateMinMax(result, this.lines, lo, hi);
+    for (let [lineId, percentage] of percentages) {
+      if (percentage >= p) result2.push(lineId);
     }
     console.timeEnd("fuzzy angular2");
+    this.minMaxSet = result;
+    this.percentages = percentages;
     return result2;
   }
 
@@ -1763,14 +1724,7 @@ function computeCurveInfos(tsrd: TSRD): CurveInfo[] {
 }
 //#endregion helpers about prepare data
 
-function computePointBoxDistance(pointPos: number, boxMin: number, boxMax: number): number {
-  if (pointPos < boxMin) {
-    return boxMin - pointPos;
-  } else if (pointPos > boxMax) {
-    return pointPos - boxMax;
-  }
-  return 0;
-}
+
 
 function lefIndexInBox<Datum extends Point2D | Point3D = Point3D>(data: Datum[], key: keyof Datum, leftValue: Datum[keyof Datum], high = data.length - 1) {
   // const low = 0;
@@ -1831,3 +1785,21 @@ function sortedIndex<O extends Object, K extends keyof O>(array: O[], key: K, ta
 }
 
 
+function computePercentageAndUpdateMinMax(minMaxMaps: Map<number, MinMaxSet>, lines: Point2D[][], lo: [number, number], hi: [number, number]): Map<number, number> {
+  const percentages = new Map<number, number>();
+  console.time("fuzzy range2");
+  for (const [lineID, pointIDSet] of minMaxMaps) {
+    const line = lines[lineID];
+    if (!line) continue;
+    const l = lefIndexInBox(line, "x", lo[0], pointIDSet.min);
+    const r = rightIndexInBox(line, "x", hi[0], pointIDSet.max);
+    pointIDSet.min = l;
+    pointIDSet.max = r;
+    const totalNum = r - l + 1;
+    if (totalNum <= 0) continue;
+    const pointIDs = [...pointIDSet.set];
+    const percentageScore = pointIDs.length / totalNum;
+    percentages.set(lineID, percentageScore);
+  }
+  return percentages
+}

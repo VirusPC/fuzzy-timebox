@@ -1,0 +1,45 @@
+.main-container {
+  width: 420px;;
+  height: 630px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  overflow: scroll;
+  // padding: 10px 0 10px;
+  // justify-content: center;
+  // align-items: center;
+  // pointer-events: none;
+  // background-color: rgba(255, 255, 255, 0.7);
+}
+
+.score-view{
+  width:180px;
+  height: 120px;
+  margin: 10px;
+  background-color: red;
+}
+
+.header {
+  background-color: green;
+  display: flex;
+  flex-direction: row;
+  padding: 0 5px;
+  text-align: center;
+  height: 30px;
+  justify-content: space-between;
+  align-items:flex-end;
+  .title {
+    font-size: large;
+    font-weight: bolder;
+    // width:180px;
+  }
+  .score {
+    font-size: larger;
+  }
+}
+.line-div{
+  background-color: blue;
+  width:180px;
+  height: 90px;
+}
+

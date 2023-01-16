@@ -1,4 +1,4 @@
-import { observable, computed, action, makeObservable } from "mobx";
+import { observable, computed, action, makeObservable, autorun } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import datasetConfig from './dataConfig.json';
 import { aggregateData, getXYScale, inferType, ScreenPoint } from "../helpers/data";
@@ -42,17 +42,15 @@ class DataStore {
   @observable selectedDatasetName: string | null;
   @observable rawData: RawData;
   @observable headers: string[];
-  // kdTree: AliTVSTree | null;
 
   @observable aggregationAttrPos: number;
   @observable timeAttrPos: number;
   @observable valueAttrPos: number;
 
   @observable aggregatedData: AggregatedData;
-  // queryDataStructure: QueryDataStructure;
-  // sequentialSearch: SequentialSearch | null;
-  // kdTree: KDTree| null;
-  // kdTree: CCHKDTree| null;
+
+  @observable isComputing: boolean;
+
   sequentialQuery: QueryDataStructure | null;
   CCHKDTree: QueryDataStructure | null;
 
@@ -142,6 +140,7 @@ class DataStore {
     this.aggregatedData = {};
     this.sequentialQuery = null;
     this.CCHKDTree = null;
+    this.isComputing = false;
     makeObservable(this);
   }
 
@@ -172,13 +171,16 @@ class DataStore {
     );
     console.timeEnd("create data structure for sequential query");
     console.time("create data structure for cch kd tree query");
-    this.CCHKDTree = new CCHKDTree(
-      dataStore.aggregatedPlainScreenData,
-    );
+    this.CCHKDTree = new CCHKDTree(dataStore.aggregatedPlainScreenData);
     console.timeEnd("create data structure for cch kd tree query");
     return true;
   }
+
+  @action setIsComputing(value: boolean){
+    this.isComputing = value;
+  }
 }
+
 
 const dataStore = new DataStore();
 

@@ -59,11 +59,11 @@ const MainView: React.FC<{}> = observer((props) => {
           <div className={styles["canvas"]}>
           {layerInfos.map(layerInfo => (
             layerInfo.id === "raw_line" ?
-              (<LineLayer key={layerInfo.id} className={styles["layer"]} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={screenData}  colorScale={linesColorScale}/>)
+              (<LineLayer key={layerInfo.id} className={styles["layer"]} id={layerInfo.id} opacity={layerInfo.opacity} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={screenData}  colorScale={linesColorScale}/>)
               // : layerInfo.id === "raw_density" ?
               // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree} />)
               : layerInfo.id === "selected_line" ?
-              (<LineLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={resultData} colorScale={linesColorScale} />)
+              (<LineLayer key={layerInfo.id} id={layerInfo.id} opacity={layerInfo.opacity} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={resultData} colorScale={linesColorScale} />)
               // :layerInfo.id==="selected_density" ?
               // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree}/>)
               // : layerInfo.id==="rep_line"?

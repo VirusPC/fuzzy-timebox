@@ -2,10 +2,10 @@
   padding: 10px 5px;
 }
 
-.v-concat {
+.h-concat {
   display: flex;
 }
-.h-concat {
+.v-concat {
   display: flex;
   flex-direction: column;
 }
@@ -15,19 +15,31 @@
 //   box-shadow: 5px 5px 5px 2px #888888;
 //   position: relative;
 // }
+.top-views {
+  padding: 10px 0;
+}
+.middle-views {
+  padding: 10px 0px;
+}
 .data-panel {
-  padding: 55px 10px 10px 30px;
+  padding: 0px 0px 5px 10px;
 }
 .main-view {
   padding: 10px;
 }
 .query-tools-panel {
   display: flex;
-  padding: 10px 10px;
+  padding: 10px 20px;
 }
 
 .editor{
-  padding: 60px 20px 10px;
+  padding: 5px 20px 0px;
+}
+.spin-view{
+  position: absolute;
+}
+.score-view{
+  padding: 10px;
 }
 // .layer {
 //   position: absolute;
