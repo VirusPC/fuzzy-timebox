@@ -1,4 +1,4 @@
-import { observable, computed, action, makeObservable } from "mobx";
+import { observable, computed, action, makeObservable, autorun } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import datasetConfig from './dataConfig.json';
 import { aggregateData, getXYScale, inferType, ScreenPoint } from "../helpers/data";
@@ -42,17 +42,15 @@ class DataStore {
   @observable selectedDatasetName: string | null;
   @observable rawData: RawData;
   @observable headers: string[];
-  // kdTree: AliTVSTree | null;
 
   @observable aggregationAttrPos: number;
   @observable timeAttrPos: number;
   @observable valueAttrPos: number;
 
   @observable aggregatedData: AggregatedData;
-  // queryDataStructure: QueryDataStructure;
-  // sequentialSearch: SequentialSearch | null;
-  // kdTree: KDTree| null;
-  // kdTree: CCHKDTree| null;
+
+  @observable isComputing: boolean;
+
   sequentialQuery: QueryDataStructure | null;
   CCHKDTree: QueryDataStructure | null;
 
@@ -65,6 +63,11 @@ class DataStore {
   get valueDataType(): ValueDataType {
     const inferedType = this.valueAttrPos >= 0 ? inferType(this.rawData[0][this.valueAttrPos]) as ValueDataType : "number";  // !! check type
     return inferedType;
+  }
+
+  @computed
+  get aggregationAttrName(): string {
+    return this.headers[this.aggregationAttrPos]
   }
 
   @computed
@@ -82,15 +85,15 @@ class DataStore {
     const screenData: { [id: string]: ScreenPoint[] } = {};
     const { timeScale, valueScale } = this.scales;
     if (!timeScale || !valueScale) return screenData;
-    Object.keys(this.aggregatedData).forEach((lineId) => {
-      screenData[lineId] = this.aggregatedData[lineId].map(point => ({ x: timeScale(point.x), y: valueScale(point.y as any) as number }));
+    this.aggregatedData.forEach((group, lineId) => {
+      screenData[lineId] = this.aggregatedData[+lineId].data.map(point => ({ x: timeScale(point.x), y: valueScale(point.y as any) as number }));
     });
     return screenData;
   }
 
   @computed
   get aggregatedPlainData() {
-    return Object.values<Point<Time, Value>[]>(this.aggregatedData)//this.aggregatedData.map(line => line.data);
+    return this.aggregatedData.map(line => line.data);
   }
 
   @computed
@@ -139,9 +142,10 @@ class DataStore {
     this.aggregationAttrPos = -1;
     this.timeAttrPos = -1;
     this.valueAttrPos = -1;
-    this.aggregatedData = {};
+    this.aggregatedData = [];
     this.sequentialQuery = null;
     this.CCHKDTree = null;
+    this.isComputing = false;
     makeObservable(this);
   }
 
@@ -158,27 +162,34 @@ class DataStore {
   apply() {
     if (!this.checkConfig()) return false;
     queryStore.reset();
-    this.aggregatedData = aggregateData(
+    const aggregatedData = aggregateData(
       dataStore.rawData,
       dataStore.aggregationAttrPos,
       dataStore.timeAttrPos,
       dataStore.valueAttrPos,
       dataStore.timeDataType,
       dataStore.valueDataType);
+    this.aggregatedData = aggregatedData;
+    console.log({aggregatedData});
     if (this.timeScale === null || this.valueScale === null) return false;
     console.time("create data structure for sequential query");
-    this.sequentialQuery = new SequentialSearch(
+    const sequentialQuery = new SequentialSearch(
       dataStore.aggregatedPlainScreenData,
     );
     console.timeEnd("create data structure for sequential query");
     console.time("create data structure for cch kd tree query");
-    this.CCHKDTree = new CCHKDTree(
-      dataStore.aggregatedPlainScreenData,
-    );
+    const cchKDTree = new CCHKDTree(dataStore.aggregatedPlainScreenData);
     console.timeEnd("create data structure for cch kd tree query");
+    this.sequentialQuery = sequentialQuery;
+    this.CCHKDTree = cchKDTree;
     return true;
   }
+
+  @action setIsComputing(value: boolean){
+    this.isComputing = value;
+  }
 }
+
 
 const dataStore = new DataStore();
 

@@ -3,6 +3,7 @@ import { InstrumentProps } from "../../lib/interaction";
 import { Component } from "../../lib/ui";
 import { initializeCreateTimeboxInteractor, initializePanAndResizeTimeboxInteractor } from "./interactors";
 import { initializeCreateAngularInteractor, initializePanAngularInteractor, initializeResizeAngularInteractor } from "./interactors";
+import { initializeHoverToHighlightrInteractor } from "./interactors";
 import { TimeboxComponent, AngularPreviewComponent, AngularComponent } from "./components";
 import { GeneralComponent } from "../../lib/interaction/container";
 
@@ -151,6 +152,9 @@ function initializeQueryInstrument(instrument: Instrument<QueryInstrumentState>,
 
   const resizeAngularQueryInteractor = initializeResizeAngularInteractor();
   instrument.addInteractor(resizeAngularQueryInteractor);
+
+  const hoverToHighlightrInteractor = initializeHoverToHighlightrInteractor();
+  instrument.addInteractor(hoverToHighlightrInteractor);
 
   instrument.interactors.forEach((interactor) => {
     interactor.actions.forEach((action) => {

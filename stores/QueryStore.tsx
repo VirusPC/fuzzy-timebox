@@ -1,14 +1,16 @@
 import { makeAutoObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import { QueryMode, UIController } from "../helpers/ui-controller";
-import { AngularConstraints,  generateShapeSearch, parseComponent, parseShapeSearch,  TimeboxConstraints } from "../helpers/query";
+import { AngularConstraints, generateShapeSearch, parseComponent, parseShapeSearch, TimeboxConstraints } from "../helpers/query";
 import { screenHeight, screenWidth } from "../views/MainView";
 import { GeneralComponent } from "../lib/interaction/container";
-import { QueryTask, generateComponent } from "../helpers/query";
+import { QueryTask, generateComponent, CCHKDTree } from "../helpers/query";
 import { AngularComponent, TimeboxComponent } from "../helpers/ui-controller/components";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import dataStore from "./DataStore";
 import { intersection } from "lodash";
+import { MinMaxSet } from "../helpers/query/algorithms/MinMaxSet";
+import { scoring } from "../helpers/query/algorithms/scoring";
 
 const isServer = typeof window === "undefined";
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -19,18 +21,28 @@ class QueryStore {
   _uiController: UIController | null;
   _editor: monaco.editor.IStandaloneCodeEditor | null;
   tasks: QueryTask[];
-  resultsEachTask: number[][];
-  // results: (Point<number, string>[] | Point<number, number>[] | Point<Date, number>[] | Point<Date, string>[])[];
   results: number[];
+  scores: { [lineID: number]: number };
+
+  resultsEachTask: number[][];
+  minMaxSetMaps: (Map<number, MinMaxSet> | null)[] = [];
+  precentageMaps: (Map<number, number> | null)[] = [];
 
   constructor() {
     this.queryMode = "timebox";
     this.tasks = [];
-    this.resultsEachTask = [];
     this.results = [];
+    this.scores = Object.create(null);
     this._uiController = null;
     this._editor = null;
-    makeAutoObservable(this);
+    this.resultsEachTask = [];
+    this.minMaxSetMaps = [];
+    this.precentageMaps = [];
+    makeAutoObservable(this, {
+      "minMaxSetMaps": false,
+      "resultsEachTask": false,
+      "precentageMaps": false
+    },);
   }
 
   set uiController(controller: UIController | null) {
@@ -53,9 +65,13 @@ class QueryStore {
   reset() {
     this.queryMode = "timebox";
     this._uiController?.clearup();
+    // this._editor = null;
     this.tasks = [];
     this.resultsEachTask = [];
     this.results = [];
+    this.minMaxSetMaps = [];
+    this.precentageMaps = [];
+    this.scores = Object.create(null);
   }
 
   setQueryMode(queryMode: QueryMode) {
@@ -75,16 +91,20 @@ class QueryStore {
     if (!tasks) return;
     this._reRenderComponentsWithTasks(tasks);
     this.executeTasks(tasks);
+    this.scoring();
   }
 
   executeTasks(tasks: QueryTask[]) {
     console.log("tasks", tasks);
     this.tasks = tasks;
-    const resultsForTasks: number[][] = tasks.map((task) => {
+    const resultsEachTask: number[][] = [];
+    const minMaxSetMaps: (Map<number, MinMaxSet> | null)[] = [];
+    const precentageMaps: (Map<number, number> | null)[] = [];
+    tasks.forEach((task) => {
       let results: number[] = [];
       console.time("query time");
       if (task.mode === "timebox") {
-        results = dataStore.CCHKDTree?.timebox({ 
+        results = dataStore.CCHKDTree?.timebox({
           type: "timebox",
           x1: task.constraint.xStart,
           x2: task.constraint.xEnd,
@@ -102,31 +122,72 @@ class QueryStore {
           p: task.constraint.p
         }) || [];
       }
-      return results;
+      resultsEachTask.push(results);
+      minMaxSetMaps.push((dataStore.CCHKDTree as CCHKDTree)._kdtree?.minMaxSet || null);
+      precentageMaps.push((dataStore.CCHKDTree as CCHKDTree)._kdtree?.percentages || null);
+      // return results;
     });
     console.timeEnd("query time");
-    const intersectionResults = intersection(...resultsForTasks);
+    const intersectionResults = intersection(...resultsEachTask);
     this.results = intersectionResults;
+    this.resultsEachTask = resultsEachTask;
+    this.minMaxSetMaps = minMaxSetMaps;
+    this.precentageMaps = precentageMaps;
     console.log("search results: ", intersectionResults);
+  }
+
+  scoring() {
+    if (dataStore.CCHKDTree === null
+      || !this.minMaxSetMaps || this.minMaxSetMaps.length === 0
+      || !this.precentageMaps || this.precentageMaps.length === 0
+      || !this.resultsEachTask || this.resultsEachTask.length === 0
+    ) {
+      this.scores = Object.create(null);
+      return;
+    };
+    const kdtree = dataStore.CCHKDTree as CCHKDTree;
+    console.log("scoring");
+    console.log(this.resultsEachTask);
+    console.log(this.minMaxSetMaps);
+    console.log(this.precentageMaps);
+    const scoreMaps: { [lineID: number]: number }[] = this.tasks.map((task, i) => {
+      const minMaxSetMap = this.minMaxSetMaps[i];
+      const precentageMap = this.precentageMaps[i];
+      const scoreMap = (minMaxSetMap && precentageMap)
+        ? scoring(minMaxSetMap, precentageMap, kdtree._kdtree.pos, task, this.results)
+        : Object.create(null);
+      return scoreMap;
+    });
+    const scoreMap: {
+      [lineID: number]: number;
+    } = Object.create(null);
+    this.results.forEach(lineID => {
+      const score = scoreMaps.reduce((score, scoreMap) => score + (scoreMap[lineID] || 0), 0) / scoreMaps.length;
+      scoreMap[lineID] = score;
+    });
+    this.scores = scoreMap;
+    console.log("percentages", this.results.map(lineID => this.precentageMaps[0]?.get(lineID)));
+    console.log("scoreMaps", scoreMaps);
+    console.log("scoreMap", scoreMap);
   }
 
   private _reRenderComponentsWithTasks(tasks: QueryTask[]) {
     const components = generateComponent(tasks, screenWidth, screenHeight, (d: number) => d, (d: number) => d);
     const componentMap: { [name: string]: GeneralComponent } = {};
-    components.forEach((component) => {
+    components.forEach((component, i) => {
       if (!component) return;
-      componentMap[`${component?.type}-${new Date()}`] = component;
+      componentMap[`${component?.type}-${i}`] = component;
     });
     this._uiController?.reRenderComponents(componentMap);
   }
 
   private _controlEditor(controller: UIController) {
     controller.addEventListener([
-      // "createTimebox_createend", 
+      "createTimebox_createend",
       "createTimebox_creating",
       "panAndResizeTimebox_modifystart",
       "panAndResizeTimebox_modifying",
-      // "panAndResizeTimebox_modifyend", 
+      "panAndResizeTimebox_modifyend",
       "createAngular_createend",
       "panAndResizeTimebox_modifyend",
       "panAngular_modifyend",
@@ -135,6 +196,18 @@ class QueryStore {
     ], (component, event, props) => {
       const components = [...controller.getComponents().values()];
       this._executeVisualQuery(components as (TimeboxComponent | AngularComponent)[]);
+    });
+
+    controller.addEventListener([
+      "createTimebox_createend",
+      "panAndResizeTimebox_modifyend",
+      "createAngular_createend",
+      "panAngular_modifyend",
+      "resizeAngular_modifyend",
+      "resizeAngular_modifywheel",
+    ], (component, event, props) => {
+      // const components = [...controller.getComponents().values()];
+      this.scoring();
     });
   }
 

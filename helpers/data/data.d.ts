@@ -46,8 +46,9 @@ type AggregatedData =
   | AggregatedDataGeneric<Extract<Time, Date>, Extract<Value, number>>
   | AggregatedDataGeneric<Extract<Time, Date>, Extract<Value, string>>
 type AggregatedDataGeneric<T extends Time, V extends Value> = {
-  [id: string]: Point<T, V>[];
-}
+  groupby: string,
+  data: Point<T, V>[];
+}[]
 type Point<X, Y> = {x: X, y: Y}
 //type Line<T extends Time, V extends Value> = Point<T, V>[];
 //type Lines<T extends Time, V extends Value> = Line<T, V>[];

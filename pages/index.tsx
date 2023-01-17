@@ -9,6 +9,9 @@ import LineLayer from '../components/LineLayer'
 import MainView from '../views/MainView'
 import classNames from 'classnames'
 import Editor from '../views/Editor'
+import TitleView from '../views/TitleView'
+import SpinView from '../views/SpinView'
+import ScoreView from '../views/ScoreView'
 
 export default function Home() {
   return (
@@ -20,19 +23,30 @@ export default function Home() {
       </Head>
       <main className={classNames(styles["main"], styles["v-concat"])}>
         {/* <canvas className={styles.canvas}></canvas> */}
-        <div className={styles["data-panel"]}>
-          <DataPanel />
+        <div className={classNames( styles["h-concat"], styles["top-views"] )}>
+          <TitleView />
+          <div className={styles["data-panel"]}>
+            <DataPanel />
+          </div>
         </div>
-        <div className={styles["h-concat"]}>
-          <div className={styles['query-tools-panel']}>
-            <QueryToolsPanel />
+        <div className={classNames(styles["h-concat"], styles["middle-views"])}>
+          <div className={styles["score-view"]}>
+            <ScoreView />
           </div>
           <div className={styles["main-view"]}>
             <MainView />
           </div>
+          <div className={styles["v-concat"]}>
+            <div className={styles['query-tools-panel']}>
+              <QueryToolsPanel />
+            </div>
+            <div className={styles["editor"]}>
+              <Editor />
+            </div>
+          </div>
         </div>
-        <div className={styles["editor"]}>
-          <Editor/>
+        <div className={styles["spin-view"]}>
+          <SpinView/>
         </div>
       </main>
     </div>
