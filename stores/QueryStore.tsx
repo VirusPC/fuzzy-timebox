@@ -90,8 +90,8 @@ class QueryStore {
     const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-90, 90])?.filter(task => task !== null);
     if (!tasks) return;
     this._reRenderComponentsWithTasks(tasks);
-    // this.executeTasks(tasks);
-    // this.scoring();
+    this.executeTasks(tasks);
+    this.scoring();
   }
 
   executeTasks(tasks: QueryTask[]) {

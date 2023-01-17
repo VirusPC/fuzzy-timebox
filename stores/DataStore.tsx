@@ -66,6 +66,11 @@ class DataStore {
   }
 
   @computed
+  get aggregationAttrName(): string {
+    return this.headers[this.aggregationAttrPos]
+  }
+
+  @computed
   get timeAttrName(): string {
     return this.headers[this.timeAttrPos]
   }
@@ -80,15 +85,15 @@ class DataStore {
     const screenData: { [id: string]: ScreenPoint[] } = {};
     const { timeScale, valueScale } = this.scales;
     if (!timeScale || !valueScale) return screenData;
-    Object.keys(this.aggregatedData).forEach((lineId) => {
-      screenData[lineId] = this.aggregatedData[lineId].map(point => ({ x: timeScale(point.x), y: valueScale(point.y as any) as number }));
+    this.aggregatedData.forEach((group, lineId) => {
+      screenData[lineId] = this.aggregatedData[+lineId].data.map(point => ({ x: timeScale(point.x), y: valueScale(point.y as any) as number }));
     });
     return screenData;
   }
 
   @computed
   get aggregatedPlainData() {
-    return Object.values<Point<Time, Value>[]>(this.aggregatedData)//this.aggregatedData.map(line => line.data);
+    return this.aggregatedData.map(line => line.data);
   }
 
   @computed
@@ -137,7 +142,7 @@ class DataStore {
     this.aggregationAttrPos = -1;
     this.timeAttrPos = -1;
     this.valueAttrPos = -1;
-    this.aggregatedData = {};
+    this.aggregatedData = [];
     this.sequentialQuery = null;
     this.CCHKDTree = null;
     this.isComputing = false;
@@ -157,22 +162,26 @@ class DataStore {
   apply() {
     if (!this.checkConfig()) return false;
     queryStore.reset();
-    this.aggregatedData = aggregateData(
+    const aggregatedData = aggregateData(
       dataStore.rawData,
       dataStore.aggregationAttrPos,
       dataStore.timeAttrPos,
       dataStore.valueAttrPos,
       dataStore.timeDataType,
       dataStore.valueDataType);
+    this.aggregatedData = aggregatedData;
+    console.log({aggregatedData});
     if (this.timeScale === null || this.valueScale === null) return false;
     console.time("create data structure for sequential query");
-    this.sequentialQuery = new SequentialSearch(
+    const sequentialQuery = new SequentialSearch(
       dataStore.aggregatedPlainScreenData,
     );
     console.timeEnd("create data structure for sequential query");
     console.time("create data structure for cch kd tree query");
-    this.CCHKDTree = new CCHKDTree(dataStore.aggregatedPlainScreenData);
+    const cchKDTree = new CCHKDTree(dataStore.aggregatedPlainScreenData);
     console.timeEnd("create data structure for cch kd tree query");
+    this.sequentialQuery = sequentialQuery;
+    this.CCHKDTree = cchKDTree;
     return true;
   }
 

@@ -24,7 +24,7 @@ class CanvasStore {
 
   get linesColorScale(): (id: number) => [number, number, number] {
     const colorCache: {[id: string]: [number, number, number]} = {};
-    Object.keys(dataStore.aggregatedData).forEach((lineId) => {
+    dataStore.aggregatedData.forEach((group, lineId) => {
       colorCache[lineId] = getRandomColor(this.linesColorMap.value);
     });
     return (id: number) => {

@@ -103,7 +103,7 @@ export default function initializePanAndResizeTimeboxInteractor() {
   })
   interactor.addEventListener("modifyend", (event, props) => {
     const { container, instrument } = props;
-    activeComponent?.setStyleMap("normal");
+    // activeComponent?.setStyleMap("normal");
     container.reRender();
   })
 

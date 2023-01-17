@@ -2,7 +2,7 @@ import axios from "axios";
 import Papa from "papaparse";
 import _ from "lodash";
 import * as d3 from "d3";
-import { AggregatedData, AggregatedDataGeneric, DataType, RawData, TimeDataType, ValueDataType } from "./data";
+import { AggregatedData, AggregatedDataGeneric, DataType, RawData, Time, TimeDataType, Value, ValueDataType } from "./data";
 
 export async function getData(url: string) {
   const response = await axios.get(url);
@@ -75,84 +75,104 @@ export function inferAttr(data: RawData): {
 
 export function aggregateData(rawData: RawData, aggregationAttrPos: number, timeAttrPos: number, valueAttrPos: number, timeDataType: TimeDataType, valueDataType: ValueDataType): AggregatedData {
   // aggregate data
-  const aggregatedDataWithoutFormatting = _
+  const aggregatedData = _
     .chain(rawData)
     .groupBy(d => d[aggregationAttrPos])
     .entries()
     .map(([id, linesData]) => ({
-      id: id,
+      groupby: id,
       data: _
         .chain(linesData)
         .map((lineData) => ({
-          x: lineData[timeAttrPos],
-          y: lineData[valueAttrPos],
+          x: parseValue(lineData[timeAttrPos], timeDataType),
+          y: parseValue(lineData[valueAttrPos], valueDataType),
         }))
-    }));
+        .value()
+    }))
+    .value();
 
-  let result: AggregatedData = {};
+  // let result: AggregatedData = [];
 
-  // formatting data
-  if (timeDataType === "date" && valueDataType === "number") {
-    aggregatedDataWithoutFormatting
-      .forEach((group, i) =>
-        (result as AggregatedDataGeneric<Date, number>)[i] =
-        group.data.map(
-          (lineData) => ({
-            x: new Date(lineData.x),
-            y: +lineData.y,
-          })
-        ).value()
+  // // formatting data
+  // if (timeDataType === "date" && valueDataType === "number") {
+  //   aggregatedDataWithoutFormatting
+  //     .forEach((group, i) =>
+  //       (result as AggregatedDataGeneric<Date, number>).push(
+  //         {
+  //           groupby: group.id,
+  //           data: group.data.map(
+  //             (lineData) => ({
+  //               x: new Date(lineData.x),
+  //               y: +lineData.y,
+  //             })
+  //           ).value()
+  //         }
 
-      )
-      .value();
-  } else if (timeDataType === "date" && valueDataType === "string") {
-    aggregatedDataWithoutFormatting
-      .forEach((group, i) =>
-        (result as AggregatedDataGeneric<Date, string>)[i] =
-        group.data.map(
-          (lineData) => ({
-            x: new Date(lineData.x),
-            y: lineData.y,
-          })
-        ).value()
+  //       )
+  //     ).value();
+  // } else if (timeDataType === "date" && valueDataType === "string") {
+  //   aggregatedDataWithoutFormatting
+  //     .forEach((group, i) =>
+  //       (result as AggregatedDataGeneric<Date, string>).push(
+  //         {
+  //           groupby: group.id,
+  //           data: group.data.map(
+  //             (lineData) => ({
+  //               x: new Date(lineData.x),
+  //               y: lineData.y,
+  //             })
+  //           ).value()
+  //         }
 
-      )
-      .value();
-  } else if (timeDataType === "number" && valueDataType === "number") {
-    aggregatedDataWithoutFormatting
-      .forEach((group, i) =>
-        (result as AggregatedDataGeneric<number, number>)[i] =
-        (group.data.map(
-          (lineData) => ({
-            x: + lineData.x,
-            y: +lineData.y,
-          })
-        ).value())
+  //       )
 
-      )
-      .value();
-  } else if (timeDataType === "number" && valueDataType === "string") {
-    aggregatedDataWithoutFormatting
-      .forEach((group, i) =>
-        (result as AggregatedDataGeneric<number, string>)[i] =
-        (group.data.map(
-          (lineData) => ({
-            x: + lineData.x,
-            y: lineData.y,
-          })
-        ).value())
+  //     ).value()
+  // } else if (timeDataType === "number" && valueDataType === "number") {
+  //   aggregatedDataWithoutFormatting
+  //     .forEach((group, i) =>
+  //       (result as AggregatedDataGeneric<number, number>).push({
+  //         groupby: group.id,
+  //         data:group.data.map(
+  //           (lineData) => ({
+  //             x: + lineData.x,
+  //             y: +lineData.y,
+  //           })
+  //         ).value()
+  //       }) 
 
-      )
-      .value();
-  }
+  //     ).value();
+  // } else if (timeDataType === "number" && valueDataType === "string") {
+  //   aggregatedDataWithoutFormatting
+  //     .forEach((group, i) =>
+  //       (result as AggregatedDataGeneric<number, string>)[i] =
+  //       (group.data.map(
+  //         (lineData) => ({
+  //           x: + lineData.x,
+  //           y: lineData.y,
+  //         })
+  //       ).value())
 
-  return result;
+  //     )
+  //     .value();
+  // }
+
+  return aggregatedData as unknown as AggregatedData;
 }
+
+function parseValue(rawValue: string, type: DataType): number | string | Date {
+  if(type === "number") {
+    return +rawValue;
+  } else if (type === "date") {
+    return new Date(rawValue);
+  }
+  return rawValue;
+};
 
 // export function formatAggregatedData(data: AggregatedData): {}
 
 export function aggregatedDataToLines(aggregateData: AggregatedData) {
-  return Object.values(aggregateData);//map(group => group.data);
+  // return Object.values(aggregateData);//map(group => group.data);
+  return aggregateData.map(group => group.data);
 }
 
 // function getScale(aggregatedData: AggregatedData, attrName: string, attrType: DataType, length: number){
