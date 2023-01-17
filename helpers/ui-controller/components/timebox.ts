@@ -49,7 +49,7 @@ const TIMEBOX_STYLEMAPS: {
 
 const timeboxConstraintEffect: TimeboxConstraintEffect = function (component) {
   const { x, y, width, height } = component.getLayoutConstraints();
-  const handleWidth = 20;
+  const handleWidth = 15;
   const halfHandleWidth = handleWidth / 2;
   component.modifyGeometry("centerRect", { x, y, width, height });
   component.modifyGeometry("topRect", { x, y: y - halfHandleWidth, width, height: handleWidth });

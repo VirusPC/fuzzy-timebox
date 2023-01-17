@@ -30,14 +30,14 @@ function generateSingleComponent(task: QueryTask, screenWidth: number, screenHei
     return timeboxComponent;
   } else if(task.mode) {
     const angularComponent = initializeAngularComponent();
-    const { xStart, xEnd, sStart, sEnd, p } = task.constraint;
+    const { xStart, xEnd, radianStart, radianEnd, p } = task.constraint;
     const [screenX1, screenX2] = [xStart, xEnd].map(scaleX);
     angularComponent.setLayoutConstraints({
       x1: screenX1,
       x2: screenX2,
       y: screenHeight/ 2,
-      startAngle: sStart / 360 * 2 * Math.PI,
-      endAngle: sEnd / 360 * 2 * Math.PI,
+      startAngle: -radianEnd,
+      endAngle: -radianStart,
       p: p
     });
     return angularComponent;

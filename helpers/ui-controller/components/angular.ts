@@ -66,8 +66,8 @@ const ANGULAR_STYLEMAPS: {
 
 const angularConstraintEffect: AngularConstraintEffect = function (component) {
   const { x1, x2, y, startAngle, endAngle } = component.getLayoutConstraints();
-  const r = (x2-x1) / 4;
-  const handleWidth = 20;
+  const r = (x2-x1) / 2;
+  const handleWidth = 15;
   // const sideSpanAngle = (endAngle - startAngle) / 8;
   const sideSpanAngle = Math.PI/30;
   component.modifyGeometry("hLine", { x1: x1, x2: x2, y1: y, y2: y});

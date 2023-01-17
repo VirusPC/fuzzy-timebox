@@ -26,13 +26,13 @@ function generateSingleShapeSearch(task: QueryTask, screenWidth: number, screenH
   p=${p}
 ]`;
   } else if (task.mode === "angular") {
-    const { xStart, xEnd, sStart, sEnd, p } = task.constraint;
+    const { xStart, xEnd, radianStart, radianEnd, p } = task.constraint;
     const [screenX1, screenX2] = [xStart, xEnd].map(scaleX);
     return `[
   x.s=${screenX1},
   x.e=${screenX2},
-  s.s=${sStart / Math.PI * 180},
-  s.e=${sEnd / Math.PI * 180},
+  s.s=${radianStart / Math.PI * 180},
+  s.e=${radianEnd / Math.PI * 180},
   p=${p}
 ]`;
   }

@@ -45,8 +45,8 @@ function parseSingleComponent(component: TimeboxComponent | AngularComponent, sc
       constraint: {
         xStart: x1,
         xEnd: x2,
-        sStart: -endAngle, // reverse y-axis
-        sEnd: -startAngle,
+        radianStart: -endAngle, // reverse y-axis
+        radianEnd: -startAngle,
         p: p
       }
     }

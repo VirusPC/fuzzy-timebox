@@ -81,13 +81,14 @@ class QueryStore {
 
   _executeVisualQuery(components: (TimeboxComponent | AngularComponent)[]) {
     const tasks = parseComponent(components, screenHeight);
+    console.log("visual query", components, tasks);
     const shapeSearchExpr = generateShapeSearch(tasks, screenWidth, screenHeight, (d: number) => d, (d: number) => d);
     this._editor?.setValue(shapeSearchExpr);
     this.executeTasks(tasks);
   }
 
   executeShapeSearch(text: string) {
-    const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-90, 90])?.filter(task => task !== null);
+    const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-Math.PI/2, Math.PI/2])?.filter(task => task !== null);
     if (!tasks) return;
     this._reRenderComponentsWithTasks(tasks);
     this.executeTasks(tasks);
@@ -147,9 +148,6 @@ class QueryStore {
     };
     const kdtree = dataStore.CCHKDTree as CCHKDTree;
     console.log("scoring");
-    console.log(this.resultsEachTask);
-    console.log(this.minMaxSetMaps);
-    console.log(this.precentageMaps);
     const scoreMaps: { [lineID: number]: number }[] = this.tasks.map((task, i) => {
       const minMaxSetMap = this.minMaxSetMaps[i];
       const precentageMap = this.precentageMaps[i];
@@ -166,13 +164,11 @@ class QueryStore {
       scoreMap[lineID] = score;
     });
     this.scores = scoreMap;
-    console.log("percentages", this.results.map(lineID => this.precentageMaps[0]?.get(lineID)));
-    console.log("scoreMaps", scoreMaps);
-    console.log("scoreMap", scoreMap);
   }
 
   private _reRenderComponentsWithTasks(tasks: QueryTask[]) {
     const components = generateComponent(tasks, screenWidth, screenHeight, (d: number) => d, (d: number) => d);
+    console.log("shape search", components, tasks);
     const componentMap: { [name: string]: GeneralComponent } = {};
     components.forEach((component, i) => {
       if (!component) return;

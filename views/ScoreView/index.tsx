@@ -72,8 +72,8 @@ const ScoreViews: React.FC<{}> = observer(() => {
           y: point.y / height * scoreHeight
         })),
       }
-      console.log(resultData.name);
-      console.log(id, aggregatedData??[+id], 1);
+      // console.log(resultData.name);
+      // console.log(id, aggregatedData??[+id], 1);
       resultDatas.push(resultData);
     }
     return resultDatas;
