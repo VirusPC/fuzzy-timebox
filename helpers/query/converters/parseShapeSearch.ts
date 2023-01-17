@@ -129,8 +129,8 @@ function getTask(controlPoints: ControlPoint[], xRange: [number, number], yRange
       constraint: {
         "xStart": xStartConstrolPoint ? xStartConstrolPoint.value : xRange[0],
         "xEnd": xEndConstrolPoint ? xEndConstrolPoint.value : xRange[1],
-        "sStart": sStartConstrolPoint ? sStartConstrolPoint.value : sRange[0],
-        "sEnd": sEndConstrolPoint ? sEndConstrolPoint.value : sRange[1],
+        "radianStart": sStartConstrolPoint ? sStartConstrolPoint.value/180*Math.PI : sRange[0],
+        "radianEnd": sEndConstrolPoint ? sEndConstrolPoint.value/180*Math.PI : sRange[1],
         "p": pConstrolPoint ? pConstrolPoint.value : 1
       }
     }

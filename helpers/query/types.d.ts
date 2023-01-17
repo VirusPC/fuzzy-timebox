@@ -44,8 +44,8 @@ export type TimeboxConstraints = {
 export type AngularConstraints = {
   xStart: number,
   xEnd: number,
-  sStart: number,
-  sEnd: number,
+  radianStart: number,
+  radianEnd: number,
   p: number,
 };
 
