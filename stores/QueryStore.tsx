@@ -206,8 +206,8 @@ class QueryStore {
       "resizeAngular_modifyend",
       "resizeAngular_modifywheel",
     ], (component, event, props) => {
-      const components = [...controller.getComponents().values()];
-      this._executeVisualQuery(components as (TimeboxComponent | AngularComponent)[]);
+      // const components = [...controller.getComponents().values()];
+      this.scoring();
     });
   }
 
