@@ -96,6 +96,7 @@ export default class CCHTree {
   lines: Point2D[][];
   minMaxSet: null | Map<number, MinMaxSet>;
   percentages: null | Map<number, number>;
+  offsets: null | TSRD["offsets"];
 
 
   /**
@@ -110,6 +111,7 @@ export default class CCHTree {
     this.lines = [];
     this.minMaxSet = null;
     this.percentages = null;
+    this.offsets = null;
     console.time("seg to lines");
     segs.sort((seg1, seg2) => seg1.lineId === seg2.lineId ? seg1.points[0].x - seg2.points[0].x : seg1.lineId - seg2.lineId);
 
@@ -137,6 +139,7 @@ export default class CCHTree {
     computeSlope(tsrd);
     const allci: CurveInfo[] = computeCurveInfos(tsrd);
     this.pos = tsrd.pos;
+    this.offsets = tsrd.offsets;
     //#endregion
 
     //#region 2. construct kd-tree
@@ -1001,7 +1004,7 @@ export default class CCHTree {
  * @param {[number, number]} hi high x and y
  * @returns 
  */
-  fuzzyBrush(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[]{
+  fuzzyBrush(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[] {
     // lineID: Set<pointIDInBox>
     const result = new Map<number, MinMaxSet>();
     console.time("fuzzy range");
@@ -1019,14 +1022,14 @@ export default class CCHTree {
     console.timeEnd("fuzzy range");
     const result2: number[] = [];
     console.time("fuzzy range2");
-    const percentages = computePercentageAndUpdateMinMax(result, this.lines, lo, hi);
+    const percentages = computePercentageAndUpdateMinMax(result, this.lines, lo, hi, this.offsets);
     for (let [lineId, percentage] of percentages) {
       if (percentage >= p) result2.push(lineId);
     }
     console.timeEnd("fuzzy range2");
     this.minMaxSet = result;
     this.percentages = percentages;
-    return  result2;
+    return result2;
   }
 
 
@@ -1036,7 +1039,7 @@ export default class CCHTree {
 * @param {[number, number]} hi high x and s
 * @returns 
 */
-  fuzzyAngular(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[]{
+  fuzzyAngular(lo: [number, number], hi: [number, number], p: number = 1, scoreFunc: () => number = () => 1): number[] {
     // lineID: Set<pointIDInBox>
     const result = new Map<number, MinMaxSet>();
     console.time("fuzzy angular");
@@ -1058,7 +1061,7 @@ export default class CCHTree {
     const result2: number[] = [];
     const entries = result.entries();
     console.time("fuzzy angular2");
-    const percentages = computePercentageAndUpdateMinMax(result, this.lines, lo, hi);
+    const percentages = computePercentageAndUpdateMinMax(result, this.lines, lo, hi, this.offsets);
     for (let [lineId, percentage] of percentages) {
       if (percentage >= p) result2.push(lineId);
     }
@@ -1785,7 +1788,7 @@ function sortedIndex<O extends Object, K extends keyof O>(array: O[], key: K, ta
 }
 
 
-function computePercentageAndUpdateMinMax(minMaxMaps: Map<number, MinMaxSet>, lines: Point2D[][], lo: [number, number], hi: [number, number]): Map<number, number> {
+function computePercentageAndUpdateMinMax(minMaxMaps: Map<number, MinMaxSet>, lines: Point2D[][], lo: [number, number], hi: [number, number], offsets?: TSRD["offsets"] | null): Map<number, number> {
   const percentages = new Map<number, number>();
   console.time("fuzzy range2");
   for (const [lineID, pointIDSet] of minMaxMaps) {
@@ -1793,8 +1796,9 @@ function computePercentageAndUpdateMinMax(minMaxMaps: Map<number, MinMaxSet>, li
     if (!line) continue;
     const l = lefIndexInBox(line, "x", lo[0], pointIDSet.min);
     const r = rightIndexInBox(line, "x", hi[0], pointIDSet.max);
-    pointIDSet.min = l;
-    pointIDSet.max = r;
+    const offset = offsets ? offsets[lineID] : 0;
+    pointIDSet.min = l + offset
+    pointIDSet.max = r + offset;
     const totalNum = r - l + 1;
     if (totalNum <= 0) continue;
     const pointIDs = [...pointIDSet.set];

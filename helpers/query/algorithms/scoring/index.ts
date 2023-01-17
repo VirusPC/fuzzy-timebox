@@ -1,3 +1,4 @@
+import { QueryTask } from "../../types";
 import { MinMaxSet } from "../MinMaxSet";
 import { Point3D } from "../types";
 
@@ -20,12 +21,27 @@ export function scoring(
   minMaxSets: Map<number, MinMaxSet>,
   percentages: Map<number, number>,
   points: Point3D[],
-  queryBox: QueryBox,
+  task: QueryTask,
+  // queryBox: QueryBox,
   lineIDs?: number[]
-): Map<number, number> {
-  const scoreMap = new Map<number, number>();
+): {[lineID: number]: number} {
+  const scoreMap: {[lineID: number]: number} = Object.create(null);//new Map<number, number>();
   const iterableLineIDs = lineIDs ?? minMaxSets.keys();
   // if(queryBox.type === "timebox"){
+  const queryBox: QueryBox = task.mode === "timebox" ? {
+    type: "timebox",
+    lowX: Math.min(task.constraint.xStart, task.constraint.xEnd),
+    highX: Math.max(task.constraint.xStart, task.constraint.xEnd),
+    lowY: Math.min(task.constraint.yStart, task.constraint.yEnd),
+    highY: Math.max(task.constraint.yStart, task.constraint.yEnd),
+  }: {
+    type: "angular",
+    lowX: Math.min(task.constraint.xStart, task.constraint.xEnd),
+    highX: Math.max(task.constraint.xStart, task.constraint.xEnd),
+    lowSlope: Math.min(task.constraint.sStart, task.constraint.sEnd),
+    highSlope: Math.max(task.constraint.sStart, task.constraint.sEnd),
+
+  };
 
   for (let lineID of iterableLineIDs) {
     const minMaxSet = minMaxSets.get(lineID);
@@ -35,7 +51,7 @@ export function scoring(
     const percentage = percentages.get(lineID);
     if (!percentage) continue;
     const score = computeScore(percentage, distance, width);
-    scoreMap.set(lineID, score);
+    scoreMap[lineID] = score;
   }
   // } else if(queryBox.type == "angular"){
   // }
