@@ -23,12 +23,6 @@ type ScoreViewProps = {
 
 const ScoreView: React.FC<ScoreViewProps> = ({ title, score, id, data, width, height, colorScale }) => {
   const opacity = 1;
-  console.log({
-    id,
-    title,
-    score,
-    data
-  });
   return <div className={styles["score-view"]} key={id}>
     <div className={styles["header"]}>
       <div className={styles["title"]}>{title}</div>

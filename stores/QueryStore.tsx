@@ -90,8 +90,8 @@ class QueryStore {
     const tasks = parseShapeSearch(text, [0, screenWidth], [0, screenHeight], [-90, 90])?.filter(task => task !== null);
     if (!tasks) return;
     this._reRenderComponentsWithTasks(tasks);
-    this.executeTasks(tasks);
-    this.scoring();
+    // this.executeTasks(tasks);
+    // this.scoring();
   }
 
   executeTasks(tasks: QueryTask[]) {
@@ -174,9 +174,9 @@ class QueryStore {
   private _reRenderComponentsWithTasks(tasks: QueryTask[]) {
     const components = generateComponent(tasks, screenWidth, screenHeight, (d: number) => d, (d: number) => d);
     const componentMap: { [name: string]: GeneralComponent } = {};
-    components.forEach((component) => {
+    components.forEach((component, i) => {
       if (!component) return;
-      componentMap[`${component?.type}-${new Date()}`] = component;
+      componentMap[`${component?.type}-${i}`] = component;
     });
     this._uiController?.reRenderComponents(componentMap);
   }
