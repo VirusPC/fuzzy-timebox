@@ -99,12 +99,10 @@ export class CCHKDTree implements QueryDataStructure {
   }
   angular(option: angularOption): number[] {
     const { x1, slope1, x2, slope2, p } = formatAngularOption(option);
-    const tan1 = Math.tan(-slope1);
-    const tan2 = Math.tan(-slope2);
     const indices = this._kdtree
       .fuzzyAngular(
-        [x1, Math.min(tan1, tan2)],
-        [x2, Math.max(tan1, tan2)],
+        [x1, slope1],
+        [x2, slope2],
         p
       )
     return indices;

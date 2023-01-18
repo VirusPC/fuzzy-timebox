@@ -38,9 +38,8 @@ export function scoring(
     type: "angular",
     lowX: Math.min(task.constraint.xStart, task.constraint.xEnd),
     highX: Math.max(task.constraint.xStart, task.constraint.xEnd),
-    lowSlope: Math.min(task.constraint.sStart, task.constraint.sEnd),
-    highSlope: Math.max(task.constraint.sStart, task.constraint.sEnd),
-
+    lowSlope: Math.min(task.constraint.radianStart, task.constraint.radianEnd),
+    highSlope: Math.max(task.constraint.radianStart, task.constraint.radianEnd),
   };
 
   for (let lineID of iterableLineIDs) {

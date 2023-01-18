@@ -118,8 +118,8 @@ class QueryStore {
           type: "angular",
           x1: task.constraint.xStart,
           x2: task.constraint.xEnd,
-          slope1: task.constraint.sStart,
-          slope2: task.constraint.sEnd,
+          slope1: Math.tan(-task.constraint.radianEnd),
+          slope2: Math.tan(-task.constraint.radianStart),
           p: task.constraint.p
         }) || [];
       }
