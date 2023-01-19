@@ -19,8 +19,17 @@ const NORMAL_STYLE = {
   fill: "rgba(0, 0, 0, 0.5)",
   strokeWidth: 1
 }
+const BORDER_STYLE = {
+  fill: "rgba(0, 0, 0, 0)",
+  strokeWidth: 1
+}
 const HIGHLIGHT_STYLE = {
   fill: "rgba(0, 0, 0, 0.5)",
+  stroke: "rgba(255, 0, 0, 1)",
+  strokeWidth: 2
+}
+const HIGHLIGHT_BORDER_STYLE = {
+  fill: "rgba(0, 0, 0, 0)",
   stroke: "rgba(255, 0, 0, 1)",
   strokeWidth: 2
 }
@@ -35,7 +44,7 @@ const ANGULAR_STYLEMAPS: {
     "hLine" : NORMAL_STYLE,
     "handle": HIDDEN_STYLE,
     "innerArc": NORMAL_STYLE,
-    "outerArc": NORMAL_STYLE,
+    "outerArc": BORDER_STYLE,
     "hLineLeftRect": HIDDEN_STYLE,
     "hLineRightRect": HIDDEN_STYLE,
     "arcBottomArc": HIDDEN_STYLE,
@@ -45,7 +54,7 @@ const ANGULAR_STYLEMAPS: {
     "hLine" : HIGHLIGHT_STYLE,
     "handle": HIDDEN_STYLE,
     "innerArc": NORMAL_STYLE,
-    "outerArc": HIGHLIGHT_STYLE,
+    "outerArc": HIGHLIGHT_BORDER_STYLE,
     "hLineLeftRect": HIDDEN_STYLE,
     "hLineRightRect": HIDDEN_STYLE,
     "arcBottomArc": HIDDEN_STYLE,
@@ -55,7 +64,7 @@ const ANGULAR_STYLEMAPS: {
     "hLine" : NORMAL_STYLE,
     "handle": HIDDEN_STYLE,
     "innerArc": HIGHLIGHT_STYLE,
-    "outerArc": NORMAL_STYLE,
+    "outerArc": BORDER_STYLE,
     "hLineLeftRect": HIDDEN_STYLE,
     "hLineRightRect": HIDDEN_STYLE,
     "arcBottomArc": HIDDEN_STYLE,
