@@ -37,7 +37,7 @@ export default function initializeCreateTimeboxInteractor() {
     const { container, instrument } = props;
     if (!(event instanceof MouseEvent)) return;
     previewComponent = initializeTimeboxComponent();
-    previewComponent.setLayoutConstraints({ x: event.offsetX, y: event.offsetY });
+    previewComponent.setLayoutConstraints({ x: event.offsetX, y: event.offsetY, p: 0.8 });
     previewComponent.setStyleMap("highlight");
     startPos = { x: event.offsetX, y: event.offsetY };
     container.pushComponent(`timebox-${new Date()}`, previewComponent);

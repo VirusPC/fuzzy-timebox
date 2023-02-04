@@ -63,7 +63,7 @@ export default function initializeCreateAngularInteractor() {
     container.popComponent();
     const angularComponent = initializeAngularComponent();
     const {x1, x2, y} = previewComponent.getLayoutConstraints();
-    angularComponent.setLayoutConstraints({x1, x2, y});
+    angularComponent.setLayoutConstraints({x1, x2, y, p: 0.8});
     container.pushComponent(`angular-${new Date()}`, angularComponent);
     container.reRender();
   })
