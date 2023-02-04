@@ -181,14 +181,17 @@ class QueryStore {
     controller.addEventListener([
       "createTimebox_createend",
       "createTimebox_creating",
-      "panAndResizeTimebox_modifystart",
+      // "panAndResizeTimebox_modifystart",
       "panAndResizeTimebox_modifying",
       "panAndResizeTimebox_modifyend",
+      "sliderTimebox_modifying",
+      "sliderTimebox_modifyend",
       "createAngular_createend",
-      "panAndResizeTimebox_modifyend",
       "panAngular_modifyend",
       "resizeAngular_modifyend",
       "resizeAngular_modifywheel",
+      "sliderAngular_modifying",
+      "sliderAngular_modifyend",
     ], (component, event, props) => {
       const components = [...controller.getComponents().values()];
       this._executeVisualQuery(components as (TimeboxComponent | AngularComponent)[]);
@@ -197,10 +200,12 @@ class QueryStore {
     controller.addEventListener([
       "createTimebox_createend",
       "panAndResizeTimebox_modifyend",
+      "sliderTimebox_modifyend",
       "createAngular_createend",
       "panAngular_modifyend",
       "resizeAngular_modifyend",
       "resizeAngular_modifywheel",
+      "sliderAngular_modifyend",
     ], (component, event, props) => {
       // const components = [...controller.getComponents().values()];
       this.scoring();
@@ -211,25 +216,25 @@ class QueryStore {
 
 // function diffTasks(task1: QueryTask, task2: QueryTask): QueryTask[]{}
 
-function diffTask(task1: QueryTask, task2: QueryTask): boolean {
-  if (task1.mode !== task2.mode) return false;
-  const { mode, constraint: constraint1 } = task1;
-  const { constraint: constraint2 } = task2;
-  if (mode === "timebox") {
-    return (constraint1.xStart === constraint2.xStart)
-      && (constraint1.xEnd === constraint2.xEnd)
-      && (constraint1.yStart === (constraint2 as TimeboxConstraints).yStart)
-      && (constraint1.yEnd === (constraint2 as TimeboxConstraints).yEnd)
-      && (constraint1.p === constraint2.p)
-  } else if (mode === "angular") {
-    return (constraint1.xStart === constraint2.xStart)
-      && (constraint1.xEnd === constraint2.xEnd)
-      && (constraint1.sStart === (constraint2 as AngularConstraints).sStart)
-      && (constraint1.sEnd === (constraint2 as AngularConstraints).sEnd)
-      && (constraint1.p === constraint2.p)
-  }
-  return false;
-}
+// function diffTask(task1: QueryTask, task2: QueryTask): boolean {
+//   if (task1.mode !== task2.mode) return false;
+//   const { mode, constraint: constraint1 } = task1;
+//   const { constraint: constraint2 } = task2;
+//   if (mode === "timebox") {
+//     return (constraint1.xStart === constraint2.xStart)
+//       && (constraint1.xEnd === constraint2.xEnd)
+//       && (constraint1.yStart === (constraint2 as TimeboxConstraints).yStart)
+//       && (constraint1.yEnd === (constraint2 as TimeboxConstraints).yEnd)
+//       && (constraint1.p === constraint2.p)
+//   } else if (mode === "angular") {
+//     return (constraint1.xStart === constraint2.xStart)
+//       && (constraint1.xEnd === constraint2.xEnd)
+//       && (constraint1.sStart === (constraint2 as AngularConstraints).sStart)
+//       && (constraint1.sEnd === (constraint2 as AngularConstraints).sEnd)
+//       && (constraint1.p === constraint2.p)
+//   }
+//   return false;
+// }
 
 const queryStore = new QueryStore();
 export default queryStore;

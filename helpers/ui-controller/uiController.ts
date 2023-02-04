@@ -6,6 +6,8 @@ import { initializeCreateAngularInteractor, initializePanAngularInteractor, init
 import { initializeHoverToHighlightrInteractor } from "./interactors";
 import { TimeboxComponent, AngularPreviewComponent, AngularComponent } from "./components";
 import { GeneralComponent } from "../../lib/interaction/container";
+import initializeSliderTimeboxInteractor from "./interactors/sliderTimebox";
+import initializeSliderAngularInteractor from "./interactors/sliderAngular";
 
 export type QueryMode = "timebox" | "angular" | "mix" | "knn" | "rnn" | "hover" | "sketch" | "zoom";
 export type InteractorType = "create" | QueryMode;
@@ -156,7 +158,14 @@ function initializeQueryInstrument(instrument: Instrument<QueryInstrumentState>,
   const hoverToHighlightrInteractor = initializeHoverToHighlightrInteractor();
   instrument.addInteractor(hoverToHighlightrInteractor);
 
+  const sliderTimeboxInteractor = initializeSliderTimeboxInteractor();
+  instrument.addInteractor(sliderTimeboxInteractor);
+
+  const sliderAngularInteractor = initializeSliderAngularInteractor();
+  instrument.addInteractor(sliderAngularInteractor);
+
   instrument.interactors.forEach((interactor) => {
+    console.log("actions", interactor.name, interactor.actions);
     interactor.actions.forEach((action) => {
       interactor.addEventListener(action, getCommonListener(`${interactor.name}_${action}`));
     });
