@@ -340,6 +340,13 @@ export const colormaps: { name: string, value: Colormap }[] = [
   },
 ]
 
+export function getColorScale(id: number): (weight: number) => [number, number, number]{
+  const colorMap = colormaps[id];
+  if(!colorMap) return () => [0, 0, 0];
+  const values = colorMap.value;
+  return (weight: number) => values[Math.round(weight * (values.length-1))];
+}
+
 export function getRandomColor(colorMap: Colormap) {
 
     function luminance(r: number, g: number, b: number) {

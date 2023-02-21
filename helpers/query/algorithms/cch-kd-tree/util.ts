@@ -1236,7 +1236,7 @@ function brensenhamHigh(x0: number, y0: number, x1: number, y1: number, id: numb
  * @param slope 
  * @returns 
  */
-export function brensenhamArr(ls: [Point2D, Point2D], hashmap: number[][][], lineId: number, slope: number) {
+export function brensenhamArr(ls: [Point2D, Point2D], hashmap: {[id: string]: number}[][], lineId: number, slope: number) {
   let xx = Math.floor(ls[1].x);
   let yy = Math.floor(ls[1].y);
   let x = Math.floor(ls[0].x);
@@ -1251,7 +1251,7 @@ export function brensenhamArr(ls: [Point2D, Point2D], hashmap: number[][][], lin
   }
 }
 
-function brensenhamArrLow(x0: number, y0: number, x1: number, y1: number, hashmap: number[][][], lineId: number, slope: number) {
+function brensenhamArrLow(x0: number, y0: number, x1: number, y1: number, hashmap: {[id: string]: number}[][], lineId: number, slope: number) {
   let delta = Math.min(1, Math.abs(1 / slope));
   if (!isFinite(delta) || isNaN(delta)) delta = 1;
   let dx = x1 - x0;
@@ -1271,7 +1271,7 @@ function brensenhamArrLow(x0: number, y0: number, x1: number, y1: number, hashma
   }
 }
 
-function brensenhamArrHigh(x0: number, y0: number, x1: number, y1: number, hashmap: number[][][], lineId: number, slope: number) {
+function brensenhamArrHigh(x0: number, y0: number, x1: number, y1: number, hashmap: {[id: string]: number}[][], lineId: number, slope: number) {
   let delta = Math.min(1, Math.abs(1 / slope));
   if (!isFinite(delta) || isNaN(delta)) delta = 1;
   let dx = x1 - x0;

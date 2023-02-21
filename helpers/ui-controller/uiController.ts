@@ -9,7 +9,7 @@ import { GeneralComponent } from "../../lib/interaction/container";
 import initializeSliderTimeboxInteractor from "./interactors/sliderTimebox";
 import initializeSliderAngularInteractor from "./interactors/sliderAngular";
 
-export type QueryMode = "timebox" | "angular" | "mix" | "knn" | "rnn" | "hover" | "sketch" | "zoom";
+export type QueryMode = "timebox" | "angular" | "mix" | "knn" | "rnn" | "hover" | "sketch" | "zoom" | "vtt";
 export type InteractorType = "create" | QueryMode;
 
 export type QueryComponent = TimeboxComponent | AngularComponent

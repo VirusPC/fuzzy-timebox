@@ -8,6 +8,8 @@ import QueryLayer, { InstrumentDidMount } from "../../components/QueryLayer";
 import AxesLayer from "../../components/AxesLayer";
 import { observer } from "mobx-react";
 import { ScreenData, ScreenPoint } from "../../helpers/data";
+import DensityLayer from "../../components/DensityLayer";
+import { CCHKDTree } from "../../helpers/query";
 
 export const screenWidth = 1000;
 export const screenHeight = 500;
@@ -59,11 +61,12 @@ const MainView: React.FC<{}> = observer((props) => {
           <div className={styles["canvas"]}>
           {layerInfos.map(layerInfo => (
             layerInfo.id === "raw_line" ?
-              (<LineLayer key={layerInfo.id} className={styles["layer"]} id={layerInfo.id} opacity={layerInfo.opacity} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={screenData}  colorScale={linesColorScale}/>)
-              // : layerInfo.id === "raw_density" ?
-              // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree} />)
+              <></>
+              // (<LineLayer key={layerInfo.id} className={styles["layer"]} id={layerInfo.id} opacity={layerInfo.opacity} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={screenData}  colorScale={linesColorScale}/>)
+              : layerInfo.id === "raw_density" ?
+              (<DensityLayer key={layerInfo.id} id={layerInfo.id}  className={styles["layer"]} cchKdTree={dataStore.CCHKDTree instanceof CCHKDTree? dataStore.CCHKDTree : null} opacity={layerInfo.opacity} colorScale={layerInfo.colorScale} screenWidth={screenWidth} screenHeight={screenHeight}/>)
               : layerInfo.id === "selected_line" ?
-              (<LineLayer key={layerInfo.id} id={layerInfo.id} opacity={layerInfo.opacity} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={resultData} colorScale={linesColorScale} />)
+              (<LineLayer key={layerInfo.id} id={layerInfo.id}  className={styles["layer"]} opacity={layerInfo.opacity} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} data={resultData} colorScale={linesColorScale} />)
               // :layerInfo.id==="selected_density" ?
               // (<DensityLayer key={layerInfo.id} layerInfo={layerInfo} width={width} height={height} screenWidth={screenWidth} screenHeight={screenHeight} kdTree={kdTree}/>)
               // : layerInfo.id==="rep_line"?

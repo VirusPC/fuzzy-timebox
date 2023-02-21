@@ -178,7 +178,7 @@ class DataStore {
     );
     console.timeEnd("create data structure for sequential query");
     console.time("create data structure for cch kd tree query");
-    const cchKDTree = new CCHKDTree(dataStore.aggregatedPlainScreenData);
+    const cchKDTree = new CCHKDTree(dataStore.aggregatedPlainScreenData, this.width, this.height);
     console.timeEnd("create data structure for cch kd tree query");
     this.sequentialQuery = sequentialQuery;
     this.CCHKDTree = cchKDTree;

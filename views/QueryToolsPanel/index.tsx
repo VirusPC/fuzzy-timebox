@@ -16,9 +16,13 @@ const QueryToolsPanel: FC<{}> = observer(() => {
   }, []);
 
   return (<div className={styles["queryTools"]}>
-    <Button className={styles["button"]} disabled={!dataStore.selectedDatasetName } type={queryMode === "timebox" ? "primary" : "default"} onClick={setTimeboxQueryMode}>timebox</Button>
-    <Button className={styles["button"]} disabled={!dataStore.selectedDatasetName } type={queryMode === "angular" ? "primary" : "default"} onClick={setAngularQueryMode}>angular</Button>
+    <Button className={styles["button"]} disabled={!dataStore.selectedDatasetName } type={queryMode === "timebox" ? "primary" : "default"} onClick={setTimeboxQueryMode}>fuzzy timebox</Button>
+    <Button className={styles["button"]} disabled={!dataStore.selectedDatasetName } type={queryMode === "angular" ? "primary" : "default"} onClick={setAngularQueryMode}>fuzzy angular</Button>
+    <Button className={styles["button"]} disabled={ true } type={queryMode === "vtt" ? "primary" : "default"} >VTT</Button>
     <Button className={styles["button"]} disabled={ true } type={queryMode === "sketch" ? "primary" : "default"} >sketch</Button>
+    <Button className={styles["button"]} disabled={ true } type={queryMode === "knn" ? "primary" : "default"} >KNN</Button>
+    <Button className={styles["button"]} disabled={ true } type={queryMode === "rnn" ? "primary" : "default"} >RNN</Button>
+    {/* <Button className={styles["button"]} disabled={ true } type={queryMode === "hover" ? "primary" : "default"} >hover</Button> */}
   </div>);
 });
 

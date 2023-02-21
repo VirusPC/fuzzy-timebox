@@ -1,4 +1,4 @@
-import { Colormap, colormaps, getRandomColor } from "../helpers/color";
+import { Colormap, colormaps, getColorScale, getRandomColor } from "../helpers/color";
 import { makeAutoObservable, autorun } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import { LayerInfo } from "../components/layer";
@@ -34,22 +34,24 @@ class CanvasStore {
 
   constructor() {
     // this.strokeStyleCache = {};
-    this.layerInfos = [{
-      type: "line",
-      id: "raw_line",
-      name: "raw line",
-      // colormap: colormaps[17].value,
-      // strokeStyleScale: (i) => this.strokeStyleCache[i] || "rgba(0, 0, 0, 0)",
-      // rgba(${[...getRandomColor(colormap), opacity].join(",")})
-      opacity: 0.01,
-    },
-    // {
-    //   type: "density",
-    //   id: "raw_density",
-    //   name: "density",
-    //   colormap: colormaps[17].value,
-    //   opacity: 1,
-    // }, 
+    this.layerInfos = [
+
+      {
+        type: "line",
+        id: "raw_line",
+        name: "raw line",
+        // colormap: colormaps[17].value,
+        // strokeStyleScale: (i) => this.strokeStyleCache[i] || "rgba(0, 0, 0, 0)",
+        // rgba(${[...getRandomColor(colormap), opacity].join(",")})
+        opacity: 1,
+      },
+    {
+      type: "density",
+      id: "raw_density",
+      name: "density",
+      colorScale: getColorScale(17),
+      opacity: 1,
+    }, 
     {
       type: "line",
       id: "selected_line",

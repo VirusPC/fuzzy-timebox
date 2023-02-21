@@ -47,7 +47,7 @@ const Editor: FC<{}> = observer(() => {
     <div className={styles["editor-container"]}>
     <MonacoEditor
       language='javascript'
-      height={540}
+      height={500}
       width={300}
       onChange={onEditorChange}
       onMount={onEditorMount}

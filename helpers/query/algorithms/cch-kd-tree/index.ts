@@ -3,17 +3,24 @@ import KDTree, { ConcreteSegInfo } from "./cchtree";
 import { angularOption,  timeboxOption } from "../../types";
 import { ScreenData } from "../../../data";
 import { formatAngularOption, formatTimeboxOption } from "../../converters/helpers";
+import { brensenhamArr } from "./util";
 
 export class CCHKDTree implements QueryDataStructure {
   _kdtree: KDTree;
   _raw: ScreenData;
+  _slopePixelCache: {[id: string]: number}[][] | null;
+  _width: number;
+  _height: number;
   // _slopePixelCache;
   // _precision: number;
 
 
-  constructor(data: Point2D[][]) {
+  constructor(data: Point2D[][], width: number, height: number) {
     const precision = 1;
     this._raw = data;
+    this._slopePixelCache = null;
+    this._width = width;
+    this._height= height;
     console.time("kdtree");
     const kdtreeData: ConcreteSegInfo[] = data.map((line, i) => ({
       lineId: i,
@@ -122,102 +129,99 @@ export class CCHKDTree implements QueryDataStructure {
   //   return resultData;
   // }
 
-  // buildRenderCache() {
-  //   const width = Math.abs(this._xScale.range().reduce((p, v) => p - v));
-  //   const height = Math.abs(this._yScale.range().reduce((p, v) => p - v));
-  //   const cache = new Array(width)
-  //     .fill()
-  //     .map(() => new Array(height).fill().map(() => ({})));
-  //   for (let id in this._raw) {
-  //     const line = this._raw[id].map((p) => ({
-  //       x: this._xScale(p[this._xField]),
-  //       y: this._yScale(p[this._yField]),
-  //     }));
-  //     for (let i = 0; i < line.length - 1; i++) {
-  //       brensenhamArr(
-  //         [line[i], line[i + 1]],
-  //         cache,
-  //         id,
-  //         (line[i + 1].y - line[i].y) / (line[i + 1].x - line[i].x)
-  //       );
-  //     }
-  //   }
-  //   this._slopePixelCache = cache;
-  // }
+  buildRenderCache() {
+    const cache: {[id: string]: number}[][] = new Array(this._width)
+      .fill(null)
+      .map(() => new Array(this._height).fill(null).map(() => ({})));
+    for (let id =0; id<this._raw.length; ++id) {
+      const line = this._raw[id];
+      for (let i = 0; i < line.length - 1; i++) {
+        brensenhamArr(
+          [line[i], line[i + 1]],
+          cache,
+          id,
+          (line[i + 1].y - line[i].y) / (line[i + 1].x - line[i].x)
+        );
+      }
+    }
+    this._slopePixelCache = cache;
+  }
 
-  // /**
-  //  * 渲染模块，会根据当前的数据量自动切换最快渲染模式
-  //  * @param {HTMLCanvasElement} canvas 需要绘制的Canvas元素
-  //  * @param {(weight: number)=>[number, number, number]} colormap 将（0，1）之间的权值映射到[Red, Green, Blue]数值（0-255）
-  //  * @param {boolean } [normalize] 是否需要做归一化，如不传则不启用
-  //  * @param {number[] } [indices] 需要绘制的线序号，如不传则绘制所有
-  //  * @return {number} 返回密度图中的最大密度值
-  //  */
-  // render(canvas, colormap, normalize, indices) {
-  //   if (!indices)
-  //     indices = Array(this._raw.length)
-  //       .fill()
-  //       .map((_, i) => i);
-  //   // const totalPoint = indices.reduce((p, v) => p + this._raw[v].length, 0);
-  //   // brensenham
+  /**
+   * 渲染模块，会根据当前的数据量自动切换最快渲染模式
+   * @param {HTMLCanvasElement} canvas 需要绘制的Canvas元素
+   * @param {(weight: number)=>[number, number, number]} colormap 将（0，1）之间的权值映射到[Red, Green, Blue]数值（0-255）
+   * @param {boolean } [normalize] 是否需要做归一化，如不传则不启用
+   * @param {number[] } [indices] 需要绘制的线序号，如不传则绘制所有
+   * @return {number} 返回密度图中的最大密度值
+   */
+  render(canvas: HTMLCanvasElement, colormap: (weight: number) => [number, number, number], normalize?: boolean, indices?: number[]): number {
+    // debugger;
+    const {_width: width, _height: height} = this;
+    
+    if (!indices)
+      indices = Array(this._raw.length)
+        .fill(null)
+        .map((_, i) => i);
 
-  //   const width = Math.abs(this._xScale.range().reduce((p, v) => p - v));
-  //   const height = Math.abs(this._yScale.range().reduce((p, v) => p - v));
+    // const totalPoint = indices.reduce((p, v) => p + this._raw[v].length, 0);
+    // brensenham
 
-  //   if (!this._slopePixelCache) {
-  //     this.buildRenderCache();
-  //   }
+    // const width = Math.abs(this._xScale.range().reduce((p, v) => p - v));
+    // const height = Math.abs(this._yScale.range().reduce((p, v) => p - v));
 
-  //   let ids = indices;
-  //   const fastMapping = {};
-  //   ids.forEach((id) => (fastMapping[id] = 1));
-  //   const bgContext = canvas.getContext("2d");
+    if (!this._slopePixelCache) {
+      this.buildRenderCache();
+    }
+    if (this._slopePixelCache === null) return 0;
 
-  //   const tempBuffer = new Float32Array(width * height).map((_, i) => {
-  //     const row = i % height;
-  //     const col = Math.floor(i / height);
-  //     const pixelCache = Object.entries(this._slopePixelCache[col][row]);
-  //     if (normalize) {
-  //       return pixelCache.reduce(
-  //         (p, v) => p + (fastMapping[v[0]] ? v[1] : 0),
-  //         0
-  //       );
-  //     } else {
-  //       return pixelCache.reduce((p, v) => p + (fastMapping[v[0]] ? 1 : 0), 0);
-  //     }
-  //   });
+    let ids = indices;
+    const fastMapping: {[id: string]: number} = {};
+    ids.forEach((id) => (fastMapping[id] = 1));
+    const bgContext = canvas.getContext("2d");
+    if(bgContext === null) return 0;
 
-  //   bgContext.fillStyle = "black";
-  //   bgContext.globalAlpha = 1;
-  //   bgContext.fillRect(0, 0, width, height);
-  //   bgContext.clearRect(0, 0, width, height);
-  //   const tempImageBuffer = new Uint8ClampedArray(width * height * 4);
-  //   const maxWeight = Math.ceil(tempBuffer.reduce((p, v) => Math.max(p, v)));
-  //   const colorCache = {};
-  //   for (let i = 0; i < width; i++) {
-  //     for (let j = 0; j < height; j++) {
-  //       const ratio = Math.round(
-  //         (tempBuffer[i * height + j] / maxWeight) * 10000
-  //       );
-  //       if (!colorCache[ratio]) {
-  //         colorCache[ratio] = colormap(ratio / 10000);
-  //       }
-  //       const color = colorCache[ratio];
-  //       tempImageBuffer.set(color, (j * width + i) * 4);
-  //       tempImageBuffer[(j * width + i) * 4 + 3] = ratio <= 0 ? 0 : 255;
-  //     }
-  //   }
-  //   // if (arguments.length >= 5 && typeof arguments[4] === "function") {
-  //   //   // for test framework, bug in putImageData
-  //   //   var ImageData = arguments[4];
-  //   //   canvas.getContext = () => ({
-  //   //     getImageData() {
-  //   //       return { data: tempImageBuffer };
-  //   //     },
-  //   //   });
-  //   // }
-  //   const tempImageData = new ImageData(tempImageBuffer, width, height);
-  //   bgContext.putImageData(tempImageData, 0, 0);
-  //   return maxWeight;
-  // }
+    const tempBuffer = new Float32Array(width * height).map((_, i) => {
+      const row = i % height;
+      const col = Math.floor(i / height);
+      const pixelCache = Object.entries(this._slopePixelCache![col][row]);
+      if (normalize) {
+        return pixelCache.reduce(
+          (p, v) => p + (fastMapping[v[0]] ? v[1] : 0),
+          0
+        );
+      } else {
+        return pixelCache.reduce((p, v) => p + (fastMapping[v[0]] ? 1 : 0), 0);
+      }
+    });
+
+    bgContext.fillStyle = "black";
+    bgContext.globalAlpha = 1;
+    bgContext.fillRect(0, 0, width, height);
+    bgContext.clearRect(0, 0, width, height);
+    const tempImageBuffer = new Uint8ClampedArray(width * height * 4);
+    const maxWeight = Math.ceil(tempBuffer.reduce((p, v) => Math.max(p, v)));
+    const colorCache: {[ratio: string]: [number, number, number]} = {};
+    console.log("colorCache", colorCache);
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        const ratio = Math.round(
+          (tempBuffer[i * height + j] / maxWeight) * 10000
+        );
+        if (!colorCache[ratio]) {
+          colorCache[ratio] = colormap(ratio / 10000);
+        }
+        const color = colorCache[ratio];
+        if(!color){
+          debugger;
+          console.log(color);
+        }
+        tempImageBuffer.set(color, (j * width + i) * 4);
+        tempImageBuffer[(j * width + i) * 4 + 3] = ratio <= 0 ? 0 : 255;
+      }
+    }
+    const tempImageData = new ImageData(tempImageBuffer, width, height);
+    bgContext.putImageData(tempImageData, 0, 0);
+    return maxWeight;
+  }
 }

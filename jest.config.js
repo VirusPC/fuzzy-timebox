@@ -7,6 +7,11 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
+  // preset: "ts-jest",
+  // transform: {
+  //   '^.+\\.(ts|tsx)?$': 'ts-jest',
+  //   "^.+\\.(js|jsx)$": "babel-jest",
+  // },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     // Handle module aliases (this will be automatically configured for you soon)

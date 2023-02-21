@@ -12,6 +12,7 @@ type CommonLayerInfo = {
 export type DensityLayerInfo = {
   type: "density",
   id: "raw_density" | "selected_density",
+  colorScale: (weight) => [number, number, number]
 } & CommonLayerInfo;
 
 export type LineLayerInfo = {
