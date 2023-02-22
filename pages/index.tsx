@@ -25,13 +25,15 @@ export default function Home() {
       <main className={classNames(styles["main"], styles["v-concat"])}>
         {/* <canvas className={styles.canvas}></canvas> */}
         <div className={classNames( styles["h-concat"], styles["top-views"] )}>
-          <TitleView />
+          <div className={styles["title-view"]}>
+            <TitleView />
+          </div>
           <div className={styles["data-panel"]}>
             <DataPanel />
           </div>
         </div>
         <div className={classNames(styles["h-concat"], styles["middle-views"])}>
-          <div className={styles["score-view"]}>
+          <div className={styles["control-panel"]}>
             <ControlPanel/>
           </div>
           <div className={styles["main-view"]}>
@@ -47,7 +49,9 @@ export default function Home() {
           </div>
         </div>
         <div className={classNames(styles["bottom-views"])}>
-          <ScoreView/>
+          <div className={styles["score-view"]}>
+            <ScoreView/>
+          </div>
         </div>
         <div className={styles["spin-view"]}>
           <SpinView/>

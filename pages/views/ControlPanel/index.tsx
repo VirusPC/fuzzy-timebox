@@ -173,15 +173,21 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ }) => {
     </div>
     <div className={styles["param-block"]}>
       <Title level={5} className={styles["title"]}>Show Value of Cursor:</Title>
-      <Switch size="default" checked={true} />
+      <div className={styles["switch"]}>
+        <Switch size="default" checked={true} />
+      </div>
     </div>
     <div className={styles["param-block"]}>
       <Title level={5} className={styles["title"]}>Reverse y-axis:</Title>
-      <Switch size="default" checked={false} />
+      <div className={styles["switch"]}>
+        <Switch size="default" checked={false} />
+      </div>
     </div>
     <div className={styles["param-block"]}>
       <Title level={5} className={styles["title"]}>Normalize density:</Title>
-      <Switch size="default" checked={true} />
+      <div className={styles["switch"]}>
+        <Switch size="default" checked={true} />
+      </div>
     </div>
     {/* <div className={styles["param-block"]}>
       <Title level={5} className={styles["title"]}>Enlarge Axis Font Size:</Title>

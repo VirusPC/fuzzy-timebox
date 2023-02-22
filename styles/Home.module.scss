@@ -19,33 +19,36 @@
   padding: 10px 0;
 }
 .middle-views {
-  padding: 10px 0px;
+  padding: 0px 0px;
 }
 .bottom-views {
   padding: 10px 0px;
 }
+.title-view {
+  padding: 0px 20px 0px 20px;
+}
 .data-panel {
-  padding: 0px 0px 5px 10px;
+  padding: 0px 0px 0px 20px;
 }
 .main-view {
-  padding: 10px;
+  padding: 20px;
 }
 .query-tools-panel {
   display: flex;
-  padding: 10px 20px;
+  padding: 20px 20px 10px 40px;
 }
 
 .editor{
-  padding: 5px 20px 0px;
+  padding: 5px 20px 0px 40px;
 }
 .spin-view{
   position: absolute;
 }
 .control-panel{
-  padding: 10px;
+  padding: 20px;
 }
 .score-view{
-  padding: 10px;
+  padding: 10px 20px;
 }
 // .layer {
 //   position: absolute;
