@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useState } from "react";
 import styles from "./index.module.scss";
 import { observer } from "mobx-react-lite";
 import { style } from "d3";
-import LineLayer from "../../components/LineLayer";
-import { ScreenPoint } from "../../helpers/data";
-import queryStore from "../../stores/QueryStore";
-import dataStore from "../../stores/DataStore";
-import canvasStore from "../../stores/CanvasStore";
+import LineLayer from "../../../components/LineLayer";
+import { ScreenPoint } from "../../../helpers/data";
+import queryStore from "../../../stores/QueryStore";
+import dataStore from "../../../stores/DataStore";
+import canvasStore from "../../../stores/CanvasStore";
 import { Select } from "antd";
 
 type ScoreViewProps = {

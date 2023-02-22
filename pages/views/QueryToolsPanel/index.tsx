@@ -1,8 +1,8 @@
 import { memo, FC, useRef, useCallback } from 'react';
 import { observer } from 'mobx-react';
-import queryStore from '../../stores/QueryStore';
+import queryStore from '../../../stores/QueryStore';
 import { Button } from 'antd';
-import dataStore from '../../stores/DataStore';
+import dataStore from '../../../stores/DataStore';
 import styles from "./index.module.scss"
 
 

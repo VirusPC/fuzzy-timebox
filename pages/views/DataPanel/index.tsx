@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useRef } from "react";
 import styles from "./index.module.scss";
 import { Space, Typography, Select, Input, Button } from "antd";
-import dataStore from "../../stores/DataStore";
+import dataStore from "../../../stores/DataStore";
 import { observer } from 'mobx-react';
 import axios from "axios";
 import Papa from "papaparse";
-import { inferAttr } from "../../helpers/data";
+import { inferAttr } from "../../../helpers/data";
 import { autorun } from "mobx";
-import { RawData } from "../../helpers/data";
+import { RawData } from "../../../helpers/data";
 
 const { Title } = Typography;
 const { Option } = Select;

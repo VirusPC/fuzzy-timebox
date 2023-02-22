@@ -4,8 +4,8 @@ import { Button } from 'antd';
 import MonacoEditor from "@monaco-editor/react";
 import styles from "./index.module.scss";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import dataStore from '../../stores/DataStore';
-import queryStore from '../../stores/QueryStore';
+import dataStore from '../../../stores/DataStore';
+import queryStore from '../../../stores/QueryStore';
 
 const EXAMPLE_SHAPE_SEARCH = 
 `[

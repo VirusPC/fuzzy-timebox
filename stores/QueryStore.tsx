@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 import { useStaticRendering } from "mobx-react";
 import { QueryMode, UIController } from "../helpers/ui-controller";
 import { AngularConstraints, generateShapeSearch, parseComponent, parseShapeSearch, TimeboxConstraints } from "../helpers/query";
-import { screenHeight, screenWidth } from "../views/MainView";
+import { screenHeight, screenWidth } from "../pages/views/MainView";
 import { GeneralComponent } from "../lib/interaction/container";
 import { QueryTask, generateComponent, CCHKDTree } from "../helpers/query";
 import { AngularComponent, TimeboxComponent } from "../helpers/ui-controller/components";

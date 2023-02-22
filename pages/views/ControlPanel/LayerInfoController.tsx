@@ -2,8 +2,8 @@ import { memo, FC, useRef, useCallback } from 'react';
 import { Input, InputNumber, Select, Slider, Typography } from 'antd';
 import styles from "./index.module.scss"
 import classNames from 'classnames';
-import { DensityLayerInfo, LayerInfo } from '../../components/layer';
-import { colorMap2Background } from '../../helpers/color';
+import { DensityLayerInfo, LayerInfo } from '../../../components/layer';
+import { colorMap2Background, colormaps } from '../../../helpers/color';
 import { toJS } from 'mobx';
 
 const { Title } = Typography;
@@ -17,25 +17,27 @@ type LayerInfoControllerProps = {
 }
 
 const LayerInfoController: FC<LayerInfoControllerProps> = ({ key, className, layerInfo, showColorMap }) => {
+  const { name, opacity} = layerInfo;
+  const { colormap = null } = layerInfo as DensityLayerInfo;
   return (<div key={key} className={classNames(className, styles["layerInfoController"])}>
     <div className={styles["layer-header"]}>
     <span className= {classNames('iconfont icon-ketuozhuai', styles["drag-icon"])}></span>
     <div className={styles["sub-title"]}>
-      {layerInfo.name}
+      {name}
     </div>
     </div>
 
     <div className={styles["layer-params"]}>
       <div className={styles["opacity"]}>
-        <span className={classNames("iconfont", styles["eye-icon"], {"icon-005yanjing-1": layerInfo.opacity===0}, {"icon-005yanjing-4": layerInfo.opacity!==0})}></span>
+        <span className={classNames("iconfont", styles["eye-icon"], {"icon-005yanjing-1": opacity===0}, {"icon-005yanjing-4": opacity!==0})}></span>
         <Slider
           className={styles["opacity-slider"]}
           min={0}
           max={1}
-          value={layerInfo.opacity}
+          value={opacity}
         />
       </div>
-      {(layerInfo as DensityLayerInfo).colormap ? <div className={styles["colormap-controller"]}>
+      {colormap ? <div className={styles["colormap-controller"]}>
         {/* <span className={styles["min-text"]}>1</span> */}
         <InputNumber
           className={styles["small-input1"]}
@@ -43,11 +45,12 @@ const LayerInfoController: FC<LayerInfoControllerProps> = ({ key, className, lay
           disabled
         />
         <div className={styles["colormap-container"]}>
-          <span className={styles["color-map"]} id="color-map-overlay" style={{ background: colorMap2Background(toJS((layerInfo as DensityLayerInfo).colormap.value)) }}></span>
+          <span className={styles["color-map"]} id="color-map-overlay" style={{ background: colorMap2Background(toJS(colormap.value)) }}></span>
           <Select
             id="colormap-select"
             className={styles["colormap-select"]}
             placeholder="Choose colormap"
+            value={colormap.name}
           // style={{
           //   background: colorMap2Background(toJS((layerInfo as DensityLayerInfo).colormap.value))
           // }}
@@ -80,7 +83,7 @@ const LayerInfoController: FC<LayerInfoControllerProps> = ({ key, className, lay
           min={0}
           max={1}
           className={styles["small-input2"]}
-          value={199}
+          value={Math.round((Math.random()) * 200 +200)}
         />
       </div> : null}
 

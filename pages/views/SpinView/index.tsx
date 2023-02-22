@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./index.module.scss";
 import { Spin } from "antd";
-import dataStore from "../../stores/DataStore";
+import dataStore from "../../../stores/DataStore";
 import { observer } from "mobx-react-lite";
 
 

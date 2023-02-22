@@ -1,15 +1,15 @@
 import React, { useMemo, useCallback } from "react";
 import styles from "./index.module.scss";
-import LineLayer from "../../components/LineLayer";
-import dataStore from "../../stores/DataStore";
-import canvasStore from "../../stores/CanvasStore";
-import queryStore from "../../stores/QueryStore";
-import QueryLayer, { InstrumentDidMount } from "../../components/QueryLayer";
-import AxesLayer from "../../components/AxesLayer";
+import LineLayer from "../../../components/LineLayer";
+import dataStore from "../../../stores/DataStore";
+import canvasStore from "../../../stores/CanvasStore";
+import queryStore from "../../../stores/QueryStore";
+import QueryLayer, { InstrumentDidMount } from "../../../components/QueryLayer";
+import AxesLayer from "../../../components/AxesLayer";
 import { observer } from "mobx-react";
-import { ScreenData, ScreenPoint } from "../../helpers/data";
-import DensityLayer from "../../components/DensityLayer";
-import { CCHKDTree } from "../../helpers/query";
+import { ScreenData, ScreenPoint } from "../../../helpers/data";
+import DensityLayer from "../../../components/DensityLayer";
+import { CCHKDTree } from "../../../helpers/query";
 
 export const screenWidth = 1000;
 export const screenHeight = 500;
