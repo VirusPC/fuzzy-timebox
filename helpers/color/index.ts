@@ -35,7 +35,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "inferno", 
+    name: "inferno",
     value: [
       [252, 255, 164],
       [246, 214, 69],
@@ -51,7 +51,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "plasma", 
+    name: "plasma",
     value: [
       [240, 249, 33],
       [252, 206, 37],
@@ -65,9 +65,9 @@ export const colormaps: { name: string, value: Colormap }[] = [
       [66, 3, 157],
       [13, 8, 135],
     ]
-  }, 
+  },
   {
-    name: "cividis", 
+    name: "cividis",
     value: [
       [253, 234, 69],
       [234, 209, 86],
@@ -99,7 +99,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "bluegreen", 
+    name: "bluegreen",
     value: [
       [213, 239, 237],
       [193, 232, 224],
@@ -115,7 +115,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "bluepurple", 
+    name: "bluepurple",
     value: [
       [204, 221, 236],
       [186, 208, 228],
@@ -131,7 +131,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "goldengreen", 
+    name: "goldengreen",
     value: [
       [244, 209, 102],
       [213, 202, 96],
@@ -147,7 +147,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "goldorange", 
+    name: "goldorange",
     value: [
       [244, 209, 102],
       [248, 190, 92],
@@ -163,7 +163,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "goldred", 
+    name: "goldred",
     value: [
       [244, 209, 102],
       [246, 190, 89],
@@ -179,7 +179,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "greenblue", 
+    name: "greenblue",
     value: [
       [211, 238, 206],
       [197, 232, 195],
@@ -195,7 +195,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "orangered", 
+    name: "orangered",
     value: [
       [253, 220, 175],
       [253, 207, 155],
@@ -211,7 +211,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "purplebluegreen", 
+    name: "purplebluegreen",
     value: [
       [219, 216, 234],
       [200, 206, 228],
@@ -227,7 +227,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "purpleblue", 
+    name: "purpleblue",
     value: [
       [219, 218, 235],
       [200, 206, 228],
@@ -243,7 +243,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "purplered", 
+    name: "purplered",
     value: [
       [220, 201, 226],
       [211, 179, 215],
@@ -259,7 +259,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "redpurple", 
+    name: "redpurple",
     value: [
       [252, 207, 204],
       [252, 190, 192],
@@ -275,7 +275,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "yellowgreenblue", 
+    name: "yellowgreenblue",
     value: [
       [239, 249, 189],
       [219, 241, 180],
@@ -291,7 +291,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "yellowgreen", 
+    name: "yellowgreen",
     value: [
       [228, 244, 172],
       [209, 236, 160],
@@ -307,7 +307,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "yelloworangebrown", 
+    name: "yelloworangebrown",
     value: [
       [254, 234, 161],
       [254, 221, 132],
@@ -323,7 +323,7 @@ export const colormaps: { name: string, value: Colormap }[] = [
     ]
   },
   {
-    name: "yelloworangered", 
+    name: "yelloworangered",
     value: [
       [254, 224, 135],
       [254, 209, 111],
@@ -340,35 +340,50 @@ export const colormaps: { name: string, value: Colormap }[] = [
   },
 ]
 
-export function getColorScale(id: number): (weight: number) => [number, number, number]{
+export function getColorScale(id: number): (weight: number) => [number, number, number] {
   const colorMap = colormaps[id];
-  if(!colorMap) return () => [0, 0, 0];
+  if (!colorMap) return () => [0, 0, 0];
   const values = colorMap.value;
-  return (weight: number) => values[Math.round(weight * (values.length-1))];
+  return (weight: number) => values[Math.round(weight * (values.length - 1))];
 }
 
 export function getRandomColor(colorMap: Colormap) {
 
-    function luminance(r: number, g: number, b: number) {
-        var a = [r, g, b].map(function (v) {
-            v /= 255;
-            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-        });
-        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
-    }
+  function luminance(r: number, g: number, b: number) {
+    var a = [r, g, b].map(function (v) {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  }
 
-    function contrast(rgb1: [number, number, number], rgb2: [number, number, number]) {
-        var lum1 = luminance(rgb1[0], rgb1[1], rgb1[2]);
-        var lum2 = luminance(rgb2[0], rgb2[1], rgb2[2]);
-        var brightest = Math.max(lum1, lum2);
-        var darkest = Math.min(lum1, lum2);
-        return (brightest + 0.05) / (darkest + 0.05);
-    }
+  function contrast(rgb1: [number, number, number], rgb2: [number, number, number]) {
+    var lum1 = luminance(rgb1[0], rgb1[1], rgb1[2]);
+    var lum2 = luminance(rgb2[0], rgb2[1], rgb2[2]);
+    var brightest = Math.max(lum1, lum2);
+    var darkest = Math.min(lum1, lum2);
+    return (brightest + 0.05) / (darkest + 0.05);
+  }
 
-    // const r = seedrandom(id);
-    let res: [number, number, number] = new Array(3).fill(0).map(() => Math.floor(Math.random() * 255)) as [number, number, number];
-    while (contrast(res, [255, 255, 255]) < 3) {
-        res = new Array(3).fill(0).map(() => Math.floor(Math.random() * 255)) as [number, number, number];
-    }
-    return res;
+  // const r = seedrandom(id);
+  let res: [number, number, number] = new Array(3).fill(0).map(() => Math.floor(Math.random() * 255)) as [number, number, number];
+  while (contrast(res, [255, 255, 255]) < 3) {
+    res = new Array(3).fill(0).map(() => Math.floor(Math.random() * 255)) as [number, number, number];
+  }
+  return res;
 }
+
+export function colorMap2Background(colormap: Colormap): string {
+  console.log({colormap});
+  // debugger;
+  if(!colormap.map) return "";
+  const color = colormap?.map(
+      (color, i, arr) =>
+        `rgb(${color.join(", ")}) ${((i / (arr.length - 1)) * 100).toFixed(
+          0
+        )}%`
+    )
+    .join(", ")
+  const backgroundStyle = `linear-gradient(to right, ${color})`;
+  return backgroundStyle;
+};

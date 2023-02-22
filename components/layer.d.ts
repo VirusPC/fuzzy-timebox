@@ -3,7 +3,6 @@ type CommonLayerInfo = {
   id: string;
   name: string,
   opacity: number,
-  // colormap: Colormap,
   // strokeStyleScale: (id: number) => string,
   lineCount?: number,
   diverse?: number,
@@ -12,6 +11,7 @@ type CommonLayerInfo = {
 export type DensityLayerInfo = {
   type: "density",
   id: "raw_density" | "selected_density",
+  colormap: Colormap,
   colorScale: (weight) => [number, number, number]
 } & CommonLayerInfo;
 

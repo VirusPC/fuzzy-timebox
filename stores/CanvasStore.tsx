@@ -43,14 +43,23 @@ class CanvasStore {
         // colormap: colormaps[17].value,
         // strokeStyleScale: (i) => this.strokeStyleCache[i] || "rgba(0, 0, 0, 0)",
         // rgba(${[...getRandomColor(colormap), opacity].join(",")})
-        opacity: 1,
+        opacity: 0,
       },
     {
       type: "density",
       id: "raw_density",
       name: "density",
+      colormap: colormaps[17],
       colorScale: getColorScale(17),
       opacity: 1,
+    }, 
+    {
+      type: "density",
+      id: "selected_density",
+      name: "selected density",
+      colormap: colormaps[2],
+      colorScale: getColorScale(2),
+      opacity: 0,
     }, 
     {
       type: "line",
@@ -66,15 +75,15 @@ class CanvasStore {
       //   name: "selected density",
       //   colormap: colormaps[17].value,
       //   opacity: 0,
-      // }, {
-      //   type: "line",
-      //   id: "rep_line",
-      //   name: "representative line",
-      //   colormap: colormaps[17].value,
-      //   opacity: 1,
-      //   lineCount: 3,
-      //   diverse: 0.1,
       // }
+      {
+        type: "line",
+        id: "rep_line",
+        name: "representative line",
+        opacity: 0,
+        lineCount: 3,
+        diverse: 0.1,
+      }
     ];
     this.densityColorMap = colormaps[17];
     this.selectedDensityColorMap = colormaps[17];

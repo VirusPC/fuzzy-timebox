@@ -1,3 +1,11 @@
+$text-color: #555;
 .title {
-  color: grey !important;
+  padding: 0px 5px;
+  background-color: #eee;
+  color: transparent !important;
+  // text-shadow: 1px 1px $text-color, -1px -1px $text-color, 1px -1px $text-color;
+  text-shadow: 0px 0px $text-color,-1px 0px $text-color;
+  box-shadow: 3px 3px #eee;
+  // border-style:;
+  border: groove #ccc 5px;
 }

@@ -1,15 +1,16 @@
 .main-container {
-  width: 420px;
-  height: 630px;
-  min-height: 630px;
+  width: 1900px;
+  height: 180px;
+  // min-height: 630px;
   display: flex;
   flex-direction: column;
   .view-header {
     padding: 0 20px 0 10px;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    // justify-content: space-between;
     &-title {
+      padding: 0 20px;
       font-weight: bold;
       font-size: large;
       color: #555;
@@ -17,7 +18,8 @@
   }
   .view-body {
     display: flex;
-    flex-wrap: wrap;
+    padding: 0px 20px;
+    flex-wrap: nowrap;
     align-content: flex-start;
     height: 100%;
     overflow: scroll;

@@ -34,7 +34,7 @@ const DataConsole: React.FC<{}> = observer(() => {
     if (!url) return;
     setIsLoading(true);
     axios.get(url).then((response) => {
-      const rawData = (Papa.parse(response.data, { skipEmptyLines: true }).data as RawData);//.slice(0, 100000);
+      const rawData = (Papa.parse(response.data, { skipEmptyLines: true }).data as RawData);//.slice(0, 10000);
       headersRef.current = rawData[0];
       rawDataRef.current = rawData.slice(1);
       const { aggregationAttr, timeAttr, valueAttr } = inferAttr(rawData);

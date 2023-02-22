@@ -12,6 +12,7 @@ import Editor from '../views/Editor'
 import TitleView from '../views/TitleView'
 import SpinView from '../views/SpinView'
 import ScoreView from '../views/ScoreView'
+import ControlPanel from '../views/ControlPanel'
 
 export default function Home() {
   return (
@@ -31,7 +32,7 @@ export default function Home() {
         </div>
         <div className={classNames(styles["h-concat"], styles["middle-views"])}>
           <div className={styles["score-view"]}>
-            <ScoreView />
+            <ControlPanel/>
           </div>
           <div className={styles["main-view"]}>
             <MainView />
@@ -44,6 +45,9 @@ export default function Home() {
               <Editor />
             </div>
           </div>
+        </div>
+        <div className={classNames(styles["bottom-views"])}>
+          <ScoreView/>
         </div>
         <div className={styles["spin-view"]}>
           <SpinView/>

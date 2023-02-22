@@ -1,0 +1,128 @@
+.control-panel {
+  width: 360px;
+  height: max-content;
+  .layer-list{
+    margin-left: 20px;
+    width: 100%;
+  }
+}
+.param-block {
+  // border: solid #eee 2px;
+  // padding: 10px 5px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 5px 20px;
+}
+
+.sub-param-block {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  padding: 3px 0px 3px 5px;
+  justify-content: space-between;
+  .sub-title{
+    padding: 0px 5px 0px 5px;
+    // max-width: 70px;
+  }
+
+}
+
+.title{
+  padding: 0px 5px 0px 0px;
+}
+
+.small-input1{
+  // min-width: 30px;
+  max-width: 30px;
+}
+.small-input2{
+  // min-width: 30px;
+  max-width: 50px;
+}
+
+.full-width{
+  width: 100%;
+}
+
+.slider-number-input{
+  display: flex;
+  flex-wrap: nowrap;
+  .slider {
+    max-width: 140px;
+    min-width: 120px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+
+.layerInfoController{
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  padding: 0 5px;
+  margin: 2px 0;
+  width: 100%;
+  overflow: hidden;
+  .layer-header{
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    .drag-icon{
+      padding: 0px 8px 0px 2px;
+    }
+  }
+  // .layerInfoItem{
+  // }
+  .layer-params{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    .opacity{
+      .eye-icon{
+        // margin-left: 10px;
+        margin-top: 3px;
+        margin-right: 3px;
+      }
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      &-slider{
+        width: 120px;
+      }
+    }  
+  }
+
+  .colormap-controller{
+    .min-text{
+      display: flex;
+      align-items: center;
+      color: #999;
+    }
+    .colormap-container{
+      position: relative;
+      width: 80px;
+      .colormap-select{
+        width: 100%;
+      }
+      .color-map{
+        // visibility: hidden;
+        opacity: 1;
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+    }
+
+    // max-width: 100px;
+    display: flex;
+    flex-wrap: nowrap;
+  }
+}
+
