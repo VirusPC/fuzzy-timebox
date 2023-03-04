@@ -1,14 +1,15 @@
-import {Point2D, QueryDataStructure } from "../types"
+import { Point2D, QueryDataStructure } from "../types"
 import KDTree, { ConcreteSegInfo } from "./cchtree";
-import { angularOption,  timeboxOption } from "../../types";
+import { AngularOption, QueryTask, TimeboxOption, TimeboxQueryTask } from "../../types";
 import { ScreenData } from "../../../data";
 import { formatAngularOption, formatTimeboxOption } from "../../converters/helpers";
 import { brensenhamArr } from "./util";
+import { calculateCurvature } from "./util";
 
 export class CCHKDTree implements QueryDataStructure {
   _kdtree: KDTree;
   _raw: ScreenData;
-  _slopePixelCache: {[id: string]: number}[][] | null;
+  _slopePixelCache: { [id: string]: number }[][] | null;
   _width: number;
   _height: number;
   // _slopePixelCache;
@@ -20,7 +21,7 @@ export class CCHKDTree implements QueryDataStructure {
     this._raw = data;
     this._slopePixelCache = null;
     this._width = width;
-    this._height= height;
+    this._height = height;
     console.time("kdtree");
     const kdtreeData: ConcreteSegInfo[] = data.map((line, i) => ({
       lineId: i,
@@ -98,13 +99,13 @@ export class CCHKDTree implements QueryDataStructure {
   //   return { position: [x, y], data: indices };
   // }
 
-  timebox(option: timeboxOption): number[] {
+  timebox(option: TimeboxOption): number[] {
     const { x1, y1, x2, y2, p } = formatTimeboxOption(option);
     return this._kdtree
       .fuzzyBrush([x1, y1], [x2, y2], p)
 
   }
-  angular(option: angularOption): number[] {
+  angular(option: AngularOption): number[] {
     const { x1, slope1, x2, slope2, p } = formatAngularOption(option);
     const indices = this._kdtree
       .fuzzyAngular(
@@ -130,10 +131,10 @@ export class CCHKDTree implements QueryDataStructure {
   // }
 
   buildRenderCache() {
-    const cache: {[id: string]: number}[][] = new Array(this._width)
+    const cache: { [id: string]: number }[][] = new Array(this._width)
       .fill(null)
       .map(() => new Array(this._height).fill(null).map(() => ({})));
-    for (let id =0; id<this._raw.length; ++id) {
+    for (let id = 0; id < this._raw.length; ++id) {
       const line = this._raw[id];
       for (let i = 0; i < line.length - 1; i++) {
         brensenhamArr(
@@ -157,8 +158,8 @@ export class CCHKDTree implements QueryDataStructure {
    */
   render(canvas: HTMLCanvasElement, colormap: (weight: number) => [number, number, number], normalize?: boolean, indices?: number[]): number {
     // debugger;
-    const {_width: width, _height: height} = this;
-    
+    const { _width: width, _height: height } = this;
+
     if (!indices)
       indices = Array(this._raw.length)
         .fill(null)
@@ -176,10 +177,10 @@ export class CCHKDTree implements QueryDataStructure {
     if (this._slopePixelCache === null) return 0;
 
     let ids = indices;
-    const fastMapping: {[id: string]: number} = {};
+    const fastMapping: { [id: string]: number } = {};
     ids.forEach((id) => (fastMapping[id] = 1));
     const bgContext = canvas.getContext("2d");
-    if(bgContext === null) return 0;
+    if (bgContext === null) return 0;
 
     const tempBuffer = new Float32Array(width * height).map((_, i) => {
       const row = i % height;
@@ -201,7 +202,7 @@ export class CCHKDTree implements QueryDataStructure {
     bgContext.clearRect(0, 0, width, height);
     const tempImageBuffer = new Uint8ClampedArray(width * height * 4);
     const maxWeight = Math.ceil(tempBuffer.reduce((p, v) => Math.max(p, v)));
-    const colorCache: {[ratio: string]: [number, number, number]} = {};
+    const colorCache: { [ratio: string]: [number, number, number] } = {};
     console.log("colorCache", colorCache);
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
@@ -212,7 +213,7 @@ export class CCHKDTree implements QueryDataStructure {
           colorCache[ratio] = colormap(ratio / 10000);
         }
         const color = colorCache[ratio];
-        if(!color){
+        if (!color) {
           debugger;
           console.log(color);
         }
@@ -224,4 +225,198 @@ export class CCHKDTree implements QueryDataStructure {
     bgContext.putImageData(tempImageData, 0, 0);
     return maxWeight;
   }
+
+
+
+
 }
+
+// function calcRepLines(ids: number[], repCount: number, queryOption: TimeboxOption | AngularOption) {
+//   console.time("calc line weight");
+//   const lineCount = repCount;
+//   const lineWeights: {
+//     id: number,
+//     w: number[],
+//     cur: {x: number, y: number}[]
+//   }[] = ids.map((id) => ({
+//     id,
+//     w: calcLineWeight(id),
+//     cur: []
+//   }));
+
+//   console.timeEnd("calc line weight");
+//   lineWeights.sort(
+//     (a, b) => b.w[0] * Math.sqrt(b.w[1]) - a.w[0] * Math.sqrt(a.w[1])
+//   );
+//   // if (!this.calculatedMaxDiverse) {
+//   //   this.maxDiverse = d3.max(lineWeights, line => d3.max(line.cur, d=>d.y));
+//   //   console.log('calculated maxdiverse', this.maxDiverse, lineWeights);
+//   //   this.calculatedMaxDiverse = true;
+//   // }
+//   // const extend0 = d3.extent(lineWeights, d => d.cur[0]);
+//   // const extend1 = d3.extent(lineWeights, d => d.cur[1]);
+//   // const scale0 = d3.scaleLinear().domain(extend0).range([0, 1]);
+//   // const scale1 = d3.scaleLinear().domain(extend1).range([0, 1]);
+//   //
+//   // lineWeights.forEach(d => {
+//   //   d.cur[0] = scale0(d.cur[0]);
+//   //   d.cur[1] = scale1(d.cur[1]);
+//   // })
+//   return (
+//     lineWeights
+//       .reduce((p, v) => {
+//         // if (document.getElementById("show-all-clusters").checked) {
+//         //   p.push(v);
+//         //   return p;
+//         // }
+
+//         if (p.length >= lineCount) {
+//           return p;
+//         }
+//         if (!v.cur) {
+//           v.cur = calculateCurvature(
+//             unobserve.result[v.id].filter((point) =>
+//               unobserve.querys.length <= 0 && !unobserve.preview
+//                 ? true
+//                 : (unobserve.preview
+//                   ? [unobserve.preview]
+//                   : unobserve.querys
+//                 ).find((query) => {
+//                   if (query.type === "knn") {
+//                     return true; // TODO: only line in knn
+//                   } else if (query.type === "rnn") {
+//                     return (
+//                       Math.sqrt(
+//                         Math.pow(point.x - query.start[0], 2) +
+//                         Math.pow(point.y - query.start[1], 2)
+//                       ) <= query.n
+//                     );
+//                   } else if (query.type === "brush") {
+//                     const startX = Math.min(query.start[0], query.end[0]);
+//                     const startY = Math.min(query.start[1], query.end[1]);
+//                     const endX = Math.max(query.start[0], query.end[0]);
+//                     const endY = Math.max(query.start[1], query.end[1]);
+//                     return (
+//                       point.x >= startX &&
+//                       point.y >= startY &&
+//                       point.x <= endX &&
+//                       point.y <= endY
+//                     );
+//                   } else if (query.type === "ang") {
+//                     const startX = Math.min(query.start[0], query.end[0]);
+//                     const endX = Math.max(query.start[0], query.end[0]);
+//                     return point.x >= startX && point.x <= endX;
+//                   }
+//                 })
+//             )
+//           );
+//         }
+//         if (p.find((a) => calculateDifference(a.cur, v.cur) < this.diverse)) {
+//           return p;
+//         }
+//         p.push(v);
+//         return p;
+//       }, [])
+//       // .slice(0, lineCount)
+//       .map((x) => x.id)
+//   );
+// }
+
+
+
+// function isTimeboxQueryTask<T extends Object>(input: null | undefined | T): input is T {
+//   return input != null;
+// }
+
+// function calcLineWeight(id: number, queryTasks: QueryTask[]) {
+//   let weight = 0;
+//   let passedPixels = 0;
+//   let lineLen = 0;
+//   const hasBrush= queryTasks.find((q) => q.mode=== "timebox");
+
+//   function isString(test: any): test is string {
+//     return typeof test === "string";
+// }
+
+
+
+//   const brushes = queryTasks
+//     .filter((q): q is TimeboxQueryTask => q.mode=== "timebox") 
+//     .map((b) => [
+//       Math.min(b.constraint.xStart, b.constraint.xEnd),
+//       Math.max(b.constraint.xStart, b.constraint.xEnd),
+//       Math.min(b.constraint.yEnd, b.constraint.yEnd),
+//       Math.max(b , b.end[1]),
+//     ]);
+//   // if (unobserve.weightCache[id] !== undefined && !hasBrush) return unobserve.weightCache[id];
+//   const line = unobserve.result[id];
+//   const width = this.option.width;
+//   const height = this.option.height;
+//   const cache = this.initDensityBufferCache;
+
+//   for (let i = 0; i < line.length - 1; i++) {
+//     let xx = Math.floor(line[i + 1].x);
+//     let yy = Math.floor(line[i + 1].y);
+//     let x = Math.floor(line[i].x);
+//     let y = Math.floor(line[i].y);
+//     // BRENSENHAM
+//     let dx = Math.abs(xx - x);
+//     let sx = x < xx ? 1 : -1;
+//     let dy = -Math.abs(yy - y);
+//     let sy = y < yy ? 1 : -1;
+//     let err = dx + dy;
+//     let errC; // error value
+//     let end = false;
+//     let x1 = x;
+//     let y1 = y;
+//     let px = 0;
+
+//     while (!end) {
+//       if (
+//         (!hasBrush ||
+//           brushes.find(
+//             (b) => b[0] <= x1 && b[1] >= x1 && b[2] <= y1 && b[3] >= y1
+//           )) &&
+//         x1 >= 0 &&
+//         x1 < width &&
+//         y1 >= 0 &&
+//         y1 < height
+//       ) {
+//         weight += cache[x1 * height + y1];
+//         passedPixels++;
+//         if (x1 !== px) {
+//           px = x1;
+//           lineLen++;
+//         }
+//       }
+//       if (x1 === xx && y1 === yy) {
+//         end = true;
+//       } else {
+//         errC = 2 * err;
+//         if (errC >= dy) {
+//           err += dy;
+//           x1 += sx;
+//         }
+//         if (errC <= dx) {
+//           err += dx;
+//           y1 += sy;
+//         }
+//       }
+//     }
+//   }
+
+//   let oldWeight = weight;
+//   weight /= passedPixels;
+
+//   if (!isFinite(weight) || isNaN(weight)) {
+//     weight = 0.00001;
+//   }
+
+//   if (!hasBrush) {
+//     unobserve.weightCache[id] = [
+//       weight * Math.sqrt(lineLen),
+//       line[line.length - 1].x - line[0].x,
+//     ];
+//   }
+//   return [weight * Math.sqrt(lineLen), line[line.length - 1].x - line[0].x];
+// }

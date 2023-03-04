@@ -1,4 +1,4 @@
-import { angularOption, timeboxOption } from "../types";
+import { AngularOption, TimeboxOption } from "../types";
 
 export type Point2D = {
   x: number,
@@ -11,8 +11,8 @@ export type Point3D = {
 };
 export type Point = Point2D | Point3D
 export interface QueryDataStructure {
-  timebox(option: timeboxOption): number[];
-  angular(option: angularOption): number[];
+  timebox(option: TimeboxOption): number[];
+  angular(option: AngularOption): number[];
 }
 
 // export type Scale = {

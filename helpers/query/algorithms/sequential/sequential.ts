@@ -1,5 +1,5 @@
 import { formatAngularOption, formatTimeboxOption, computeSlope } from "../../converters/helpers";
-import { angularOption, timeboxOption } from "../../types";
+import { AngularOption, TimeboxOption } from "../../types";
 import { sortedIndexBy } from "lodash";
 import { ScreenData } from "../../../data";
 
@@ -28,7 +28,7 @@ export class SequentialSearch {
    * @param option 
    * @returns 
    */
-  timebox(option: timeboxOption): number[] {
+  timebox(option: TimeboxOption): number[] {
     console.time("sequential timebox");
     const { x1, y1, x2, y2, p } = formatTimeboxOption(option);
     const result: number[] = [];
@@ -55,7 +55,7 @@ export class SequentialSearch {
    * @param option 
    * @returns 
    */
-  angular(option: angularOption): number[] {
+  angular(option: AngularOption): number[] {
     console.time("sequential angular");
     const { x1, slope1, x2, slope2, p } = formatAngularOption(option);
     const result: number[] = [];

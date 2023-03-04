@@ -1,5 +1,5 @@
 import { formatAngularOption, formatTimeboxOption, computeSlope } from "../../converters/helpers";
-import { angularOption, timeboxOption } from "../../types";
+import { AngularOption, TimeboxOption } from "../../types";
 import { ScreenData } from "../../../data";
 import _, { keys, sortedIndexBy } from "lodash";
 
@@ -65,7 +65,7 @@ export class KDTree<D extends string = "x" | "y">{
    * @param option 
    * @returns 
    */
-  timebox(option: timeboxOption): number[] {
+  timebox(option: TimeboxOption): number[] {
     console.log("kd tree timebox");
     console.time("kd-tree timebox");
     const result: number[] = [];
@@ -100,7 +100,7 @@ export class KDTree<D extends string = "x" | "y">{
    * @param option 
    * @returns 
    */
-  angular(option: angularOption): number[] {
+  angular(option: AngularOption): number[] {
     console.time("kd-tree angular");
     const result: number[] = [];
     const { x1, slope1, x2, slope2, p } = formatAngularOption(option);

@@ -13,7 +13,7 @@ export type Scale = {
   range: () => [number, number],
 }
 
-export type timeboxOption = {
+export type TimeboxOption = {
   type: "timebox",
   x1: number,
   x2: number,
@@ -22,7 +22,7 @@ export type timeboxOption = {
   p: number,
 }
 
-export type angularOption = {
+export type AngularOption = {
   type: "angular"
   x1: number,
   x2: number,
@@ -31,7 +31,7 @@ export type angularOption = {
   p: number
 }
 
-export type Option = timeboxOption | angularOption;
+export type Option = TimeboxOption | AngularOption;
 
 export type TimeboxConstraints = {
   xStart: number,

@@ -838,9 +838,9 @@ import { Point, Point2D, Point3D } from "../types";
 
 export function mix(point1: Point2D, point2: Point2D, x: number) {
   const r = Math.max(
-      Math.min((x - point1.x) / (point2.x - point1.x), 1.0),
-      0.0
-    ),
+    Math.min((x - point1.x) / (point2.x - point1.x), 1.0),
+    0.0
+  ),
     l = 1 - r;
   return { x: point1.x * l + point2.x * r, y: point1.y * l + point2.y * r };
 }
@@ -1044,85 +1044,85 @@ export function lineSegmentsCollide(p0: Point2D, p1: Point2D, p2: Point2D, p3: P
 //   return avg;
 // }
 
-// export function calculateCurvature(points) {
-//   if (points.length < 3) return [];
-//   // return 0;
+export function calculateCurvature(points: Point2D[]) {
+  if (points.length < 3) return [];
+  // return 0;
 
-//   // let cnt = 0, curSum = 0, bendingEnergy = 0;
-//   let result = [];
-//   for (let i = 1; i < points.length - 1; i++) {
-//     const step1 = points[i].x - points[i - 1].x + 0.001,
-//       step2 = points[i + 1].x - points[i].x + 0.001,
-//       step = Math.min(step1, step2);
+  // let cnt = 0, curSum = 0, bendingEnergy = 0;
+  let result = [];
+  for (let i = 1; i < points.length - 1; i++) {
+    const step1 = points[i].x - points[i - 1].x + 0.001,
+      step2 = points[i + 1].x - points[i].x + 0.001,
+      step = Math.min(step1, step2);
 
-//     let lstPoint = points[i - 1],
-//       nxtPoint = points[i + 1];
-//     if (step1 < step2) {
-//       nxtPoint = mix(points[i], nxtPoint, points[i].x + step1);
-//     } else {
-//       lstPoint = mix(points[i - 1], points[i], points[i].x - step2);
-//     }
-//     const f1 = (nxtPoint.y - lstPoint.y) / step;
-//     const f2 = (lstPoint.y - 2 * points[i].y + nxtPoint.y) / (step * step);
-//     if (isNaN(f2)) {
-//       console.log(step1, step2, points[i - 1], points[i], points[i + 1]);
-//     }
-//     result.push({
-//       x: points[i].x,
-//       y: Math.abs(f2) / Math.pow(1 + f1 * f1, 1.5),
-//     });
-//     // const c = Math.abs(f2) / Math.pow(1 + f1 * f1, 1.5);
-//     // curSum += c* Math.sign(slopeR - slopeL);
-//     // bendingEnergy += c * c;
-//     // cnt ++;
-//   }
-//   // return curSum / cnt;
-//   return result;
-//   // return [curSum, bendingEnergy / cnt];
-// }
+    let lstPoint = points[i - 1],
+      nxtPoint = points[i + 1];
+    if (step1 < step2) {
+      nxtPoint = mix(points[i], nxtPoint, points[i].x + step1);
+    } else {
+      lstPoint = mix(points[i - 1], points[i], points[i].x - step2);
+    }
+    const f1 = (nxtPoint.y - lstPoint.y) / step;
+    const f2 = (lstPoint.y - 2 * points[i].y + nxtPoint.y) / (step * step);
+    if (isNaN(f2)) {
+      console.log(step1, step2, points[i - 1], points[i], points[i + 1]);
+    }
+    result.push({
+      x: points[i].x,
+      y: Math.abs(f2) / Math.pow(1 + f1 * f1, 1.5),
+    });
+    // const c = Math.abs(f2) / Math.pow(1 + f1 * f1, 1.5);
+    // curSum += c* Math.sign(slopeR - slopeL);
+    // bendingEnergy += c * c;
+    // cnt ++;
+  }
+  // return curSum / cnt;
+  return result;
+  // return [curSum, bendingEnergy / cnt];
+}
 
-// export function calculateDifference(line1, line2, diverse) {
-//   // return Math.abs(line1[0] - line2[0]) < diverse ||  Math.abs(line1[1] - line2[1]) < diverse;
-//   // if (!line1.length || !line2.length)
-//   //   return 0;
-//   let cnt = 0,
-//     sum = 0,
-//     pos1 = 0,
-//     pos2 = 0;
-//   while (pos1 < line1.length && pos2 < line2.length) {
-//     if (line1[pos1].x < line2[pos2].x) {
-//       if (pos2 !== 0) {
-//         const p2 = mix(line2[pos2 - 1], line2[pos2], line1[pos1].x);
-//         sum += Math.sqrt(
-//           Math.pow(p2.x - line1[pos1].x, 2) + Math.pow(p2.y - line1[pos1].y, 2)
-//         );
-//         cnt++;
-//       }
-//       pos1++;
-//     } else if (line2[pos2].x < line1[pos1].x) {
-//       if (pos1 !== 0) {
-//         const p1 = mix(line1[pos1 - 1], line1[pos1], line2[pos2].x);
-//         sum += Math.sqrt(
-//           Math.pow(p1.x - line2[pos2].x, 2) + Math.pow(p1.y - line2[pos2].y, 2)
-//         );
-//         cnt++;
-//       }
-//       pos2++;
-//     } else {
-//       sum += Math.abs(line1[pos1].y - line2[pos2].y);
-//       cnt++;
-//       pos1++;
-//       pos2++;
-//     }
-//     if (isNaN(sum)) {
-//       // console.log(line1[pos1], line2[pos2]);
-//       return 0.001;
-//     }
-//   }
+export function calculateDifference(line1: [Point2D, Point2D], line2: [Point2D, Point2D], diverse: number) {
+  // return Math.abs(line1[0] - line2[0]) < diverse ||  Math.abs(line1[1] - line2[1]) < diverse;
+  // if (!line1.length || !line2.length)
+  //   return 0;
+  let cnt = 0,
+    sum = 0,
+    pos1 = 0,
+    pos2 = 0;
+  while (pos1 < line1.length && pos2 < line2.length) {
+    if (line1[pos1].x < line2[pos2].x) {
+      if (pos2 !== 0) {
+        const p2 = mix(line2[pos2 - 1], line2[pos2], line1[pos1].x);
+        sum += Math.sqrt(
+          Math.pow(p2.x - line1[pos1].x, 2) + Math.pow(p2.y - line1[pos1].y, 2)
+        );
+        cnt++;
+      }
+      pos1++;
+    } else if (line2[pos2].x < line1[pos1].x) {
+      if (pos1 !== 0) {
+        const p1 = mix(line1[pos1 - 1], line1[pos1], line2[pos2].x);
+        sum += Math.sqrt(
+          Math.pow(p1.x - line2[pos2].x, 2) + Math.pow(p1.y - line2[pos2].y, 2)
+        );
+        cnt++;
+      }
+      pos2++;
+    } else {
+      sum += Math.abs(line1[pos1].y - line2[pos2].y);
+      cnt++;
+      pos1++;
+      pos2++;
+    }
+    if (isNaN(sum)) {
+      // console.log(line1[pos1], line2[pos2]);
+      return 0.001;
+    }
+  }
 
-//   return cnt === 0 ? 0.0001 : sum / cnt;
-//   // return sum / cnt;
-// }
+  return cnt === 0 ? 0.0001 : sum / cnt;
+  // return sum / cnt;
+}
 
 // export function brensenham(ls: [Point2D, Point2D], hashmap: number[], slope: number, screenWidth= 1000, screenHeight=500) {
 //   let xx = Math.floor(ls[1].x);
@@ -1186,7 +1186,7 @@ export function lineSegmentsCollide(p0: Point2D, p1: Point2D, p2: Point2D, p3: P
  * @param {number} id
  * @param {Map<string, number[]>} hashmap
  */
- export function brensenham(ls: [Point, Point], id: number, hashmap: Map<string, number[]>) {
+export function brensenham(ls: [Point, Point], id: number, hashmap: Map<string, number[]>) {
   let xx = Math.floor(ls[1].x);
   let yy = Math.floor(ls[1].y);
   let x = Math.floor(ls[0].x);
@@ -1236,7 +1236,7 @@ function brensenhamHigh(x0: number, y0: number, x1: number, y1: number, id: numb
  * @param slope 
  * @returns 
  */
-export function brensenhamArr(ls: [Point2D, Point2D], hashmap: {[id: string]: number}[][], lineId: number, slope: number) {
+export function brensenhamArr(ls: [Point2D, Point2D], hashmap: { [id: string]: number }[][], lineId: number, slope: number) {
   let xx = Math.floor(ls[1].x);
   let yy = Math.floor(ls[1].y);
   let x = Math.floor(ls[0].x);
@@ -1251,7 +1251,7 @@ export function brensenhamArr(ls: [Point2D, Point2D], hashmap: {[id: string]: nu
   }
 }
 
-function brensenhamArrLow(x0: number, y0: number, x1: number, y1: number, hashmap: {[id: string]: number}[][], lineId: number, slope: number) {
+function brensenhamArrLow(x0: number, y0: number, x1: number, y1: number, hashmap: { [id: string]: number }[][], lineId: number, slope: number) {
   let delta = Math.min(1, Math.abs(1 / slope));
   if (!isFinite(delta) || isNaN(delta)) delta = 1;
   let dx = x1 - x0;
@@ -1271,7 +1271,7 @@ function brensenhamArrLow(x0: number, y0: number, x1: number, y1: number, hashma
   }
 }
 
-function brensenhamArrHigh(x0: number, y0: number, x1: number, y1: number, hashmap: {[id: string]: number}[][], lineId: number, slope: number) {
+function brensenhamArrHigh(x0: number, y0: number, x1: number, y1: number, hashmap: { [id: string]: number }[][], lineId: number, slope: number) {
   let delta = Math.min(1, Math.abs(1 / slope));
   if (!isFinite(delta) || isNaN(delta)) delta = 1;
   let dx = x1 - x0;
@@ -1369,13 +1369,13 @@ export function computeCurvature(p1: Point, p2: Point, p3: Point): number {
   return curvature;
 }
 
-export function pointDist(p1: Point, p2: Point): number{
+export function pointDist(p1: Point, p2: Point): number {
   return Math.sqrt(
     sqr(p1.x - p2.x) + sqr(p1.y - p2.y) + sqr(((p1 as Point3D).z ?? 0) - ((p2 as Point3D).z ?? 0))
   );
 }
 
-export function pointDist2D(p1: Point2D, p2: Point2D): number{
+export function pointDist2D(p1: Point2D, p2: Point2D): number {
   return Math.sqrt(sqr(p1.x - p2.x) + sqr(p1.y - p2.y));
 }
 

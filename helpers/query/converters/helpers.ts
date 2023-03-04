@@ -1,5 +1,5 @@
 import { Point2D, Point3D } from "../algorithms/types";
-import { angularOption,  timeboxOption } from "../types";
+import { AngularOption,  TimeboxOption } from "../types";
 
 // export function rawData2ScreenData(data: RawData, xField: string, yField: string, xScale: Scale, yScale: Scale): ScreenData {
 //   return data.map((line) =>
@@ -10,7 +10,7 @@ import { angularOption,  timeboxOption } from "../types";
 //     })));
 // }
 
-export function formatTimeboxOption(option: timeboxOption): timeboxOption {
+export function formatTimeboxOption(option: TimeboxOption): TimeboxOption {
   const { x1, x2, y1, y2, p } = option;
   const { min, max } = Math;
   return {
@@ -23,7 +23,7 @@ export function formatTimeboxOption(option: timeboxOption): timeboxOption {
   }
 }
 
-export function formatAngularOption(option: angularOption): angularOption {
+export function formatAngularOption(option: AngularOption): AngularOption {
   const { x1, x2, slope1, slope2, p } = option;
   const { min, max } = Math;
   return {
