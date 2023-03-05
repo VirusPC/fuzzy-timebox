@@ -1,8 +1,8 @@
-import {Point, Line, Rect, Polygon, Circle, Arc, Geometry} from "./geometry"
-import {polygonContains} from "d3-polygon";
+import { Point, Line, Rect, Polygon, Circle, Arc, Geometry } from "./geometry"
+// import { polygonContains } from "d3-polygon";
 export default class IntersectionTester {
   static contains(geometry: Geometry, x: number, y: number): boolean {
-    switch(geometry.type){
+    switch (geometry.type) {
       case "point": return IntersectionTester.containsPoint(geometry, x, y);
       case "line": return IntersectionTester.containsLine(geometry, x, y);
       case "rect": return IntersectionTester.containsRect(geometry, x, y);
@@ -19,14 +19,28 @@ export default class IntersectionTester {
     const maxX = Math.max(line.x1, line.x2);
     const minY = Math.min(line.y1, line.y2);
     const maxY = Math.max(line.y1, line.y2);
-    if(!(minX < x && x < maxX && minY < y && y < maxY)) return false;
+    if (!(minX < x && x < maxX && minY < y && y < maxY)) return false;
     return (line.x1 - line.x2) * (y - line.y1) - (line.y1 - line.y2) * (x - line.x1) === 0;
   }
   private static containsRect(rect: Rect, x: number, y: number): boolean {
     return rect.x <= x && x <= rect.x + rect.width && rect.y <= y && y <= rect.y + rect.height;
   }
   private static containsPolygon(polygon: Polygon, x: number, y: number): boolean {
-    return polygonContains(polygon.points.map(({x, y}) => [x, y]), [x, y]);
+    // return polygonContains(polygon.points.map(({ x, y }) => [x, y]), [x, y]);
+    const points = polygon.points;
+    var n = points.length,
+      p = points[n - 1],
+      x0 = p.x, y0 = p.y,
+      x1, y1,
+      inside = false;
+
+    for (var i = 0; i < n; ++i) {
+      p = points[i], x1 = p.x, y1 = p.y;
+      if (((y1 > y) !== (y0 > y)) && (x < (x0 - x1) * (y - y1) / (y0 - y1) + x1)) inside = !inside;
+      x0 = x1, y0 = y1;
+    }
+
+    return inside;
   }
   private static containsCircle(circle: Circle, x: number, y: number): boolean {
     return Math.pow(circle.cx - x, 2) + Math.pow(circle.cy - y, 2) <= Math.pow(circle.r, 2);

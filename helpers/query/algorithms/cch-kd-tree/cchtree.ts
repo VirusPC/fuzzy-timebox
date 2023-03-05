@@ -105,7 +105,7 @@ export default class CCHTree {
    * @param { {lineId: number, points: Point[]}[] } segs
    * @param {number} precision
    */
-  constructor(segs: ConcreteSegInfo[], precision: number = 1000) {
+  constructor(lines: Point2D[][], precision: number = 1000) {
     this.root = null;
     this.segs = [];
     this.lines = [];
@@ -113,17 +113,17 @@ export default class CCHTree {
     this.percentages = null;
     this.offsets = null;
     console.time("seg to lines");
-    segs.sort((seg1, seg2) => seg1.lineId === seg2.lineId ? seg1.points[0].x - seg2.points[0].x : seg1.lineId - seg2.lineId);
+    // segs.sort((seg1, seg2) => seg1.lineId === seg2.lineId ? seg1.points[0].x - seg2.points[0].x : seg1.lineId - seg2.lineId);
 
-    const lines: Point2D[][] = [];
+    // const lines: Point2D[][] = [];
     this.lines = lines;
-    console.log("segs", segs);
-    segs.forEach((seg) => {
-      if (lines[seg.lineId] === undefined) {
-        lines[seg.lineId] = [];
-      }
-      lines[seg.lineId].push(...seg.points);
-    });
+    // console.log("segs", segs);
+    // segs.forEach((seg) => {
+    //   if (lines[seg.lineId] === undefined) {
+    //     lines[seg.lineId] = [];
+    //   }
+    //   lines[seg.lineId].push(...seg.points);
+    // });
     for (let i = 0; i < lines.length; ++i) {
       if (!lines[i]) lines[i] = [];
     }
@@ -409,7 +409,7 @@ export default class CCHTree {
 
     //#endregion
 
-    console.log("this.segs", this.segs);
+    // console.log("this.segs", this.segs);
   }
 
 
@@ -486,7 +486,7 @@ export default class CCHTree {
       },
       this.root
     );
-    console.log("first result", [...result]);
+    // console.log("first result", [...result]);
     // kdbox removal
     const removal = new Set<number>();
     this._range(
@@ -539,7 +539,7 @@ export default class CCHTree {
       if (s1[0] !== s1[0]) return s1[0] - s2[0];
       return s1[1] - s2[1];
     });
-    console.log("segInfos---", segInfos);
+    // console.log("segInfos---", segInfos);
     let length = segInfos.length;
     // let preFrom = Infinity;
     let preTo = -Infinity;

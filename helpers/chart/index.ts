@@ -1,1 +1,1 @@
-export { drawAxes } from "./drawer";
+export { drawLines, drawAxes } from "./drawer";

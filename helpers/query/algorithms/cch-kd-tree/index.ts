@@ -23,13 +23,13 @@ export class CCHKDTree implements QueryDataStructure {
     this._width = width;
     this._height = height;
     console.time("kdtree");
-    const kdtreeData: ConcreteSegInfo[] = data.map((line, i) => ({
-      lineId: i,
-      points: line
-    }));
-    this._kdtree = new KDTree(kdtreeData, precision);
+    // const kdtreeData: ConcreteSegInfo[] = data.map((line, i) => ({
+    //   lineId: i,
+    //   points: line
+    // }));
+    this._kdtree = new KDTree(data, precision);
     console.timeEnd("kdtree");
-    console.log("kdtree", this._kdtree);
+    // console.log("kdtree", this._kdtree);
   }
 
 

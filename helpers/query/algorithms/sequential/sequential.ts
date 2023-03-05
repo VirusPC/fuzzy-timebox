@@ -44,7 +44,7 @@ export class SequentialSearch {
         const point = screenLine[i];
         if(y1 <= point.y && point.y <= y2) counterQ++;
       }
-      if(counterQ/counterE >= p) result.push(i);
+      if(counterE>0&&counterQ/counterE >= p) result.push(i);
     }
     console.timeEnd("sequential timebox");
     return result;

@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -11,12 +15,20 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    // "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "experimentalDecorators": true,
-    "downlevelIteration": true 
+    "downlevelIteration": true,
+    "isolatedModules": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "helpers/query/algorithms/medianOfMedians.js"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "helpers/query/algorithms/medianOfMedians.js"
+, "__test__/evaluation/data/src/index.ts", "__test__/evaluation/data/webpack.config.js"  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
